@@ -24,7 +24,7 @@ class S3_Uploads_WordPress_Uploads_Uploader extends S3_Uploads_Uploader {
 		if ( empty( $file ) )
 			return $file;
 
-		$original_file = get_attached_file( $attachment_id );
+		$original_file = get_attached_file( $attachment_id, true );
 
 		foreach ( $file['sizes'] as $size => $image ) {
 			$thumbnail = dirname( $original_file ) . '/' . $image['file'];
@@ -112,7 +112,7 @@ class S3_Uploads_WordPress_Uploads_Uploader extends S3_Uploads_Uploader {
 	public function filter_delete_attachment( $attachment_id ) {
 
 		$meta = wp_get_attachment_metadata( $attachment_id );
-		$file = get_attached_file( $attachment_id );
+		$file = get_attached_file( $attachment_id, true );
 		
 		$this->delete_file_from_s3( $file );
 
