@@ -13,6 +13,7 @@ class S3_Uploads_WordPress_Uploads_Uploader extends S3_Uploads_Uploader {
 		add_filter( 'update_attached_file', array( $this, 'filter_upload_attachment' ), 10, 2 );
 		add_filter( 'wp_get_attachment_url', array( $this, 'filter_get_attachment_url' ), 9, 2 );
 		add_action( 'delete_attachment', array( $this, 'filter_delete_attachment' ) );
+		add_filter( 'get_attached_file', array( $this, 'filter_get_attachment_url' ), 10, 2 );
 	}
 
 	/**

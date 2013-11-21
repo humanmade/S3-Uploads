@@ -3,8 +3,16 @@
 class S3_Uploads {
 
 	private static $instance;
+
+	/**
+	 * @var S3_Uploads_WordPress_Uploads_Uploader
+	 */
 	public $wordpress_uploads_uploader;
 
+	/**
+	 * 
+	 * @return S3_Uploads
+	 */
 	public static function get_instance() {
 
 		if ( ! self::$instance )
