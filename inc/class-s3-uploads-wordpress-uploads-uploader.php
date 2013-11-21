@@ -59,7 +59,7 @@ class S3_Uploads_WordPress_Uploads_Uploader extends S3_Uploads_Uploader {
 		if ( ! file_exists( $file ) || strpos( $file, WP_CONTENT_DIR ) !== 0 )
 			return $file;
 
-		$relative = str_replace( WP_CONTENT_DIR, '', $file );
+		$relative = str_replace( WP_CONTENT_DIR . '/', '', $file );
 
 		$response = wp_remote_head( $this->get_s3_url() .'/'. $relative );
 
@@ -103,7 +103,7 @@ class S3_Uploads_WordPress_Uploads_Uploader extends S3_Uploads_Uploader {
 		if ( ! $path = get_post_meta( $attachment_id, 's3_path', true ) )
 			return $url;
 
-		return $this->get_s3_url() . $path;
+		return $this->get_s3_url() . '/' . $path;
 	}
 
 	/**
@@ -123,5 +123,9 @@ class S3_Uploads_WordPress_Uploads_Uploader extends S3_Uploads_Uploader {
 				$this->delete_file_from_s3( $thumbnail );
 			}
 		}
+	}
+
+	public function is_attachment_uploaded( $attachment_id ) {
+		return (bool) get_post_meta( $attachment_id, 's3_path', true );
 	}
 }
