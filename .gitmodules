@@ -1,3 +1,0 @@
-[submodule "inc/aws-sdk"]
-	path = inc/aws-sdk
-	url = git@github.com:humanmade/aws-sdk-php.git
