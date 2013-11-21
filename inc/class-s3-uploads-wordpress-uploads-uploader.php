@@ -56,7 +56,7 @@ class S3_Uploads_WordPress_Uploads_Uploader extends S3_Uploads_Uploader {
 	 */
 	public function filter_upload_attachment( $file, $attachment_id ) {
 
-		if ( ! file_exists( $file ) )
+		if ( ! file_exists( $file ) || strpos( $file, WP_CONTENT_DIR ) !== 0 )
 			return $file;
 
 		$relative = str_replace( WP_CONTENT_DIR, '', $file );

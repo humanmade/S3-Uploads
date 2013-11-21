@@ -29,7 +29,7 @@ class S3_Uploads_Uploader {
 	 */
 	public function upload_file_to_s3( $file_path ) {
 
-		$relative = str_replace( WP_CONTENT_DIR, '', $file_path );
+		$relative = str_replace( WP_CONTENT_DIR . '/', '', $file_path );
 
 		try {
 			$this->s3()->putObject(array(
