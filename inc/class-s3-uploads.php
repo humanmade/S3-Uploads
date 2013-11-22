@@ -3,11 +3,9 @@
 class S3_Uploads {
 
 	private static $instance;
-
-	/**
-	 * @var S3_Uploads_WordPress_Uploads_Uploader
-	 */
-	public $wordpress_uploads_uploader;
+	private $bucket;
+	private $key;
+	private $secret;
 
 	/**
 	 * 
@@ -22,6 +20,43 @@ class S3_Uploads {
 	}
 
 	public function __construct( $bucket, $key, $secret ) {
-		$this->wordpress_uploads_uploader = new S3_Uploads_WordPress_Uploads_Uploader( $bucket, $key, $secret );
+		
+		add_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
+
+		$this->bucket = $bucket;
+		$this->key = $key;
+		$this->secret = $secret;
+
+		$this->s3()->registerStreamWrapper();
+		stream_context_set_option( stream_context_get_default(), 's3', 'ACL', Aws\S3\Enum\CannedAcl::PUBLIC_READ );
+
+	}
+
+	public function filter_upload_dir( $dirs ) {
+		$dirs['path'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['path'] );
+		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['basedir'] );
+		$dirs['url'] = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['url'] );
+		$dirs['baseurl'] = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['baseurl'] );
+
+		return $dirs;
+	}
+
+	public function get_s3_url() {
+		return 'https://' . $this->bucket . '.s3.amazonaws.com';
+	}
+	
+	/**
+	 * @return Aws\S3\S3Client
+	 */
+	private function s3() {
+
+		require_once dirname( __FILE__ ) . '/aws-sdk/aws-autoloader.php';
+
+		if ( ! empty( $this->s3 ) )
+			return $this->s3;
+
+		$this->s3 = Aws\Common\Aws::factory( array( 'key' => $this->key, 'secret' => $this->secret ) )->get( 's3' );
+
+		return $this->s3;
 	}
 }

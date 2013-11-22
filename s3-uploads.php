@@ -9,9 +9,16 @@ Author URI: http://hmn.md
 */
 
 require_once dirname( __FILE__ ) . '/inc/class-s3-uploads.php';
-require_once dirname( __FILE__ ) . '/inc/class-s3-uploads-uploader.php';
-require_once dirname( __FILE__ ) . '/inc/class-s3-uploads-wordpress-uploads-uploader.php';
 
 add_action( 'plugins_loaded', function() {
 	S3_Uploads::get_instance();
 });
+
+add_filter( 'wp_image_editors', function( $editors ) {
+
+	if ( ( $position = array_search( 'WP_Image_Editor_Imagick', $editors ) ) !== false ) {
+		unset($editors[$position]);
+	}
+
+	return $editors;
+}, 9 );
