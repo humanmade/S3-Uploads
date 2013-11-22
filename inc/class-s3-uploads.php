@@ -22,7 +22,8 @@ class S3_Uploads {
 	public function __construct( $bucket, $key, $secret ) {
 		
 		add_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
-
+		remove_filter( 'admin_notices', 'wpthumb_errors' );
+		
 		$this->bucket = $bucket;
 		$this->key = $key;
 		$this->secret = $secret;
