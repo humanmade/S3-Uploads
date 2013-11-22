@@ -2,9 +2,9 @@
 
 class S3_Uploads_Uploader {
 
-	private $bucket;
-	private $key;
-	private $secret;
+	protected $bucket;
+	protected $key;
+	protected $secret;
 
 	/**
 	 * @param string $bucket 
@@ -15,53 +15,13 @@ class S3_Uploads_Uploader {
 		$this->bucket = $bucket;
 		$this->key = $key;
 		$this->secret = $secret;
+
+		$this->s3()->registerStreamWrapper();
+		stream_context_set_option( stream_context_get_default(), 's3', 'ACL', Aws\S3\Enum\CannedAcl::PUBLIC_READ );
 	}
 
 	public function get_s3_url() {
 		return 'https://' . $this->bucket . '.s3.amazonaws.com';
-	}
-
-	/**
-	 * Upload a file to S3
-	 * 
-	 * @param string $file_path The file system path
-	 * @return string The path to the uploaded file
-	 */
-	public function upload_file_to_s3( $file_path ) {
-
-		$relative = str_replace( WP_CONTENT_DIR . '/', '', $file_path );
-
-		try {
-			$this->s3()->putObject(array(
-				'Bucket' => $this->bucket,
-				'Key'    => $relative,
-				'Body'   => fopen( $file_path, 'r' ),
-				'ACL'	=> Aws\S3\Enum\CannedAcl::PUBLIC_READ
-			));
-		} catch( Exception $e ) {
-			return new WP_Error( 's3-upload-error', $e->getMessage() );
-		}
-		return $relative;
-	}
-
-	/**
-	 * Delete a file from S3
-	 * 
-	 * @param string $file_path s3 path to file
-	 * @return bool|WP_Error
-	 */
-	public function delete_file_from_s3( $file_path ) {
-
-		try {
-			$this->s3()->deleteObject( array(
-				"Bucket" => $this->bucket,
-				"Key" => $file_path
-			));
-		} catch( Exception $e ) {
-			return new WP_Error( 's3-delete-error' );
-		}
-
-		return true;
 	}
 
 	/**
