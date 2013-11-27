@@ -22,3 +22,13 @@ add_filter( 'wp_image_editors', function( $editors ) {
 
 	return $editors;
 }, 9 );
+
+/**
+ * WP Thumb compatibility. WP Thumb supports storing references to images
+ * in the database, so it doesn't need to stat() the files. As we 
+ * are storing the files on S3, we need this functionality as statting is
+ * too slow.
+ */
+add_filter( 'wpthumb_save_location', function() {
+	return 'WP_Thumb_Save_Location_Database';
+});
