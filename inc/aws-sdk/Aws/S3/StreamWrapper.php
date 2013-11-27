@@ -309,43 +309,6 @@ class StreamWrapper
 
         $pathinfo = pathinfo($path);
 
-        /**
-         * If the file is actually just a path to a directory
-         * then return it as always existing. This is to work
-         * around wp_upload_dir doing file_exists checks on 
-         * the uploads directory on every page load
-         */
-        if ( ! strpos( $pathinfo['filename'], '.' ) ) {
-            return array (
-                0 => 0,
-                'dev' => 0,
-                1 => 0,
-                'ino' => 0,
-                2 => 16895,
-                'mode' => 16895,
-                3 => 0,
-                'nlink' => 0,
-                4 => 0,
-                'uid' => 0,
-                5 => 0,
-                'gid' => 0,
-                6 => -1,
-                'rdev' => -1,
-                7 => 0,
-                'size' => 0,
-                8 => 0,
-                'atime' => 0,
-                9 => 0,
-                'mtime' => 0,
-                10 => 0,
-                'ctime' => 0,
-                11 => -1,
-                'blksize' => -1,
-                12 => -1,
-                'blocks' => -1,
-            );
-        }
-
         // Check if this path is in the url_stat cache
         if (isset(self::$nextStat[$path])) {
             return self::$nextStat[$path];
