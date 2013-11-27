@@ -7,6 +7,8 @@ class S3_Uploads {
 	private $key;
 	private $secret;
 
+	public $original_upload_dir;
+
 	/**
 	 * 
 	 * @return S3_Uploads
@@ -34,6 +36,9 @@ class S3_Uploads {
 	}
 
 	public function filter_upload_dir( $dirs ) {
+
+		$this->original_upload_dir = $dirs;
+
 		$dirs['path'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['path'] );
 		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['basedir'] );
 		$dirs['url'] = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['url'] );
@@ -44,6 +49,14 @@ class S3_Uploads {
 
 	public function get_s3_url() {
 		return 'https://' . $this->bucket . '.s3.amazonaws.com';
+	}
+
+	public function get_original_upload_dir() {
+
+		if ( empty( $this->original_upload_dir ) )
+			wp_upload_dir();
+
+		return $this->original_upload_dir;
 	}
 	
 	/**
