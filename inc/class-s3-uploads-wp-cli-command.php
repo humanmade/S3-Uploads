@@ -37,7 +37,6 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		if ( file_exists( $path = $old_upload_dir['basedir'] . '/' . $file ) ) {
 
 			copy( $path, get_attached_file( $args[0] ) );
-			unlink( $path );
 			WP_CLI::success( sprintf( 'Moved attachment %d to S3', $args[0] ) ); 
 		} else {
 			WP_CLI::line( 'Already moved to S3' );
