@@ -138,6 +138,21 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
   ]
 }';
 	}
+
+	/**
+	 * Create AWS IAM Policy that S3 Uploads requires
+	 *
+	 * It's typically not a good idea to use access keys that have full access to your S3 account,
+	 * as if the keys are compromised through the WordPress site somehow, you don't
+	 * want to give full control via those keys.
+	 *
+	 * @subcommand generate-iam-policy
+	 */
+	public function generate_iam_policy() {
+
+		WP_Cli::print_value( $this->get_iam_policy() );
+
+	}
 }
 
 WP_CLI::add_command( 's3-uploads', 'S3_Uploads_WP_CLI_Command' );
