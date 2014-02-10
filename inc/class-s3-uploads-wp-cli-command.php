@@ -75,13 +75,17 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * Create an AWS IAM user for S3 Uploads to user
 	 *
 	 * @subcommand create-iam-user
-	 * @synopsis --admin-key=<key> --admin-secret=<secret>
+	 * @synopsis --admin-key=<key> --admin-secret=<secret> [--username=<username>]
 	 */
 	public function create_iam_user( $args, $args_assoc ) {
 
 		require_once dirname( __FILE__ ) . '/aws-sdk/aws-autoloader.php';
 
-		$username = 's3-uploads-' . sanitize_title( home_url() );
+		if ( empty( $args_assoc['username'] ) ) {
+			$username = 's3-uploads-' . sanitize_title( home_url() );
+		} else {
+			$username = $args_assoc['username'];
+		}
 
 		try {
 			$iam = Aws\Common\Aws::factory( array( 'key' => $args_assoc['admin-key'], 'secret' => $args_assoc['admin-secret'] ) )->get( 'iam' );
