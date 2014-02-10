@@ -71,6 +71,73 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 	}
 
+	/**
+	 * Create an AWS IAM user for S3 Uploads to user
+	 *
+	 * @subcommand create-iam-user
+	 * @synopsis --admin-key=<key> --admin-secret=<secret>
+	 */
+	public function create_iam_user( $args, $args_assoc ) {
+
+		require_once dirname( __FILE__ ) . '/aws-sdk/aws-autoloader.php';
+
+		$username = 's3-uploads-' . sanitize_title( home_url() );
+
+		try {
+			$iam = Aws\Common\Aws::factory( array( 'key' => $args_assoc['admin-key'], 'secret' => $args_assoc['admin-secret'] ) )->get( 'iam' );
+
+			$iam->createUser( array(
+				'UserName' => $username
+			));
+
+			$credentials = $iam->createAccessKey( array(
+				'UserName' => $username
+			))['AccessKey'];
+
+			$iam->putUserPolicy( array(
+				'UserName' => $username,
+				'PolicyName' => $username . '-policy',
+				'PolicyDocument' => $this->get_iam_policy()
+			));
+
+		} catch( Exception $e ) {
+			WP_CLI::error( $e->getMessage() );
+		}
+
+		WP_CLI::success( sprintf( 'Created new IAM user %s. The Access Credentials are displayed below', $username ) );
+
+		WP_CLI\Utils\format_items( 'table', array( (object) $credentials ), array( 'AccessKeyId', 'SecretAccessKey' ) );
+
+	}
+
+	private function get_iam_policy() {
+		return '{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Stmt1392016154000",
+      "Effect": "Allow",
+      "Action": [
+        "s3:AbortMultipartUpload",
+        "s3:DeleteObject",
+        "s3:GetBucketAcl",
+        "s3:GetBucketLocation",
+        "s3:GetBucketPolicy",
+        "s3:GetObject",
+        "s3:GetObjectAcl",
+        "s3:ListBucket",
+        "s3:ListBucketMultipartUploads",
+        "s3:ListMultipartUploadParts",
+        "s3:PutObject",
+        "s3:PutObjectAcl"
+      ],
+      "Resource": [
+        "arn:aws:s3:::' . S3_UPLOADS_BUCKET . '/*"
+      ]
+    }
+  ]
+}';
+	}
 }
 
 WP_CLI::add_command( 's3-uploads', 'S3_Uploads_WP_CLI_Command' );
