@@ -48,7 +48,7 @@ class S3_Uploads {
 	}
 
 	public function get_s3_url() {
-		return 'https://' . $this->bucket . '.s3.amazonaws.com';
+		return 'https://' . strtok( $this->bucket, '/' ) . '.s3.amazonaws.com' . substr( $this->bucket, strlen( strtok( $this->bucket, '/' ) ) );
 	}
 
 	public function get_original_upload_dir() {
