@@ -4,9 +4,9 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 	/**
 	 * @subcommand migrate-attachments
-	 * 
+	 * @synposis [--delete-local]
 	 */
-	public function migrate_attachments_to_s3() {
+	public function migrate_attachments_to_s3( $args, $args_assoc ) {
 
 		$attachments = new WP_Query( array(
 			'post_type' => 'attachment',
@@ -18,7 +18,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 		foreach ( $attachments->posts as $attachment ) {
 
-			$this->migrate_attachment_to_s3( array( $attachment->ID ) );
+			$this->migrate_attachment_to_s3( array( $attachment->ID ), $args_assoc );
 		}
 	}
 
@@ -26,9 +26,9 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * Migrate a single attachment's files to S3
 	 * 
 	 * @subcommand migrate-attachment
-	 * @synposis <attachment-id>
+	 * @synposis <attachment-id> [--delete-local]
 	 */
-	public function migrate_attachment_to_s3( $args ) {
+	public function migrate_attachment_to_s3( $args, $args_assoc ) {
 
 		$old_upload_dir = S3_Uploads::get_instance()->get_original_upload_dir();
 
