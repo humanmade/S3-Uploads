@@ -39,17 +39,38 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	public function migrate_attachment_to_s3( $args, $args_assoc ) {
 
 		$old_upload_dir = S3_Uploads::get_instance()->get_original_upload_dir();
+		$upload_dir = wp_upload_dir();
 
-		$file = get_post_meta( $args[0], '_wp_attached_file', true );
+		$files = array( get_post_meta( $args[0], '_wp_attached_file', true ) );
 
-		if ( file_exists( $path = $old_upload_dir['basedir'] . '/' . $file ) ) {
+		$meta_data = wp_get_attachment_metadata( $args[0] );
 
-			copy( $path, get_attached_file( $args[0] ) );
-			WP_CLI::success( sprintf( 'Moved attachment %d to S3', $args[0] ) ); 
-		} else {
-			WP_CLI::line( 'Already moved to S3' );
+		if ( ! empty( $meta_data['sizes'] ) ) {
+			foreach ( $meta_data['sizes'] as $file ) {
+				$files[] = path_join( dirname( $meta_data['file'] ), $file['file'] );
+			}
 		}
+
+		foreach ( $files as $file ) {
+			if ( file_exists( $path = $old_upload_dir['basedir'] . '/' . $file ) ) {
+
+				if ( ! copy( $path, $upload_dir['basedir'] . '/' . $file ) ) {
+					WP_CLI::line( sprintf( 'Failed to moved %s to S3', $file ) );
+				} else {
+					if ( ! empty( $args_assoc['delete-local'] ) ) {
+						unlink( $path );
+					}
+					WP_CLI::success( sprintf( 'Moved file %s to S3', $file ) );
+
+				}
+
+			} else {
+				WP_CLI::line( sprintf( 'Already moved to %s S3', $file ) );
+			}
+		}
+
 	}
+
 }
 
 WP_CLI::add_command( 's3-uploads', 'S3_Uploads_WP_CLI_Command' );
