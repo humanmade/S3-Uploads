@@ -62,7 +62,7 @@ class S3_Uploads {
 	/**
 	 * @return Aws\S3\S3Client
 	 */
-	private function s3() {
+	public function s3() {
 
 		require_once dirname( __FILE__ ) . '/aws-sdk/aws-autoloader.php';
 
