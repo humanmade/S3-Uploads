@@ -96,7 +96,9 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 			$credentials = $iam->createAccessKey( array(
 				'UserName' => $username
-			))['AccessKey'];
+			));
+
+			$credentials = $credentials['AccessKey'];
 
 			$iam->putUserPolicy( array(
 				'UserName' => $username,
