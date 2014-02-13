@@ -4,7 +4,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 	/**
 	 * @subcommand migrate-attachments
-	 * @synposis [--delete-local]
+	 * @synopsis [--delete-local]
 	 */
 	public function migrate_attachments_to_s3( $args, $args_assoc ) {
 
@@ -34,7 +34,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * Migrate a single attachment's files to S3
 	 * 
 	 * @subcommand migrate-attachment
-	 * @synposis <attachment-id> [--delete-local]
+	 * @synopsis <attachment-id> [--delete-local]
 	 */
 	public function migrate_attachment_to_s3( $args, $args_assoc ) {
 
