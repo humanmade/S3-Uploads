@@ -115,6 +115,16 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	}
 
 	private function get_iam_policy() {
+
+		$bucket = strtok( S3_UPLOADS_BUCKET, '/' );
+
+		$path = null;
+
+		if ( strpos( S3_UPLOADS_BUCKET, '/' ) ) {
+			$path = str_replace( strtok( S3_UPLOADS_BUCKET, '/' ) . '/', '', S3_UPLOADS_BUCKET );
+		}
+
+
 		return '{
   "Version": "2012-10-17",
   "Statement": [
@@ -138,6 +148,13 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
       "Resource": [
         "arn:aws:s3:::' . S3_UPLOADS_BUCKET . '/*"
       ]
+    },
+    {
+      "Sid": "AllowRootAndHomeListingOfBucket",
+      "Action": ["s3:ListBucket"],
+      "Effect": "Allow",
+      "Resource": ["arn:aws:s3:::' . $bucket . '"],
+      "Condition":{"StringLike":{"s3:prefix":["' . ( $path ? $path . '/' : '' ) . '*"]}}
     }
   ]
 }';
