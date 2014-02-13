@@ -10,8 +10,9 @@ Author URI: http://hmn.md
 
 require_once dirname( __FILE__ ) . '/inc/class-s3-uploads.php';
 
-if ( defined( 'WP_CLI' ) && WP_CLI )
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once dirname( __FILE__ ) . '/inc/class-s3-uploads-wp-cli-command.php';
+}
 
 add_action( 'plugins_loaded', function() {
 	S3_Uploads::get_instance();
