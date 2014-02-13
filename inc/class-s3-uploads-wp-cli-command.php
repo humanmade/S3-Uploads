@@ -174,6 +174,39 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		WP_Cli::print_value( $this->get_iam_policy() );
 
 	}
+
+	/**
+	 * List files in the S3 bukcet
+	 *
+	 * @synopsis [<path>]
+	 */
+	public function ls( $args ) {
+
+		$s3 = S3_Uploads::get_instance()->s3();
+
+		$prefix = '';
+
+		if ( strpos( S3_UPLOADS_BUCKET, '/' ) ) {
+			$prefix = trailingslashit( str_replace( strtok( S3_UPLOADS_BUCKET, '/' ) . '/', '', S3_UPLOADS_BUCKET ) );
+		}
+
+		if ( isset( $args[0] ) ) {
+			$prefix .= trailingslashit( ltrim( $args[0], '/' ) );
+		}
+
+		try {
+			$objects = $s3->getIterator('ListObjects', array(
+				'Bucket' => strtok( S3_UPLOADS_BUCKET, '/' ),
+				'Prefix' => $prefix
+			));
+			foreach ($objects as $object) {
+				WP_CLI::line( str_replace( $prefix, '', $object['Key'] ) );
+			}
+		} catch( Exception $e ) {
+			WP_CLI::error( $e->getMessage() );
+		}
+
+	}
 }
 
 WP_CLI::add_command( 's3-uploads', 'S3_Uploads_WP_CLI_Command' );
