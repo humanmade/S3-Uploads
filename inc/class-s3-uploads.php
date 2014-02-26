@@ -23,9 +23,6 @@ class S3_Uploads {
 
 	public function __construct( $bucket, $key, $secret ) {
 		
-		add_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
-		remove_filter( 'admin_notices', 'wpthumb_errors' );
-		
 		$this->bucket = $bucket;
 		$this->key = $key;
 		$this->secret = $secret;
@@ -72,5 +69,14 @@ class S3_Uploads {
 		$this->s3 = Aws\Common\Aws::factory( array( 'key' => $this->key, 'secret' => $this->secret ) )->get( 's3' );
 
 		return $this->s3;
+	}
+
+	public function filter_editors( $editors ) {
+
+		if ( ( $position = array_search( 'WP_Image_Editor_Imagick', $editors ) ) !== false ) {
+			unset($editors[$position]);
+		}
+
+		return $editors;
 	}
 }

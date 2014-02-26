@@ -15,14 +15,9 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 
 add_action( 'plugins_loaded', function() {
-	S3_Uploads::get_instance();
+	$instance = S3_Uploads::get_instance();
+
+	add_filter( 'upload_dir', array( $instance, 'filter_upload_dir' ) );
+	add_filter( 'wp_image_editors', array( $instance, 'filter_editors' ), 9 );
+	remove_filter( 'admin_notices', 'wpthumb_errors' );
 });
-
-add_filter( 'wp_image_editors', function( $editors ) {
-
-	if ( ( $position = array_search( 'WP_Image_Editor_Imagick', $editors ) ) !== false ) {
-		unset($editors[$position]);
-	}
-
-	return $editors;
-}, 9 );
