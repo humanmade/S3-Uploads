@@ -4,6 +4,7 @@ class S3_Uploads {
 
 	private static $instance;
 	private $bucket;
+	private $bucket_hostname;
 	private $key;
 	private $secret;
 
@@ -15,17 +16,19 @@ class S3_Uploads {
 	 */
 	public static function get_instance() {
 
-		if ( ! self::$instance )
-			self::$instance = new S3_Uploads( S3_UPLOADS_BUCKET, S3_UPLOADS_KEY, S3_UPLOADS_SECRET );
+		if ( ! self::$instance ) {
+			self::$instance = new S3_Uploads( S3_UPLOADS_BUCKET, S3_UPLOADS_KEY, S3_UPLOADS_SECRET, defined( 'S3_UPLOADS_BUCKET_HOSTNAME' ) ? S3_UPLOADS_BUCKET_HOSTNAME : null );
+		}
 
 		return self::$instance;
 	}
 
-	public function __construct( $bucket, $key, $secret ) {
+	public function __construct( $bucket, $key, $secret, $bucket_hostname = null ) {
 		
 		$this->bucket = $bucket;
 		$this->key = $key;
 		$this->secret = $secret;
+		$this->bucket_hostname = $bucket_hostname ? $bucket_hostname : 'https://' . strtok( $this->bucket, '/' ) . '.s3.amazonaws.com';
 
 		$this->s3()->registerStreamWrapper();
 		stream_context_set_option( stream_context_get_default(), 's3', 'ACL', Aws\S3\Enum\CannedAcl::PUBLIC_READ );
@@ -45,7 +48,7 @@ class S3_Uploads {
 	}
 
 	public function get_s3_url() {
-		return 'https://' . strtok( $this->bucket, '/' ) . '.s3.amazonaws.com' . substr( $this->bucket, strlen( strtok( $this->bucket, '/' ) ) );
+		return $this->bucket_hostname . substr( $this->bucket, strlen( strtok( $this->bucket, '/' ) ) );
 	}
 
 	public function get_original_upload_dir() {
