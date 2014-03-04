@@ -28,7 +28,7 @@ class S3_Uploads {
 		$this->bucket = $bucket;
 		$this->key = $key;
 		$this->secret = $secret;
-		$this->bucket_hostname = $bucket_hostname ? $bucket_hostname : 'https://' . strtok( $this->bucket, '/' ) . '.s3.amazonaws.com';
+		$this->bucket_hostname = $bucket_hostname ? '//' . $bucket_hostname : 'https://' . strtok( $this->bucket, '/' ) . '.s3.amazonaws.com';
 
 		$this->s3()->registerStreamWrapper();
 		stream_context_set_option( stream_context_get_default(), 's3', 'ACL', Aws\S3\Enum\CannedAcl::PUBLIC_READ );
