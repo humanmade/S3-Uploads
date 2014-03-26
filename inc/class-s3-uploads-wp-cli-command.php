@@ -209,6 +209,84 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		}
 
 	}
+
+	/**
+	 * Copy files to / from the uploads directory. Use s3://bucket/location for S3
+	 *
+	 * @synopsis <from> <to>
+	 */
+	public function cp( $args ) {
+
+		$from = $args[0];
+		$to = $args[1];
+
+		if ( is_dir( $from ) ) {
+			$this->recurse_copy( $from, $to );
+		} else {
+			copy( $from, $to );
+		}
+
+		WP_CLI::success( sprintf( 'Completed copy from %s to %s', $from, $to ) );
+	}
+
+	/**
+	 * Delete files from S3
+	 *
+	 * @synopsis <path> [--regex=<regex>]
+	 */
+	public function rm( $args, $args_assoc ) {
+
+		$s3 = S3_Uploads::get_instance()->s3();
+
+		$prefix = '';
+		$regex = isset( $args_assoc['regex'] ) ? $args_assoc['regex'] : '';
+
+		if ( strpos( S3_UPLOADS_BUCKET, '/' ) ) {
+			$prefix = trailingslashit( str_replace( strtok( S3_UPLOADS_BUCKET, '/' ) . '/', '', S3_UPLOADS_BUCKET ) );
+		}
+
+		if ( isset( $args[0] ) ) {
+			$prefix .= ltrim( $args[0], '/' );
+
+
+			if ( strpos( $args[0], '.' ) === false ) {
+				$prefix = trailingslashit( $prefix );
+			}
+		}
+
+		try {
+			$objects = $s3->deleteMatchingObjects(
+				strtok( S3_UPLOADS_BUCKET, '/' ),
+				$prefix,
+				$regex,
+				array( 'before_delete', function() {
+					WP_CLI::line( sprintf( 'Deleting file' ) );
+				})
+			);
+
+		} catch( Exception $e ) {
+			WP_CLI::error( $e->getMessage() );
+		}
+
+		WP_CLI::success( sprintf( 'Successfully deleted %s', $prefix ) );
+	}
+
+	private function recurse_copy($src,$dst) {
+		$dir = opendir($src);
+		@mkdir($dst);
+		while(false !== ( $file = readdir($dir)) ) {
+			if (( $file != '.' ) && ( $file != '..' )) {
+				if ( is_dir($src . '/' . $file) ) {
+					$this->recurse_copy($src . '/' . $file,$dst . '/' . $file);
+				}
+				else {
+					WP_CLI::line( sprintf( 'Copying from %s to %s', $src . '/' . $file, $dst . '/' . $file ) );
+					copy($src . '/' . $file,$dst . '/' . $file);
+				}
+			}
+		}
+		closedir($dir);
+	}
 }
 
 WP_CLI::add_command( 's3-uploads', 'S3_Uploads_WP_CLI_Command' );
