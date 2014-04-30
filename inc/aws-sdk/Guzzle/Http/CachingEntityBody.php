@@ -68,9 +68,12 @@ class CachingEntityBody extends AbstractEntityBodyDecorator
 
         // You cannot skip ahead past where you've read from the remote stream
         if ($byte > $this->body->getSize()) {
-            throw new RuntimeException(
-                "Cannot seek to byte {$byte} when the buffered stream only contains {$this->body->getSize()} bytes"
-            );
+            // Modification by Joe Hoyle, this hack is needed fot getimagesize()
+            // to work on the stream
+            $this->read( $byte );
+            //throw new RuntimeException(
+            //    "Cannot seek to byte {$byte} when the buffered stream only contains {$this->body->getSize()} bytes"
+            //);
         }
 
         return $this->body->seek($byte);
