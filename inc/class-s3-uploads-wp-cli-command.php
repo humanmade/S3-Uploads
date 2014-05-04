@@ -230,6 +230,48 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	}
 
 	/**
+	 * Upload a directory to S3
+	 * 
+	 * @subcommand upload-directory
+	 * @synopsis <from> [<to>] [--sync]
+	 */
+	public function upload_directory( $args, $args_assoc ) {
+
+		$from = $args[0];
+		$to = '';
+		if ( isset( $args[1] ) ) {
+			$to = $args[1];
+		}
+
+		$s3 = S3_Uploads::get_instance()->s3();
+		$bucket = strtok( S3_UPLOADS_BUCKET, '/' );
+		$prefix = '';
+
+		if ( strpos( S3_UPLOADS_BUCKET, '/' ) ) {
+			$prefix = trailingslashit( str_replace( strtok( S3_UPLOADS_BUCKET, '/' ) . '/', '', S3_UPLOADS_BUCKET ) );
+		}
+
+		require_once dirname( __FILE__ ) . '/class-s3-uploads-uploadsyncbuilder.php';
+		require_once dirname( __FILE__ ) . '/class-s3-uploads-changed-files-iterator.php';
+
+		try {
+			$s3->uploadDirectory( 
+				$from, 
+				$bucket, 
+				$prefix . $to, 
+				array(
+					'debug' => true, 
+					'params' => array( 'ACL' => 'public-read' ),
+					'builder' => new S3_Uploads_UploadSyncBuilder(),
+					'force' => empty( $args_assoc['sync'] )
+					) 
+				); 
+		} catch( Exception $e ) { 
+			WP_CLI::error( $e->getMessage() );
+		}
+	}
+
+	/**
 	 * Delete files from S3
 	 *
 	 * @synopsis <path> [--regex=<regex>]
