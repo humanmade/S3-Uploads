@@ -2,6 +2,10 @@
 
 class S3_Uploads_UploadSyncBuilder extends Aws\S3\Sync\UploadSyncBuilder {
 
+    public function __construct( $is_dry_run = false ) {
+        $this->dry_run = $is_dry_run;
+    }
+
 	/**
      * Builds a UploadSync or DownloadSync object
      *
@@ -22,6 +26,7 @@ class S3_Uploads_UploadSyncBuilder extends Aws\S3\Sync\UploadSyncBuilder {
                 $this->sourceConverter,
                 $this->targetConverter
             );
+            $this->sourceIterator->dry_run = $this->dry_run;
             $this->sourceIterator->rewind();
         }
 

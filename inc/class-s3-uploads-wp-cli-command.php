@@ -233,7 +233,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * Upload a directory to S3
 	 * 
 	 * @subcommand upload-directory
-	 * @synopsis <from> [<to>] [--sync]
+	 * @synopsis <from> [<to>] [--sync] [--dry-run]
 	 */
 	public function upload_directory( $args, $args_assoc ) {
 
@@ -262,7 +262,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 				array(
 					'debug' => true, 
 					'params' => array( 'ACL' => 'public-read' ),
-					'builder' => new S3_Uploads_UploadSyncBuilder(),
+					'builder' => new S3_Uploads_UploadSyncBuilder( ! empty( $args_assoc['dry-run'] ) ),
 					'force' => empty( $args_assoc['sync'] )
 					) 
 				); 
