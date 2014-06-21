@@ -23,8 +23,9 @@ You'll want to create a new IAM user for the S3-Uploads plugin, so you are not u
 wp s3-uploads create-iam-user --admin-key=<key> --admin-secret=<secret>
 ```
 
-This will provide you with a new Access Key and Secret Key which you can configure S3-Uploads with. Paste the values in the `wp-config.php`. That's it! You're good to go.
+This will provide you with a new Access Key and Secret Key which you can configure S3-Uploads with. Paste the values in the `wp-config.php`. Once you have migrated your media to S3 with any of the below methods, you'll want to enable S3 Uploads: `wp s3-uploads enable`.
 
+If you want to create your IAM user yourself, or attach the neccessary permissions to an existing user, you can output the policy via `wp s3-uploads generate-iam-policy` 
 
 Migrating your Media to S3
 ==========
@@ -44,5 +45,24 @@ Listing files on S3
 S3-Uploads comes with a WP-CLI command for listing files in the S3 bucket for debugging etc.
 
 ```
-wp s3-uploads [<path>]
+wp s3-uploads ls [<path>]
 ```
+
+Uploading files to S3
+==========
+
+Sometimes the `wp s3-uploads migrate-attachments` command may not be enough to migrate your uploads to S3, as that will only move attachment files to S3. If you are using any plugins that store data in uploads, you'll want to upload the whole `uploads` directory.
+
+```
+wp s3-uploads upload-direcototy <from> <to> [--sync] [--dry-run]
+```
+
+Passing `--sync` will only upload files that are newer in `<from>` or that don't exist on S3 already. Use `--dry-run` to test.
+
+There is also an all purpose `cp` command for arbitraty copying to and from S3. 
+
+```
+wp s3-uploads cp <from> <to>
+```
+
+Note: as either `<from>` or `<to>` can be S3 or local locations, you must speficy the full S3 location via `s3://mybucket/mydirectory` for example `cp ./test.txt s3://mybucket/test.txt`.
