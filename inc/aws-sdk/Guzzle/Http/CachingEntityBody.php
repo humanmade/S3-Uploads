@@ -63,7 +63,11 @@ class CachingEntityBody extends AbstractEntityBodyDecorator
         } elseif ($whence == SEEK_CUR) {
             $byte = $offset + $this->ftell();
         } else {
-            throw new RuntimeException(__CLASS__ . ' supports only SEEK_SET and SEEK_CUR seek operations');
+            /**
+             * Hack workaround by Joe Hoyle, we need to fake the SEEK_END byte so exif functions work
+             */
+            $byte = $this->body->getSize();
+            //throw new RuntimeException(__CLASS__ . ' supports only SEEK_SET and SEEK_CUR seek operations');
         }
 
         // You cannot skip ahead past where you've read from the remote stream
