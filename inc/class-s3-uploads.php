@@ -43,8 +43,11 @@ class S3_Uploads {
 
 		$dirs['path'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['path'] );
 		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['basedir'] );
-		$dirs['url'] = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['url'] );
-		$dirs['baseurl'] = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['baseurl'] );
+
+		if ( ! defined( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) || ! S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL ) {
+			$dirs['url'] = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['url'] );
+			$dirs['baseurl'] = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['baseurl'] );
+		}
 
 		return $dirs;
 	}
