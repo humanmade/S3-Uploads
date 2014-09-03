@@ -15,6 +15,11 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 
 add_action( 'plugins_loaded', function() {
+
+	if ( ! defined( 'S3_UPLOADS_BUCKET' ) || ! defined( 'S3_UPLOADS_KEY' ) || ! defined( 'S3_UPLOADS_SECRET' ) ) {
+		return;
+	}
+	
 	$instance = S3_Uploads::get_instance();
 
 	add_filter( 'upload_dir', array( $instance, 'filter_upload_dir' ) );
