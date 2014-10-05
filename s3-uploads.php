@@ -25,4 +25,6 @@ add_action( 'plugins_loaded', function() {
 	add_filter( 'upload_dir', array( $instance, 'filter_upload_dir' ) );
 	add_filter( 'wp_image_editors', array( $instance, 'filter_editors' ), 9 );
 	remove_filter( 'admin_notices', 'wpthumb_errors' );
+
+	add_action( 'wp_handle_sideload_prefilter', array( $instance, 'filter_sideload_move_temp_file_to_s3' ) );
 });

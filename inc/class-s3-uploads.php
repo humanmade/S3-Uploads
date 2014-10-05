@@ -87,4 +87,23 @@ class S3_Uploads {
 
 		return $editors;
 	}
+
+	/**
+	 * Copy the file from /tmp to an s3 dir so handle_sideload doesn't fail due to 
+	 * trying to do a rename() on the file cross streams. This is somewhat of a hack
+	 * to work around the core issue https://core.trac.wordpress.org/ticket/29257
+	 *
+	 * @param array File array
+	 * @return array
+	 */
+	public function filter_sideload_move_temp_file_to_s3( array $file ) {
+		$upload_dir = wp_upload_dir();
+		$new_path = $upload_dir['basedir'] . '/tmp/' . basename( $file['tmp_name'] );
+
+		copy( $file['tmp_name'], $new_path );
+		unlink( $file['tmp_name'] );
+		$file['tmp_name'] = $new_path;
+
+		return $file;
+	}
 }
