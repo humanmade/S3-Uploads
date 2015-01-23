@@ -30,11 +30,14 @@ class S3_Uploads {
 		$this->secret = $secret;
 		$this->bucket_hostname = $bucket_hostname ? '//' . $bucket_hostname : 'https://' . strtok( $this->bucket, '/' ) . '.s3.amazonaws.com';
 
-		$this->s3()->registerStreamWrapper();
-		stream_context_set_option( stream_context_get_default(), 's3', 'seekable', true );
-		stream_context_set_option( stream_context_get_default(), 's3', 'ACL', Aws\S3\Enum\CannedAcl::PUBLIC_READ );
-		
-
+		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
+			require_once dirname( __FILE__ ) . '/class-s3-uploads-local-stream-wrapper.php';
+			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
+		} else {
+			$this->s3()->registerStreamWrapper();
+			stream_context_set_option( stream_context_get_default(), 's3', 'seekable', true );
+			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', Aws\S3\Enum\CannedAcl::PUBLIC_READ );
+		}
 	}
 
 	public function filter_upload_dir( $dirs ) {
@@ -45,8 +48,14 @@ class S3_Uploads {
 		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['basedir'] );
 
 		if ( ! defined( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) || ! S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL ) {
-			$dirs['url'] = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['url'] );
-			$dirs['baseurl'] = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['baseurl'] );
+
+			if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
+				$dirs['url']     =  str_replace( WP_CONTENT_URL, $dirs['baseurl'] . '/s3/' . str_replace( $this->bucket_hostname, strtok( $this->bucket, '/' ), $this->get_s3_url() ), $dirs['url'] );
+				$dirs['baseurl'] = str_replace( WP_CONTENT_URL, $dirs['baseurl'] . '/s3/' . str_replace( $this->bucket_hostname, strtok( $this->bucket, '/' ), $this->get_s3_url() ), $dirs['baseurl'] );
+			} else {
+				$dirs['url']     = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['url'] );
+				$dirs['baseurl'] = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['baseurl'] );
+			}
 		}
 
 		return $dirs;
