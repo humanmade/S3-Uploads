@@ -54,7 +54,7 @@ Uploading files to S3
 Sometimes the `wp s3-uploads migrate-attachments` command may not be enough to migrate your uploads to S3, as that will only move attachment files to S3. If you are using any plugins that store data in uploads, you'll want to upload the whole `uploads` directory.
 
 ```
-wp s3-uploads upload-direcototy <from> <to> [--sync] [--dry-run]
+wp s3-uploads upload-directory <from> <to> [--sync] [--dry-run]
 ```
 
 Passing `--sync` will only upload files that are newer in `<from>` or that don't exist on S3 already. Use `--dry-run` to test.
