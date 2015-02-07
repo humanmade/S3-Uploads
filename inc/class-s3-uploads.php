@@ -44,13 +44,13 @@ class S3_Uploads {
 
 		$this->original_upload_dir = $dirs;
 
-		$dirs['path'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['path'] );
+		$dirs['path']    = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['path'] );
 		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['basedir'] );
 
 		if ( ! defined( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) || ! S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL ) {
 
 			if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
-				$dirs['url']     =  str_replace( WP_CONTENT_URL, $dirs['baseurl'] . '/s3/' . str_replace( $this->bucket_hostname, strtok( $this->bucket, '/' ), $this->get_s3_url() ), $dirs['url'] );
+				$dirs['url']     = str_replace( WP_CONTENT_URL, $dirs['baseurl'] . '/s3/' . str_replace( $this->bucket_hostname, strtok( $this->bucket, '/' ), $this->get_s3_url() ), $dirs['url'] );
 				$dirs['baseurl'] = str_replace( WP_CONTENT_URL, $dirs['baseurl'] . '/s3/' . str_replace( $this->bucket_hostname, strtok( $this->bucket, '/' ), $this->get_s3_url() ), $dirs['baseurl'] );
 			} else {
 				$dirs['url']     = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['url'] );
