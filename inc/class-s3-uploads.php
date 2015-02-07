@@ -35,9 +35,10 @@ class S3_Uploads {
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
 			$this->s3()->registerStreamWrapper();
-			stream_context_set_option( stream_context_get_default(), 's3', 'seekable', true );
-			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', Aws\S3\Enum\CannedAcl::PUBLIC_READ );
 		}
+
+		stream_context_set_option( stream_context_get_default(), 's3', 'seekable', true );
+		stream_context_set_option( stream_context_get_default(), 's3', 'ACL', Aws\S3\Enum\CannedAcl::PUBLIC_READ );
 	}
 
 	public function filter_upload_dir( $dirs ) {
