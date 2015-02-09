@@ -420,7 +420,6 @@ class StreamWrapper
 	 */
 	public function mkdir($path, $mode, $options)
 	{
-		error_log($path);
 		$params = $this->getParams($path);
 		$this->clearStatInfo($path);
 

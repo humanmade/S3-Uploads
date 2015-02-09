@@ -106,19 +106,31 @@ class CachingEntityBody extends AbstractEntityBodyDecorator
 
         // More data was requested so read from the remote stream
         if ($remaining) {
-            // If data was written to the buffer in a position that would have been filled from the remote stream,
-            // then we must skip bytes on the remote stream to emulate overwriting bytes from that position. This
-            // mimics the behavior of other PHP stream wrappers.
-            $remoteData = $this->remoteStream->read($remaining + $this->skipReadBytes);
 
-            if ($this->skipReadBytes) {
-                $len = strlen($remoteData);
-                $remoteData = substr($remoteData, $this->skipReadBytes);
-                $this->skipReadBytes = max(0, $this->skipReadBytes - $len);
+            /**
+             * Modification by Joe Hoyle, we do a while loop to geet reading data, 
+             * as the ramainging amount of data to fetch from the remote stream could
+             * be more than the chunk size.
+             */
+            while( $remaining > 0 ) {
+                // If data was written to the buffer in a position that would have been filled from the remote stream,
+                // then we must skip bytes on the remote stream to emulate overwriting bytes from that position. This
+                // mimics the behavior of other PHP stream wrappers.
+                $remoteData = $this->remoteStream->read($remaining + $this->skipReadBytes);
+
+                if ($this->skipReadBytes) {
+                    $len = strlen($remoteData);
+                    $remoteData = substr($remoteData, $this->skipReadBytes);
+                    $this->skipReadBytes = max(0, $this->skipReadBytes - $len);
+                }
+
+                $remaining -= strlen( $remoteData );
+
+                $data .= $remoteData;
+                $this->body->write($remoteData);
             }
+            
 
-            $data .= $remoteData;
-            $this->body->write($remoteData);
         }
 
         return $data;
