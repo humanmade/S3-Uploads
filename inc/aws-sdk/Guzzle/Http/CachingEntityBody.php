@@ -128,6 +128,10 @@ class CachingEntityBody extends AbstractEntityBodyDecorator
 
                 $data .= $remoteData;
                 $this->body->write($remoteData);
+
+                if ( ! $remoteData ) {
+                    break;
+                }
             }
             
 
