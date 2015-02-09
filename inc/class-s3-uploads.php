@@ -4,7 +4,7 @@ class S3_Uploads {
 
 	private static $instance;
 	private $bucket;
-	private $bucket_hostname;
+	private $bucket_url;
 	private $key;
 	private $secret;
 
@@ -17,18 +17,18 @@ class S3_Uploads {
 	public static function get_instance() {
 
 		if ( ! self::$instance ) {
-			self::$instance = new S3_Uploads( S3_UPLOADS_BUCKET, S3_UPLOADS_KEY, S3_UPLOADS_SECRET, defined( 'S3_UPLOADS_BUCKET_HOSTNAME' ) ? S3_UPLOADS_BUCKET_HOSTNAME : null );
+			self::$instance = new S3_Uploads( S3_UPLOADS_BUCKET, S3_UPLOADS_KEY, S3_UPLOADS_SECRET, defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null );
 		}
 
 		return self::$instance;
 	}
 
-	public function __construct( $bucket, $key, $secret, $bucket_hostname = null ) {
-		
+	public function __construct( $bucket, $key, $secret, $bucket_url = null ) {
+
 		$this->bucket = $bucket;
 		$this->key = $key;
 		$this->secret = $secret;
-		$this->bucket_hostname = $bucket_hostname ? '//' . $bucket_hostname : 'https://' . strtok( $this->bucket, '/' ) . '.s3.amazonaws.com';
+		$this->bucket_url = $bucket_url;
 
 		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
 			require_once dirname( __FILE__ ) . '/class-s3-uploads-local-stream-wrapper.php';
@@ -36,10 +36,10 @@ class S3_Uploads {
 		} else {
 			$s3 = $this->s3();
 			S3_Uploads_Stream_Wrapper::register( $s3 );
+			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', Aws\S3\Enum\CannedAcl::PUBLIC_READ );
 		}
 
 		stream_context_set_option( stream_context_get_default(), 's3', 'seekable', true );
-		stream_context_set_option( stream_context_get_default(), 's3', 'ACL', Aws\S3\Enum\CannedAcl::PUBLIC_READ );
 	}
 
 	public function filter_upload_dir( $dirs ) {
@@ -52,11 +52,12 @@ class S3_Uploads {
 		if ( ! defined( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) || ! S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL ) {
 
 			if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
-				$dirs['url']     = str_replace( WP_CONTENT_URL, $dirs['baseurl'] . '/s3/' . str_replace( $this->bucket_hostname, strtok( $this->bucket, '/' ), $this->get_s3_url() ), $dirs['url'] );
-				$dirs['baseurl'] = str_replace( WP_CONTENT_URL, $dirs['baseurl'] . '/s3/' . str_replace( $this->bucket_hostname, strtok( $this->bucket, '/' ), $this->get_s3_url() ), $dirs['baseurl'] );
+				$dirs['url']     = str_replace( 's3://' . $this->bucket, $dirs['baseurl'] . '/s3/' . $this->bucket, $dirs['path'] );
+				$dirs['baseurl'] = str_replace( 's3://' . $this->bucket, $dirs['baseurl'] . '/s3/' . $this->bucket, $dirs['basedir'] );
+
 			} else {
-				$dirs['url']     = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['url'] );
-				$dirs['baseurl'] = str_replace( WP_CONTENT_URL, $this->get_s3_url(), $dirs['baseurl'] );
+				$dirs['url']     = str_replace( 's3://' . $this->bucket, $this->get_s3_url(), $dirs['path'] );
+				$dirs['baseurl'] = str_replace( 's3://' . $this->bucket, $this->get_s3_url(), $dirs['basedir'] );
 			}
 		}
 
@@ -64,7 +65,14 @@ class S3_Uploads {
 	}
 
 	public function get_s3_url() {
-		return $this->bucket_hostname . substr( $this->bucket, strlen( strtok( $this->bucket, '/' ) ) );
+		if ( $this->bucket_url ) {
+			return $this->bucket_url;
+		}
+
+		$bucket = strtok( $this->bucket, '/' );
+		$path   = substr( $this->bucket, strlen( $bucket ) );
+
+		return 'https://' . $bucket . '.s3.amazonaws.com' . ( $path ? '/' . $path : '' );
 	}
 
 	public function get_original_upload_dir() {
