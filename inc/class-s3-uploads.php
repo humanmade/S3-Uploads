@@ -17,18 +17,19 @@ class S3_Uploads {
 	public static function get_instance() {
 
 		if ( ! self::$instance ) {
-			self::$instance = new S3_Uploads( S3_UPLOADS_BUCKET, S3_UPLOADS_KEY, S3_UPLOADS_SECRET, defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null );
+			self::$instance = new S3_Uploads( S3_UPLOADS_BUCKET, S3_UPLOADS_KEY, S3_UPLOADS_SECRET, defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null, defined( 'S3_UPLOADS_REGION' ) ? S3_UPLOADS_REGION : null );
 		}
 
 		return self::$instance;
 	}
 
-	public function __construct( $bucket, $key, $secret, $bucket_url = null ) {
+	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null ) {
 
 		$this->bucket = $bucket;
 		$this->key = $key;
 		$this->secret = $secret;
 		$this->bucket_url = $bucket_url;
+		$this->region = $region;
 
 		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
 			require_once dirname( __FILE__ ) . '/class-s3-uploads-local-stream-wrapper.php';
@@ -94,7 +95,14 @@ class S3_Uploads {
 		if ( ! empty( $this->s3 ) )
 			return $this->s3;
 
-		$this->s3 = Aws\Common\Aws::factory( array( 'key' => $this->key, 'secret' => $this->secret, 'signature' => 'v4' ) )->get( 's3' );
+		$params = array( 'key' => $this->key, 'secret' => $this->secret );
+
+		if ( $this->region ) {
+			$params['signature'] = 'v4';
+			$params['region'] = $this->region;
+		}
+
+		$this->s3 = Aws\Common\Aws::factory( $params )->get( 's3' );
 
 		return $this->s3;
 	}
