@@ -94,7 +94,7 @@ class S3_Uploads {
 		if ( ! empty( $this->s3 ) )
 			return $this->s3;
 
-		$this->s3 = Aws\Common\Aws::factory( array( 'key' => $this->key, 'secret' => $this->secret ) )->get( 's3' );
+		$this->s3 = Aws\Common\Aws::factory( array( 'key' => $this->key, 'secret' => $this->secret, 'signature' => 'v4' ) )->get( 's3' );
 
 		return $this->s3;
 	}
