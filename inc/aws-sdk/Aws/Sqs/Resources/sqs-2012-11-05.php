@@ -64,6 +64,11 @@ return array (
             'https' => true,
             'hostname' => 'sqs.sa-east-1.amazonaws.com',
         ),
+        'cn-north-1' => array(
+            'http' => true,
+            'https' => true,
+            'hostname' => 'sqs.cn-north-1.amazonaws.com.cn',
+        ),
         'us-gov-west-1' => array(
             'http' => true,
             'https' => true,
@@ -121,7 +126,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The operation that you requested would violate a limit. For example, ReceiveMessage returns this error if the maximum number of messages inflight has already been reached. AddPermission returns this error if the maximum number of permissions for the queue has already been reached.',
+                    'reason' => 'The action that you requested would violate a limit. For example, ReceiveMessage returns this error if the maximum number of messages inflight has already been reached. AddPermission returns this error if the maximum number of permissions for the queue has already been reached.',
                     'class' => 'OverLimitException',
                 ),
             ),
@@ -279,7 +284,7 @@ return array (
                     'class' => 'QueueDeletedRecentlyException',
                 ),
                 array(
-                    'reason' => 'A queue already exists with this name. SQS returns this error only if the request includes attributes whose values differ from those of the existing queue.',
+                    'reason' => 'A queue already exists with this name. Amazon SQS returns this error only if the request includes attributes whose values differ from those of the existing queue.',
                     'class' => 'QueueNameExistsException',
                 ),
             ),
@@ -438,21 +443,6 @@ return array (
                     'items' => array(
                         'name' => 'AttributeName',
                         'type' => 'string',
-                        'enum' => array(
-                            'All',
-                            'Policy',
-                            'VisibilityTimeout',
-                            'MaximumMessageSize',
-                            'MessageRetentionPeriod',
-                            'ApproximateNumberOfMessages',
-                            'ApproximateNumberOfMessagesNotVisible',
-                            'CreatedTimestamp',
-                            'LastModifiedTimestamp',
-                            'QueueArn',
-                            'ApproximateNumberOfMessagesDelayed',
-                            'DelaySeconds',
-                            'ReceiveMessageWaitTimeSeconds',
-                        ),
                     ),
                 ),
             ),
@@ -497,6 +487,36 @@ return array (
                 ),
             ),
         ),
+        'ListDeadLetterSourceQueues' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'ListDeadLetterSourceQueuesResult',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'ListDeadLetterSourceQueues',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2012-11-05',
+                ),
+                'QueueUrl' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+            ),
+            'errorResponses' => array(
+                array(
+                    'reason' => 'The queue referred to does not exist.',
+                    'class' => 'QueueDoesNotExistException',
+                ),
+            ),
+        ),
         'ListQueues' => array(
             'httpMethod' => 'POST',
             'uri' => '/',
@@ -517,6 +537,40 @@ return array (
                 'QueueNamePrefix' => array(
                     'type' => 'string',
                     'location' => 'aws.query',
+                ),
+            ),
+        ),
+        'PurgeQueue' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'EmptyOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'PurgeQueue',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2012-11-05',
+                ),
+                'QueueUrl' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+            ),
+            'errorResponses' => array(
+                array(
+                    'reason' => 'The queue referred to does not exist.',
+                    'class' => 'QueueDoesNotExistException',
+                ),
+                array(
+                    'reason' => 'Indicates that the specified queue previously received a PurgeQueue request within the last 60 seconds, the time it can take to delete the messages in the queue.',
+                    'class' => 'PurgeQueueInProgressException',
                 ),
             ),
         ),
@@ -551,6 +605,15 @@ return array (
                         'type' => 'string',
                     ),
                 ),
+                'MessageAttributeNames' => array(
+                    'type' => 'array',
+                    'location' => 'aws.query',
+                    'sentAs' => 'MessageAttributeName',
+                    'items' => array(
+                        'name' => 'MessageAttributeName',
+                        'type' => 'string',
+                    ),
+                ),
                 'MaxNumberOfMessages' => array(
                     'type' => 'numeric',
                     'location' => 'aws.query',
@@ -566,7 +629,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The operation that you requested would violate a limit. For example, ReceiveMessage returns this error if the maximum number of messages inflight has already been reached. AddPermission returns this error if the maximum number of permissions for the queue has already been reached.',
+                    'reason' => 'The action that you requested would violate a limit. For example, ReceiveMessage returns this error if the maximum number of messages inflight has already been reached. AddPermission returns this error if the maximum number of permissions for the queue has already been reached.',
                     'class' => 'OverLimitException',
                 ),
             ),
@@ -631,11 +694,58 @@ return array (
                     'type' => 'numeric',
                     'location' => 'aws.query',
                 ),
+                'MessageAttributes' => array(
+                    'type' => 'object',
+                    'location' => 'aws.query',
+                    'sentAs' => 'MessageAttribute',
+                    'data' => array(
+                        'keyName' => 'Name',
+                        'valueName' => 'Value',
+                    ),
+                    'additionalProperties' => array(
+                        'type' => 'object',
+                        'data' => array(
+                            'shape_name' => 'String',
+                        ),
+                        'properties' => array(
+                            'StringValue' => array(
+                                'type' => 'string',
+                            ),
+                            'BinaryValue' => array(
+                                'type' => 'string',
+                            ),
+                            'StringListValues' => array(
+                                'type' => 'array',
+                                'sentAs' => 'StringListValue',
+                                'items' => array(
+                                    'name' => 'StringListValue',
+                                    'type' => 'string',
+                                ),
+                            ),
+                            'BinaryListValues' => array(
+                                'type' => 'array',
+                                'sentAs' => 'BinaryListValue',
+                                'items' => array(
+                                    'name' => 'BinaryListValue',
+                                    'type' => 'string',
+                                ),
+                            ),
+                            'DataType' => array(
+                                'required' => true,
+                                'type' => 'string',
+                            ),
+                        ),
+                    ),
+                ),
             ),
             'errorResponses' => array(
                 array(
                     'reason' => 'The message contains characters outside the allowed set.',
                     'class' => 'InvalidMessageContentsException',
+                ),
+                array(
+                    'reason' => 'Error code 400. Unsupported operation.',
+                    'class' => 'UnsupportedOperationException',
                 ),
             ),
         ),
@@ -681,6 +791,48 @@ return array (
                             'DelaySeconds' => array(
                                 'type' => 'numeric',
                             ),
+                            'MessageAttributes' => array(
+                                'type' => 'object',
+                                'sentAs' => 'MessageAttribute',
+                                'data' => array(
+                                    'keyName' => 'Name',
+                                    'valueName' => 'Value',
+                                ),
+                                'additionalProperties' => array(
+                                    'type' => 'object',
+                                    'data' => array(
+                                        'shape_name' => 'String',
+                                    ),
+                                    'properties' => array(
+                                        'StringValue' => array(
+                                            'type' => 'string',
+                                        ),
+                                        'BinaryValue' => array(
+                                            'type' => 'string',
+                                        ),
+                                        'StringListValues' => array(
+                                            'type' => 'array',
+                                            'sentAs' => 'StringListValue',
+                                            'items' => array(
+                                                'name' => 'StringListValue',
+                                                'type' => 'string',
+                                            ),
+                                        ),
+                                        'BinaryListValues' => array(
+                                            'type' => 'array',
+                                            'sentAs' => 'BinaryListValue',
+                                            'items' => array(
+                                                'name' => 'BinaryListValue',
+                                                'type' => 'string',
+                                            ),
+                                        ),
+                                        'DataType' => array(
+                                            'required' => true,
+                                            'type' => 'string',
+                                        ),
+                                    ),
+                                ),
+                            ),
                         ),
                     ),
                 ),
@@ -705,6 +857,10 @@ return array (
                 array(
                     'reason' => 'The Id of a batch entry in a batch request does not abide by the specification.',
                     'class' => 'InvalidBatchEntryIdException',
+                ),
+                array(
+                    'reason' => 'Error code 400. Unsupported operation.',
+                    'class' => 'UnsupportedOperationException',
                 ),
             ),
         ),
@@ -895,6 +1051,7 @@ return array (
                             'ApproximateNumberOfMessagesDelayed',
                             'DelaySeconds',
                             'ReceiveMessageWaitTimeSeconds',
+                            'RedrivePolicy',
                         ),
                     ),
                     'filters' => array(
@@ -933,6 +1090,25 @@ return array (
                 'QueueUrl' => array(
                     'type' => 'string',
                     'location' => 'xml',
+                ),
+            ),
+        ),
+        'ListDeadLetterSourceQueuesResult' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+            'properties' => array(
+                'queueUrls' => array(
+                    'type' => 'array',
+                    'location' => 'xml',
+                    'sentAs' => 'QueueUrl',
+                    'data' => array(
+                        'xmlFlattened' => true,
+                    ),
+                    'items' => array(
+                        'name' => 'QueueUrl',
+                        'type' => 'string',
+                        'sentAs' => 'QueueUrl',
+                    ),
                 ),
             ),
         ),
@@ -1001,6 +1177,7 @@ return array (
                                         'ApproximateNumberOfMessagesDelayed',
                                         'DelaySeconds',
                                         'ReceiveMessageWaitTimeSeconds',
+                                        'RedrivePolicy',
                                     ),
                                 ),
                                 'filters' => array(
@@ -1030,6 +1207,77 @@ return array (
                                 ),
                                 'additionalProperties' => false,
                             ),
+                            'MD5OfMessageAttributes' => array(
+                                'type' => 'string',
+                            ),
+                            'MessageAttributes' => array(
+                                'type' => 'array',
+                                'sentAs' => 'MessageAttribute',
+                                'data' => array(
+                                    'xmlFlattened' => true,
+                                ),
+                                'filters' => array(
+                                    array(
+                                        'method' => 'Aws\\Common\\Command\\XmlResponseLocationVisitor::xmlMap',
+                                        'args' => array(
+                                            '@value',
+                                            'MessageAttribute',
+                                            'Name',
+                                            'Value',
+                                        ),
+                                    ),
+                                ),
+                                'items' => array(
+                                    'name' => 'MessageAttribute',
+                                    'type' => 'object',
+                                    'sentAs' => 'MessageAttribute',
+                                    'additionalProperties' => true,
+                                    'properties' => array(
+                                        'Name' => array(
+                                            'type' => 'string',
+                                        ),
+                                        'Value' => array(
+                                            'type' => 'object',
+                                            'properties' => array(
+                                                'StringValue' => array(
+                                                    'type' => 'string',
+                                                ),
+                                                'BinaryValue' => array(
+                                                    'type' => 'string',
+                                                ),
+                                                'StringListValues' => array(
+                                                    'type' => 'array',
+                                                    'sentAs' => 'StringListValue',
+                                                    'data' => array(
+                                                        'xmlFlattened' => true,
+                                                    ),
+                                                    'items' => array(
+                                                        'name' => 'StringListValue',
+                                                        'type' => 'string',
+                                                        'sentAs' => 'StringListValue',
+                                                    ),
+                                                ),
+                                                'BinaryListValues' => array(
+                                                    'type' => 'array',
+                                                    'sentAs' => 'BinaryListValue',
+                                                    'data' => array(
+                                                        'xmlFlattened' => true,
+                                                    ),
+                                                    'items' => array(
+                                                        'name' => 'BinaryListValue',
+                                                        'type' => 'string',
+                                                        'sentAs' => 'BinaryListValue',
+                                                    ),
+                                                ),
+                                                'DataType' => array(
+                                                    'type' => 'string',
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                                'additionalProperties' => false,
+                            ),
                         ),
                     ),
                 ),
@@ -1040,6 +1288,10 @@ return array (
             'additionalProperties' => true,
             'properties' => array(
                 'MD5OfMessageBody' => array(
+                    'type' => 'string',
+                    'location' => 'xml',
+                ),
+                'MD5OfMessageAttributes' => array(
                     'type' => 'string',
                     'location' => 'xml',
                 ),
@@ -1072,6 +1324,9 @@ return array (
                                 'type' => 'string',
                             ),
                             'MD5OfMessageBody' => array(
+                                'type' => 'string',
+                            ),
+                            'MD5OfMessageAttributes' => array(
                                 'type' => 'string',
                             ),
                         ),
@@ -1108,10 +1363,8 @@ return array (
         ),
     ),
     'iterators' => array(
-        'operations' => array(
-            'ListQueues' => array(
-                'result_key' => 'QueueUrls',
-            ),
+        'ListQueues' => array(
+            'result_key' => 'QueueUrls',
         ),
     ),
 );

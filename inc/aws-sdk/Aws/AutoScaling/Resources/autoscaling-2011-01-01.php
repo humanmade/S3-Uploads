@@ -63,6 +63,11 @@ return array (
             'https' => true,
             'hostname' => 'autoscaling.sa-east-1.amazonaws.com',
         ),
+        'cn-north-1' => array(
+            'http' => true,
+            'https' => true,
+            'hostname' => 'autoscaling.cn-north-1.amazonaws.com.cn',
+        ),
         'us-gov-west-1' => array(
             'http' => true,
             'https' => true,
@@ -70,6 +75,88 @@ return array (
         ),
     ),
     'operations' => array(
+        'AttachInstances' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'EmptyOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'AttachInstances',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2011-01-01',
+                ),
+                'InstanceIds' => array(
+                    'type' => 'array',
+                    'location' => 'aws.query',
+                    'sentAs' => 'InstanceIds.member',
+                    'items' => array(
+                        'name' => 'XmlStringMaxLen16',
+                        'type' => 'string',
+                        'minLength' => 1,
+                        'maxLength' => 16,
+                    ),
+                ),
+                'AutoScalingGroupName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 1600,
+                ),
+            ),
+        ),
+        'CompleteLifecycleAction' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'EmptyOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'CompleteLifecycleAction',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2011-01-01',
+                ),
+                'LifecycleHookName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 255,
+                ),
+                'AutoScalingGroupName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 1600,
+                ),
+                'LifecycleActionToken' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 36,
+                    'maxLength' => 36,
+                ),
+                'LifecycleActionResult' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+            ),
+        ),
         'CreateAutoScalingGroup' => array(
             'httpMethod' => 'POST',
             'uri' => '/',
@@ -95,11 +182,16 @@ return array (
                     'maxLength' => 255,
                 ),
                 'LaunchConfigurationName' => array(
-                    'required' => true,
                     'type' => 'string',
                     'location' => 'aws.query',
                     'minLength' => 1,
                     'maxLength' => 1600,
+                ),
+                'InstanceId' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 16,
                 ),
                 'MinSize' => array(
                     'required' => true,
@@ -209,11 +301,11 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The named Auto Scaling group or launch configuration already exists.',
+                    'reason' => 'You already have an Auto Scaling group or launch configuration with this name.',
                     'class' => 'AlreadyExistsException',
                 ),
                 array(
-                    'reason' => 'The quota for capacity groups or launch configurations for this customer has already been reached.',
+                    'reason' => 'The limit for the number of Auto Scaling groups or launch configurations has already been reached.',
                     'class' => 'LimitExceededException',
                 ),
             ),
@@ -243,7 +335,6 @@ return array (
                     'maxLength' => 255,
                 ),
                 'ImageId' => array(
-                    'required' => true,
                     'type' => 'string',
                     'location' => 'aws.query',
                     'minLength' => 1,
@@ -264,13 +355,35 @@ return array (
                         'type' => 'string',
                     ),
                 ),
+                'ClassicLinkVPCId' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 255,
+                ),
+                'ClassicLinkVPCSecurityGroups' => array(
+                    'type' => 'array',
+                    'location' => 'aws.query',
+                    'sentAs' => 'ClassicLinkVPCSecurityGroups.member',
+                    'items' => array(
+                        'name' => 'XmlStringMaxLen255',
+                        'type' => 'string',
+                        'minLength' => 1,
+                        'maxLength' => 255,
+                    ),
+                ),
                 'UserData' => array(
                     'type' => 'string',
                     'location' => 'aws.query',
                     'maxLength' => 21847,
                 ),
+                'InstanceId' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 16,
+                ),
                 'InstanceType' => array(
-                    'required' => true,
                     'type' => 'string',
                     'location' => 'aws.query',
                     'minLength' => 1,
@@ -318,9 +431,27 @@ return array (
                                     'VolumeSize' => array(
                                         'type' => 'numeric',
                                         'minimum' => 1,
-                                        'maximum' => 1024,
+                                        'maximum' => 16384,
+                                    ),
+                                    'VolumeType' => array(
+                                        'type' => 'string',
+                                        'minLength' => 1,
+                                        'maxLength' => 255,
+                                    ),
+                                    'DeleteOnTermination' => array(
+                                        'type' => 'boolean',
+                                        'format' => 'boolean-string',
+                                    ),
+                                    'Iops' => array(
+                                        'type' => 'numeric',
+                                        'minimum' => 100,
+                                        'maximum' => 30000,
                                     ),
                                 ),
+                            ),
+                            'NoDevice' => array(
+                                'type' => 'boolean',
+                                'format' => 'boolean-string',
                             ),
                         ),
                     ),
@@ -357,14 +488,20 @@ return array (
                     'format' => 'boolean-string',
                     'location' => 'aws.query',
                 ),
+                'PlacementTenancy' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 64,
+                ),
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The named Auto Scaling group or launch configuration already exists.',
+                    'reason' => 'You already have an Auto Scaling group or launch configuration with this name.',
                     'class' => 'AlreadyExistsException',
                 ),
                 array(
-                    'reason' => 'The quota for capacity groups or launch configurations for this customer has already been reached.',
+                    'reason' => 'The limit for the number of Auto Scaling groups or launch configurations has already been reached.',
                     'class' => 'LimitExceededException',
                 ),
             ),
@@ -421,11 +558,11 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The quota for capacity groups or launch configurations for this customer has already been reached.',
+                    'reason' => 'The limit for the number of Auto Scaling groups or launch configurations has already been reached.',
                     'class' => 'LimitExceededException',
                 ),
                 array(
-                    'reason' => 'The named Auto Scaling group or launch configuration already exists.',
+                    'reason' => 'You already have an Auto Scaling group or launch configuration with this name.',
                     'class' => 'AlreadyExistsException',
                 ),
             ),
@@ -462,11 +599,11 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'You cannot delete an Auto Scaling group while there are scaling activities in progress for that group.',
+                    'reason' => 'The Auto Scaling group can\'t be deleted because there are scaling activities in progress.',
                     'class' => 'ScalingActivityInProgressException',
                 ),
                 array(
-                    'reason' => 'This is returned when you cannot delete a launch configuration or Auto Scaling group because it is being used.',
+                    'reason' => 'The Auto Scaling group or launch configuration can\'t be deleted because it is in use.',
                     'class' => 'ResourceInUseException',
                 ),
             ),
@@ -498,8 +635,41 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'This is returned when you cannot delete a launch configuration or Auto Scaling group because it is being used.',
+                    'reason' => 'The Auto Scaling group or launch configuration can\'t be deleted because it is in use.',
                     'class' => 'ResourceInUseException',
+                ),
+            ),
+        ),
+        'DeleteLifecycleHook' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'EmptyOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'DeleteLifecycleHook',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2011-01-01',
+                ),
+                'LifecycleHookName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 255,
+                ),
+                'AutoScalingGroupName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 1600,
                 ),
             ),
         ),
@@ -651,6 +821,25 @@ return array (
                 ),
             ),
         ),
+        'DescribeAccountLimits' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'DescribeAccountLimitsAnswer',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'DescribeAccountLimits',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2011-01-01',
+                ),
+            ),
+        ),
         'DescribeAdjustmentTypes' => array(
             'httpMethod' => 'POST',
             'uri' => '/',
@@ -705,13 +894,11 @@ return array (
                 'MaxRecords' => array(
                     'type' => 'numeric',
                     'location' => 'aws.query',
-                    'minimum' => 1,
-                    'maximum' => 50,
                 ),
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The NextToken value is invalid.',
+                    'reason' => 'The NextToken value is not valid.',
                     'class' => 'InvalidNextTokenException',
                 ),
             ),
@@ -747,8 +934,6 @@ return array (
                 'MaxRecords' => array(
                     'type' => 'numeric',
                     'location' => 'aws.query',
-                    'minimum' => 1,
-                    'maximum' => 50,
                 ),
                 'NextToken' => array(
                     'type' => 'string',
@@ -757,7 +942,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The NextToken value is invalid.',
+                    'reason' => 'The NextToken value is not valid.',
                     'class' => 'InvalidNextTokenException',
                 ),
             ),
@@ -816,14 +1001,68 @@ return array (
                 'MaxRecords' => array(
                     'type' => 'numeric',
                     'location' => 'aws.query',
-                    'minimum' => 1,
-                    'maximum' => 50,
                 ),
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The NextToken value is invalid.',
+                    'reason' => 'The NextToken value is not valid.',
                     'class' => 'InvalidNextTokenException',
+                ),
+            ),
+        ),
+        'DescribeLifecycleHookTypes' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'DescribeLifecycleHookTypesAnswer',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'DescribeLifecycleHookTypes',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2011-01-01',
+                ),
+            ),
+        ),
+        'DescribeLifecycleHooks' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'DescribeLifecycleHooksAnswer',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'DescribeLifecycleHooks',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2011-01-01',
+                ),
+                'AutoScalingGroupName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 1600,
+                ),
+                'LifecycleHookNames' => array(
+                    'type' => 'array',
+                    'location' => 'aws.query',
+                    'sentAs' => 'LifecycleHookNames.member',
+                    'items' => array(
+                        'name' => 'AsciiStringMaxLen255',
+                        'type' => 'string',
+                        'minLength' => 1,
+                        'maxLength' => 255,
+                    ),
                 ),
             ),
         ),
@@ -881,13 +1120,11 @@ return array (
                 'MaxRecords' => array(
                     'type' => 'numeric',
                     'location' => 'aws.query',
-                    'minimum' => 1,
-                    'maximum' => 50,
                 ),
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The NextToken value is invalid.',
+                    'reason' => 'The NextToken value is not valid.',
                     'class' => 'InvalidNextTokenException',
                 ),
             ),
@@ -933,13 +1170,11 @@ return array (
                 'MaxRecords' => array(
                     'type' => 'numeric',
                     'location' => 'aws.query',
-                    'minimum' => 1,
-                    'maximum' => 50,
                 ),
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The NextToken value is invalid.',
+                    'reason' => 'The NextToken value is not valid.',
                     'class' => 'InvalidNextTokenException',
                 ),
             ),
@@ -979,8 +1214,6 @@ return array (
                 'MaxRecords' => array(
                     'type' => 'numeric',
                     'location' => 'aws.query',
-                    'minimum' => 1,
-                    'maximum' => 50,
                 ),
                 'NextToken' => array(
                     'type' => 'string',
@@ -989,7 +1222,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The NextToken value is invalid.',
+                    'reason' => 'The NextToken value is not valid.',
                     'class' => 'InvalidNextTokenException',
                 ),
             ),
@@ -1072,13 +1305,11 @@ return array (
                 'MaxRecords' => array(
                     'type' => 'numeric',
                     'location' => 'aws.query',
-                    'minimum' => 1,
-                    'maximum' => 50,
                 ),
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The NextToken value is invalid.',
+                    'reason' => 'The NextToken value is not valid.',
                     'class' => 'InvalidNextTokenException',
                 ),
             ),
@@ -1129,13 +1360,11 @@ return array (
                 'MaxRecords' => array(
                     'type' => 'numeric',
                     'location' => 'aws.query',
-                    'minimum' => 1,
-                    'maximum' => 50,
                 ),
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The NextToken value is invalid.',
+                    'reason' => 'The NextToken value is not valid.',
                     'class' => 'InvalidNextTokenException',
                 ),
             ),
@@ -1156,6 +1385,49 @@ return array (
                     'static' => true,
                     'location' => 'aws.query',
                     'default' => '2011-01-01',
+                ),
+            ),
+        ),
+        'DetachInstances' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'DetachInstancesAnswer',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'DetachInstances',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2011-01-01',
+                ),
+                'InstanceIds' => array(
+                    'type' => 'array',
+                    'location' => 'aws.query',
+                    'sentAs' => 'InstanceIds.member',
+                    'items' => array(
+                        'name' => 'XmlStringMaxLen16',
+                        'type' => 'string',
+                        'minLength' => 1,
+                        'maxLength' => 16,
+                    ),
+                ),
+                'AutoScalingGroupName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 1600,
+                ),
+                'ShouldDecrementDesiredCapacity' => array(
+                    'required' => true,
+                    'type' => 'boolean',
+                    'format' => 'boolean-string',
+                    'location' => 'aws.query',
                 ),
             ),
         ),
@@ -1240,6 +1512,49 @@ return array (
                 ),
             ),
         ),
+        'EnterStandby' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'EnterStandbyAnswer',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'EnterStandby',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2011-01-01',
+                ),
+                'InstanceIds' => array(
+                    'type' => 'array',
+                    'location' => 'aws.query',
+                    'sentAs' => 'InstanceIds.member',
+                    'items' => array(
+                        'name' => 'XmlStringMaxLen16',
+                        'type' => 'string',
+                        'minLength' => 1,
+                        'maxLength' => 16,
+                    ),
+                ),
+                'AutoScalingGroupName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 1600,
+                ),
+                'ShouldDecrementDesiredCapacity' => array(
+                    'required' => true,
+                    'type' => 'boolean',
+                    'format' => 'boolean-string',
+                    'location' => 'aws.query',
+                ),
+            ),
+        ),
         'ExecutePolicy' => array(
             'httpMethod' => 'POST',
             'uri' => '/',
@@ -1278,8 +1593,114 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'You cannot delete an Auto Scaling group while there are scaling activities in progress for that group.',
+                    'reason' => 'The Auto Scaling group can\'t be deleted because there are scaling activities in progress.',
                     'class' => 'ScalingActivityInProgressException',
+                ),
+            ),
+        ),
+        'ExitStandby' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'ExitStandbyAnswer',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'ExitStandby',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2011-01-01',
+                ),
+                'InstanceIds' => array(
+                    'type' => 'array',
+                    'location' => 'aws.query',
+                    'sentAs' => 'InstanceIds.member',
+                    'items' => array(
+                        'name' => 'XmlStringMaxLen16',
+                        'type' => 'string',
+                        'minLength' => 1,
+                        'maxLength' => 16,
+                    ),
+                ),
+                'AutoScalingGroupName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 1600,
+                ),
+            ),
+        ),
+        'PutLifecycleHook' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'EmptyOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'PutLifecycleHook',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2011-01-01',
+                ),
+                'LifecycleHookName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 255,
+                ),
+                'AutoScalingGroupName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 1600,
+                ),
+                'LifecycleTransition' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+                'RoleARN' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 1600,
+                ),
+                'NotificationTargetARN' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 1600,
+                ),
+                'NotificationMetadata' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 1023,
+                ),
+                'HeartbeatTimeout' => array(
+                    'type' => 'numeric',
+                    'location' => 'aws.query',
+                ),
+                'DefaultResult' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+            ),
+            'errorResponses' => array(
+                array(
+                    'reason' => 'The limit for the number of Auto Scaling groups or launch configurations has already been reached.',
+                    'class' => 'LimitExceededException',
                 ),
             ),
         ),
@@ -1329,7 +1750,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The quota for capacity groups or launch configurations for this customer has already been reached.',
+                    'reason' => 'The limit for the number of Auto Scaling groups or launch configurations has already been reached.',
                     'class' => 'LimitExceededException',
                 ),
             ),
@@ -1388,7 +1809,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The quota for capacity groups or launch configurations for this customer has already been reached.',
+                    'reason' => 'The limit for the number of Auto Scaling groups or launch configurations has already been reached.',
                     'class' => 'LimitExceededException',
                 ),
             ),
@@ -1472,12 +1893,52 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'The named Auto Scaling group or launch configuration already exists.',
+                    'reason' => 'You already have an Auto Scaling group or launch configuration with this name.',
                     'class' => 'AlreadyExistsException',
                 ),
                 array(
-                    'reason' => 'The quota for capacity groups or launch configurations for this customer has already been reached.',
+                    'reason' => 'The limit for the number of Auto Scaling groups or launch configurations has already been reached.',
                     'class' => 'LimitExceededException',
+                ),
+            ),
+        ),
+        'RecordLifecycleActionHeartbeat' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'EmptyOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'RecordLifecycleActionHeartbeat',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2011-01-01',
+                ),
+                'LifecycleHookName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 255,
+                ),
+                'AutoScalingGroupName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 1600,
+                ),
+                'LifecycleActionToken' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 36,
+                    'maxLength' => 36,
                 ),
             ),
         ),
@@ -1555,7 +2016,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'You cannot delete an Auto Scaling group while there are scaling activities in progress for that group.',
+                    'reason' => 'The Auto Scaling group can\'t be deleted because there are scaling activities in progress.',
                     'class' => 'ScalingActivityInProgressException',
                 ),
             ),
@@ -1668,7 +2129,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'You cannot delete an Auto Scaling group while there are scaling activities in progress for that group.',
+                    'reason' => 'The Auto Scaling group can\'t be deleted because there are scaling activities in progress.',
                     'class' => 'ScalingActivityInProgressException',
                 ),
             ),
@@ -1767,7 +2228,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'You cannot delete an Auto Scaling group while there are scaling activities in progress for that group.',
+                    'reason' => 'The Auto Scaling group can\'t be deleted because there are scaling activities in progress.',
                     'class' => 'ScalingActivityInProgressException',
                 ),
             ),
@@ -1777,6 +2238,20 @@ return array (
         'EmptyOutput' => array(
             'type' => 'object',
             'additionalProperties' => true,
+        ),
+        'DescribeAccountLimitsAnswer' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+            'properties' => array(
+                'MaxNumberOfAutoScalingGroups' => array(
+                    'type' => 'numeric',
+                    'location' => 'xml',
+                ),
+                'MaxNumberOfLaunchConfigurations' => array(
+                    'type' => 'numeric',
+                    'location' => 'xml',
+                ),
+            ),
         ),
         'DescribeAdjustmentTypesAnswer' => array(
             'type' => 'object',
@@ -2050,6 +2525,17 @@ return array (
                                     'sentAs' => 'member',
                                 ),
                             ),
+                            'ClassicLinkVPCId' => array(
+                                'type' => 'string',
+                            ),
+                            'ClassicLinkVPCSecurityGroups' => array(
+                                'type' => 'array',
+                                'items' => array(
+                                    'name' => 'XmlStringMaxLen255',
+                                    'type' => 'string',
+                                    'sentAs' => 'member',
+                                ),
+                            ),
                             'UserData' => array(
                                 'type' => 'string',
                             ),
@@ -2084,7 +2570,19 @@ return array (
                                                 'VolumeSize' => array(
                                                     'type' => 'numeric',
                                                 ),
+                                                'VolumeType' => array(
+                                                    'type' => 'string',
+                                                ),
+                                                'DeleteOnTermination' => array(
+                                                    'type' => 'boolean',
+                                                ),
+                                                'Iops' => array(
+                                                    'type' => 'numeric',
+                                                ),
                                             ),
+                                        ),
+                                        'NoDevice' => array(
+                                            'type' => 'boolean',
                                         ),
                                     ),
                                 ),
@@ -2112,12 +2610,74 @@ return array (
                             'AssociatePublicIpAddress' => array(
                                 'type' => 'boolean',
                             ),
+                            'PlacementTenancy' => array(
+                                'type' => 'string',
+                            ),
                         ),
                     ),
                 ),
                 'NextToken' => array(
                     'type' => 'string',
                     'location' => 'xml',
+                ),
+            ),
+        ),
+        'DescribeLifecycleHookTypesAnswer' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+            'properties' => array(
+                'LifecycleHookTypes' => array(
+                    'type' => 'array',
+                    'location' => 'xml',
+                    'items' => array(
+                        'name' => 'XmlStringMaxLen255',
+                        'type' => 'string',
+                        'sentAs' => 'member',
+                    ),
+                ),
+            ),
+        ),
+        'DescribeLifecycleHooksAnswer' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+            'properties' => array(
+                'LifecycleHooks' => array(
+                    'type' => 'array',
+                    'location' => 'xml',
+                    'items' => array(
+                        'name' => 'LifecycleHook',
+                        'type' => 'object',
+                        'sentAs' => 'member',
+                        'properties' => array(
+                            'LifecycleHookName' => array(
+                                'type' => 'string',
+                            ),
+                            'AutoScalingGroupName' => array(
+                                'type' => 'string',
+                            ),
+                            'LifecycleTransition' => array(
+                                'type' => 'string',
+                            ),
+                            'NotificationTargetARN' => array(
+                                'type' => 'string',
+                            ),
+                            'RoleARN' => array(
+                                'type' => 'string',
+                            ),
+                            'NotificationMetadata' => array(
+                                'type' => 'string',
+                            ),
+                            'HeartbeatTimeout' => array(
+                                'type' => 'numeric',
+                            ),
+                            'GlobalTimeout' => array(
+                                'type' => 'numeric',
+                            ),
+                            'DefaultResult' => array(
+                                'type' => 'string',
+                            ),
+                        ),
+                    ),
                 ),
             ),
         ),
@@ -2416,6 +2976,147 @@ return array (
                 ),
             ),
         ),
+        'DetachInstancesAnswer' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+            'properties' => array(
+                'Activities' => array(
+                    'type' => 'array',
+                    'location' => 'xml',
+                    'items' => array(
+                        'name' => 'Activity',
+                        'type' => 'object',
+                        'sentAs' => 'member',
+                        'properties' => array(
+                            'ActivityId' => array(
+                                'type' => 'string',
+                            ),
+                            'AutoScalingGroupName' => array(
+                                'type' => 'string',
+                            ),
+                            'Description' => array(
+                                'type' => 'string',
+                            ),
+                            'Cause' => array(
+                                'type' => 'string',
+                            ),
+                            'StartTime' => array(
+                                'type' => 'string',
+                            ),
+                            'EndTime' => array(
+                                'type' => 'string',
+                            ),
+                            'StatusCode' => array(
+                                'type' => 'string',
+                            ),
+                            'StatusMessage' => array(
+                                'type' => 'string',
+                            ),
+                            'Progress' => array(
+                                'type' => 'numeric',
+                            ),
+                            'Details' => array(
+                                'type' => 'string',
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        'EnterStandbyAnswer' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+            'properties' => array(
+                'Activities' => array(
+                    'type' => 'array',
+                    'location' => 'xml',
+                    'items' => array(
+                        'name' => 'Activity',
+                        'type' => 'object',
+                        'sentAs' => 'member',
+                        'properties' => array(
+                            'ActivityId' => array(
+                                'type' => 'string',
+                            ),
+                            'AutoScalingGroupName' => array(
+                                'type' => 'string',
+                            ),
+                            'Description' => array(
+                                'type' => 'string',
+                            ),
+                            'Cause' => array(
+                                'type' => 'string',
+                            ),
+                            'StartTime' => array(
+                                'type' => 'string',
+                            ),
+                            'EndTime' => array(
+                                'type' => 'string',
+                            ),
+                            'StatusCode' => array(
+                                'type' => 'string',
+                            ),
+                            'StatusMessage' => array(
+                                'type' => 'string',
+                            ),
+                            'Progress' => array(
+                                'type' => 'numeric',
+                            ),
+                            'Details' => array(
+                                'type' => 'string',
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        'ExitStandbyAnswer' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+            'properties' => array(
+                'Activities' => array(
+                    'type' => 'array',
+                    'location' => 'xml',
+                    'items' => array(
+                        'name' => 'Activity',
+                        'type' => 'object',
+                        'sentAs' => 'member',
+                        'properties' => array(
+                            'ActivityId' => array(
+                                'type' => 'string',
+                            ),
+                            'AutoScalingGroupName' => array(
+                                'type' => 'string',
+                            ),
+                            'Description' => array(
+                                'type' => 'string',
+                            ),
+                            'Cause' => array(
+                                'type' => 'string',
+                            ),
+                            'StartTime' => array(
+                                'type' => 'string',
+                            ),
+                            'EndTime' => array(
+                                'type' => 'string',
+                            ),
+                            'StatusCode' => array(
+                                'type' => 'string',
+                            ),
+                            'StatusMessage' => array(
+                                'type' => 'string',
+                            ),
+                            'Progress' => array(
+                                'type' => 'numeric',
+                            ),
+                            'Details' => array(
+                                'type' => 'string',
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
         'PolicyARNType' => array(
             'type' => 'object',
             'additionalProperties' => true,
@@ -2470,55 +3171,53 @@ return array (
         ),
     ),
     'iterators' => array(
-        'operations' => array(
-            'DescribeAutoScalingGroups' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'limit_key' => 'MaxRecords',
-                'result_key' => 'AutoScalingGroups',
-            ),
-            'DescribeAutoScalingInstances' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'limit_key' => 'MaxRecords',
-                'result_key' => 'AutoScalingInstances',
-            ),
-            'DescribeLaunchConfigurations' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'limit_key' => 'MaxRecords',
-                'result_key' => 'LaunchConfigurations',
-            ),
-            'DescribeNotificationConfigurations' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'limit_key' => 'MaxRecords',
-                'result_key' => 'NotificationConfigurations',
-            ),
-            'DescribePolicies' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'limit_key' => 'MaxRecords',
-                'result_key' => 'ScalingPolicies',
-            ),
-            'DescribeScalingActivities' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'limit_key' => 'MaxRecords',
-                'result_key' => 'Activities',
-            ),
-            'DescribeScheduledActions' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'limit_key' => 'MaxRecords',
-                'result_key' => 'ScheduledUpdateGroupActions',
-            ),
-            'DescribeTags' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'limit_key' => 'MaxRecords',
-                'result_key' => 'Tags',
-            ),
+        'DescribeAutoScalingGroups' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'limit_key' => 'MaxRecords',
+            'result_key' => 'AutoScalingGroups',
+        ),
+        'DescribeAutoScalingInstances' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'limit_key' => 'MaxRecords',
+            'result_key' => 'AutoScalingInstances',
+        ),
+        'DescribeLaunchConfigurations' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'limit_key' => 'MaxRecords',
+            'result_key' => 'LaunchConfigurations',
+        ),
+        'DescribeNotificationConfigurations' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'limit_key' => 'MaxRecords',
+            'result_key' => 'NotificationConfigurations',
+        ),
+        'DescribePolicies' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'limit_key' => 'MaxRecords',
+            'result_key' => 'ScalingPolicies',
+        ),
+        'DescribeScalingActivities' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'limit_key' => 'MaxRecords',
+            'result_key' => 'Activities',
+        ),
+        'DescribeScheduledActions' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'limit_key' => 'MaxRecords',
+            'result_key' => 'ScheduledUpdateGroupActions',
+        ),
+        'DescribeTags' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'limit_key' => 'MaxRecords',
+            'result_key' => 'Tags',
         ),
     ),
 );

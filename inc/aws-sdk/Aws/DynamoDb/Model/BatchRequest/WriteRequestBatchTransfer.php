@@ -84,14 +84,57 @@ class WriteRequestBatchTransfer implements BatchTransferInterface
             return;
         }
 
-        // Chunk the array and prepare a set of parallel commands
+        // Prepare an array of commands to be sent in parallel from the batch
+        $commands = $this->prepareCommandsForBatchedItems($batch);
+
+        // Execute the commands and handle exceptions
+        try {
+            $commands = $this->client->execute($commands);
+            $this->getUnprocessedRequestsFromCommands($commands, $unprocessedRequests);
+        } catch (ExceptionCollection $exceptions) {
+            // Create a container exception for any unhandled (true) exceptions
+            $unhandledExceptions = new ExceptionCollection();
+
+            // Loop through caught exceptions and handle RequestTooLarge scenarios
+            /** @var DynamoDbException $e */
+            foreach ($exceptions as $e) {
+                if ($e instanceof DynamoDbException) {
+                    $request = $e->getRequest();
+                    if ($e->getStatusCode() === 413) {
+                        $this->retryLargeRequest($request, $unprocessedRequests);
+                    } elseif ($e->getExceptionCode() === 'ProvisionedThroughputExceededException') {
+                        $this->handleUnprocessedRequestsAfterException($request, $unprocessedRequests);
+                    } else {
+                        $unhandledExceptions->add($e);
+                    }
+                } else {
+                    $unhandledExceptions->add($e);
+                }
+            }
+
+            // If there were unhandled exceptions, throw them
+            if (count($unhandledExceptions)) {
+                throw $unhandledExceptions;
+            }
+        }
+    }
+
+    /**
+     * Prepares an array of BatchWriteItem command objects for a given batch of items
+     *
+     * @param array $batch A batch of write requests
+     *
+     * @return array
+     */
+    protected function prepareCommandsForBatchedItems(array $batch)
+    {
         $commands = array();
         foreach (array_chunk($batch, self::BATCH_WRITE_MAX_SIZE) as $chunk) {
             // Convert the request items into the format required by the client
             $items = array();
             foreach ($chunk as $item) {
                 if ($item instanceof AbstractWriteRequest) {
-                    /** @var $item AbstractWriteRequest */
+                    /** @var AbstractWriteRequest $item */
                     $table = $item->getTableName();
                     if (!isset($items[$table])) {
                         $items[$table] = array();
@@ -107,30 +150,7 @@ class WriteRequestBatchTransfer implements BatchTransferInterface
             ));
         }
 
-        // Execute the commands and handle exceptions
-        try {
-            $commands = $this->client->execute($commands);
-            $this->getUnprocessedRequestsFromCommands($commands, $unprocessedRequests);
-        } catch (ExceptionCollection $exceptions) {
-            // Create a container exception for any unhandled (true) exceptions
-            $unhandledExceptions = new ExceptionCollection();
-
-            // Loop through caught exceptions and handle RequestTooLarge scenarios
-            /** @var $e DynamoDbException */
-            foreach ($exceptions as $e) {
-                if ($e instanceof DynamoDbException && $e->getStatusCode() === 413) {
-                    $request = $e->getResponse()->getRequest();
-                    $this->retryLargeRequest($request, $unprocessedRequests);
-                } else {
-                    $unhandledExceptions->add($e);
-                }
-            }
-
-            // If there were unhandled exceptions, throw them
-            if (count($unhandledExceptions)) {
-                throw $unhandledExceptions;
-            }
-        }
+        return $commands;
     }
 
     /**
@@ -144,7 +164,7 @@ class WriteRequestBatchTransfer implements BatchTransferInterface
         array $commands,
         UnprocessedWriteRequestsException $unprocessedRequests
     ) {
-        /** @var $command CommandInterface */
+        /** @var CommandInterface $command */
         foreach ($commands as $command) {
             if ($command instanceof CommandInterface && $command->isExecuted()) {
                 $result = $command->getResult();
@@ -169,8 +189,7 @@ class WriteRequestBatchTransfer implements BatchTransferInterface
         UnprocessedWriteRequestsException $unprocessedRequests
     ) {
         // Collect the items out from the request object
-        $items = json_decode($request->getBody(true), true);
-        $items = $this->convertResultsToUnprocessedRequests($items['RequestItems']);
+        $items = $this->extractItemsFromRequestObject($request);
 
         // Divide batch into smaller batches and transfer them via recursion
         // NOTE: Dividing the batch into 3 (instead of 2) batches resulted in less recursion during testing
@@ -179,6 +198,22 @@ class WriteRequestBatchTransfer implements BatchTransferInterface
             foreach ($newBatches as $newBatch) {
                 $this->performTransfer($newBatch, $unprocessedRequests);
             }
+        }
+    }
+
+    /**
+     * Handles unprocessed items if the entire batch was rejected due to exceeding the provisioned throughput
+     *
+     * @param EntityEnclosingRequestInterface   $request             The failed request
+     * @param UnprocessedWriteRequestsException $unprocessedRequests Collection of unprocessed items
+     */
+    protected function handleUnprocessedRequestsAfterException(
+        EntityEnclosingRequestInterface $request,
+        UnprocessedWriteRequestsException $unprocessedRequests
+    ) {
+        $items = $this->extractItemsFromRequestObject($request);
+        foreach ($items as $request) {
+            $unprocessedRequests->addItem($request);
         }
     }
 
@@ -199,5 +234,19 @@ class WriteRequestBatchTransfer implements BatchTransferInterface
         }
 
         return $unprocessed;
+    }
+
+
+    /**
+     * Helper method to extract the items from a request object for a BatchWriteItem operation
+     *
+     * @param EntityEnclosingRequestInterface $request
+     *
+     * @return array
+     */
+    private function extractItemsFromRequestObject(EntityEnclosingRequestInterface $request)
+    {
+        $items = json_decode((string) $request->getBody(), true);
+        return $this->convertResultsToUnprocessedRequests($items['RequestItems'] ?: array());
     }
 }

@@ -42,12 +42,13 @@ class DefaultClient extends AbstractClient
      * Region and endpoint options (Some services do not require a region while others do. Check the service specific user guide documentation for details):
      *
      * - region: Region name (e.g. 'us-east-1', 'us-west-1', 'us-west-2', 'eu-west-1', etc...)
-     * - scheme: URI Scheme of the base URL (e.g. 'https', 'http') used when base_url is not supplied
-     * - base_url: Allows you to specify a custom endpoint instead of building one from the region and scheme
+     * - scheme: URI Scheme of the base URL (e.g. 'https', 'http') used when endpoint is not supplied
+     * - endpoint: Allows you to specify a custom endpoint instead of building one from the region and scheme
      *
      * Generic client options:
      *
-     * - ssl.ssl.certificate_authority: Set to true to use the bundled CA cert or pass the full path to an SSL certificate bundle
+     * - signature: Overrides the signature used by the client. Clients will always choose an appropriate default signature. However, it can be useful to override this with a custom setting. This can be set to "v4", "v3https", "v2" or an instance of Aws\Common\Signature\SignatureInterface.
+     * - ssl.certificate_authority: Set to true to use the bundled CA cert or pass the full path to an SSL certificate bundle
      * - curl.options: Associative of CURLOPT_* cURL options to add to each request
      * - client.backoff.logger: `Guzzle\Log\LogAdapterInterface` object used to log backoff retries. Use 'debug' to emit PHP warnings when a retry is issued.
      * - client.backoff.logger.template: Optional template to use for exponential backoff log messages. See `Guzzle\Plugin\Backoff\BackoffLogger` for formatting information.

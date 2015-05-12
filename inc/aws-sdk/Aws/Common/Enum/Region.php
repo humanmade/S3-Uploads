@@ -39,6 +39,9 @@ class Region extends Enum
 
     const EU_WEST_1           = 'eu-west-1';
     const IRELAND             = 'eu-west-1';
+    
+    const EU_CENTRAL_1        = 'eu-central-1';
+    const FRANKFURT           = 'eu-central-1';
 
     const AP_SOUTHEAST_1      = 'ap-southeast-1';
     const SINGAPORE           = 'ap-southeast-1';
@@ -51,6 +54,9 @@ class Region extends Enum
 
     const SA_EAST_1           = 'sa-east-1';
     const SAO_PAULO           = 'sa-east-1';
+
+    const CN_NORTH_1          = 'cn-north-1';
+    const BEIJING             = 'cn-north-1';
 
     const US_GOV_WEST_1       = 'us-gov-west-1';
     const GOV_CLOUD_US        = 'us-gov-west-1';

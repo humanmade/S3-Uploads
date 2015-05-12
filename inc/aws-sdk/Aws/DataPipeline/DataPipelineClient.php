@@ -28,7 +28,9 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * Client to interact with AWS Data Pipeline
  *
  * @method Model activatePipeline(array $args = array()) {@command DataPipeline ActivatePipeline}
+ * @method Model addTags(array $args = array()) {@command DataPipeline AddTags}
  * @method Model createPipeline(array $args = array()) {@command DataPipeline CreatePipeline}
+ * @method Model deactivatePipeline(array $args = array()) {@command DataPipeline DeactivatePipeline}
  * @method Model deletePipeline(array $args = array()) {@command DataPipeline DeletePipeline}
  * @method Model describeObjects(array $args = array()) {@command DataPipeline DescribeObjects}
  * @method Model describePipelines(array $args = array()) {@command DataPipeline DescribePipelines}
@@ -38,6 +40,7 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model pollForTask(array $args = array()) {@command DataPipeline PollForTask}
  * @method Model putPipelineDefinition(array $args = array()) {@command DataPipeline PutPipelineDefinition}
  * @method Model queryObjects(array $args = array()) {@command DataPipeline QueryObjects}
+ * @method Model removeTags(array $args = array()) {@command DataPipeline RemoveTags}
  * @method Model reportTaskProgress(array $args = array()) {@command DataPipeline ReportTaskProgress}
  * @method Model reportTaskRunnerHeartbeat(array $args = array()) {@command DataPipeline ReportTaskRunnerHeartbeat}
  * @method Model setStatus(array $args = array()) {@command DataPipeline SetStatus}
@@ -45,10 +48,11 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model validatePipelineDefinition(array $args = array()) {@command DataPipeline ValidatePipelineDefinition}
  * @method ResourceIteratorInterface getListPipelinesIterator(array $args = array()) The input array uses the parameters of the ListPipelines operation
  * @method ResourceIteratorInterface getDescribeObjectsIterator(array $args = array()) The input array uses the parameters of the DescribeObjects operation
+ * @method ResourceIteratorInterface getDescribePipelinesIterator(array $args = array()) The input array uses the parameters of the DescribePipelines operation
  * @method ResourceIteratorInterface getQueryObjectsIterator(array $args = array()) The input array uses the parameters of the QueryObjects operation
  *
- * @link http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-datapipeline.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.DataPipeline.DataPipelineClient.html API docs
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-datapipeline.html User guide
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.DataPipeline.DataPipelineClient.html API docs
  */
 class DataPipelineClient extends AbstractClient
 {
@@ -60,7 +64,7 @@ class DataPipelineClient extends AbstractClient
      * @param array|Collection $config Client configuration data
      *
      * @return self
-     * @see \Aws\Common\Client\DefaultClient for a list of available configuration options
+     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
      */
     public static function factory($config = array())
     {
@@ -72,23 +76,6 @@ class DataPipelineClient extends AbstractClient
                 Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/datapipeline-%s.php'
             ))
             ->setExceptionParser(new JsonQueryExceptionParser())
-            ->setIteratorsConfig(array(
-                'limit_key'   => 'limit',
-                'more_key'    => 'hasMoreResults',
-                'token_param' => 'marker',
-                'token_key'   => 'marker',
-                'operations'  => array(
-                    'ListPipelines' => array(
-                        'result_key'  => 'pipelineIdList',
-                    ),
-                    'DescribeObjects' => array(
-                        'result_key'  => 'pipelineObjects',
-                    ),
-                    'QueryObjects' => array(
-                        'result_key'  => 'ids',
-                    ),
-                )
-            ))
             ->build();
 
         return $client;

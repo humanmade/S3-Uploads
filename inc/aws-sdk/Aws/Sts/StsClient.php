@@ -18,7 +18,6 @@ namespace Aws\Sts;
 
 use Aws\Common\Client\AbstractClient;
 use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Client\UnsignedOperationsListener;
 use Aws\Common\Credentials\Credentials;
 use Aws\Common\Enum\ClientOptions as Options;
 use Aws\Common\Exception\InvalidArgumentException;
@@ -39,8 +38,8 @@ use Symfony\Component\EventDispatcher\Event;
  * @method Model getFederationToken(array $args = array()) {@command Sts GetFederationToken}
  * @method Model getSessionToken(array $args = array()) {@command Sts GetSessionToken}
  *
- * @link http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-sts.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.Sts.StsClient.html API docs
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-sts.html User guide
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.Sts.StsClient.html API docs
  */
 class StsClient extends AbstractClient
 {
@@ -53,7 +52,7 @@ class StsClient extends AbstractClient
      *
      * @return self
      * @throws InvalidArgumentException
-     * @see \Aws\Common\Client\DefaultClient for a list of available configuration options
+     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
      */
     public static function factory($config = array())
     {
@@ -75,7 +74,9 @@ class StsClient extends AbstractClient
         $client->getEventDispatcher()->addListener('command.before_send', function(Event $event) {
             /** @var AbstractCommand $command */
             $command = $event['command'];
-            if ($command->getName() === 'AssumeRoleWithWebIdentity') {
+            if ($command->getName() === 'AssumeRoleWithWebIdentity'
+                || $command->getName() === 'AssumeRoleWithSAML'
+            ) {
                 /** @var EventDispatcher $dispatcher */
                 $dispatcher = $command->getRequest()->getEventDispatcher();
                 foreach ($dispatcher->getListeners('request.before_send') as $listener) {

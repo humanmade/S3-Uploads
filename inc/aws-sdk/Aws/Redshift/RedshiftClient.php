@@ -37,6 +37,7 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model createEventSubscription(array $args = array()) {@command Redshift CreateEventSubscription}
  * @method Model createHsmClientCertificate(array $args = array()) {@command Redshift CreateHsmClientCertificate}
  * @method Model createHsmConfiguration(array $args = array()) {@command Redshift CreateHsmConfiguration}
+ * @method Model createTags(array $args = array()) {@command Redshift CreateTags}
  * @method Model deleteCluster(array $args = array()) {@command Redshift DeleteCluster}
  * @method Model deleteClusterParameterGroup(array $args = array()) {@command Redshift DeleteClusterParameterGroup}
  * @method Model deleteClusterSecurityGroup(array $args = array()) {@command Redshift DeleteClusterSecurityGroup}
@@ -45,6 +46,7 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model deleteEventSubscription(array $args = array()) {@command Redshift DeleteEventSubscription}
  * @method Model deleteHsmClientCertificate(array $args = array()) {@command Redshift DeleteHsmClientCertificate}
  * @method Model deleteHsmConfiguration(array $args = array()) {@command Redshift DeleteHsmConfiguration}
+ * @method Model deleteTags(array $args = array()) {@command Redshift DeleteTags}
  * @method Model describeClusterParameterGroups(array $args = array()) {@command Redshift DescribeClusterParameterGroups}
  * @method Model describeClusterParameters(array $args = array()) {@command Redshift DescribeClusterParameters}
  * @method Model describeClusterSecurityGroups(array $args = array()) {@command Redshift DescribeClusterSecurityGroups}
@@ -63,6 +65,7 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model describeReservedNodeOfferings(array $args = array()) {@command Redshift DescribeReservedNodeOfferings}
  * @method Model describeReservedNodes(array $args = array()) {@command Redshift DescribeReservedNodes}
  * @method Model describeResize(array $args = array()) {@command Redshift DescribeResize}
+ * @method Model describeTags(array $args = array()) {@command Redshift DescribeTags}
  * @method Model disableLogging(array $args = array()) {@command Redshift DisableLogging}
  * @method Model disableSnapshotCopy(array $args = array()) {@command Redshift DisableSnapshotCopy}
  * @method Model enableLogging(array $args = array()) {@command Redshift EnableLogging}
@@ -79,9 +82,9 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model revokeClusterSecurityGroupIngress(array $args = array()) {@command Redshift RevokeClusterSecurityGroupIngress}
  * @method Model revokeSnapshotAccess(array $args = array()) {@command Redshift RevokeSnapshotAccess}
  * @method Model rotateEncryptionKey(array $args = array()) {@command Redshift RotateEncryptionKey}
- * @method waitUntilClusterAvailable(array $input) Wait using the ClusterAvailable waiter. The input array uses the parameters of the DescribeClusters operation and waiter specific settings
- * @method waitUntilClusterDeleted(array $input) Wait using the ClusterDeleted waiter. The input array uses the parameters of the DescribeClusters operation and waiter specific settings
- * @method waitUntilSnapshotAvailable(array $input) Wait using the SnapshotAvailable waiter. The input array uses the parameters of the DescribeClusterSnapshots operation and waiter specific settings
+ * @method waitUntilClusterAvailable(array $input) The input array uses the parameters of the DescribeClusters operation and waiter specific settings
+ * @method waitUntilClusterDeleted(array $input) The input array uses the parameters of the DescribeClusters operation and waiter specific settings
+ * @method waitUntilSnapshotAvailable(array $input) The input array uses the parameters of the DescribeClusterSnapshots operation and waiter specific settings
  * @method ResourceIteratorInterface getDescribeClusterParameterGroupsIterator(array $args = array()) The input array uses the parameters of the DescribeClusterParameterGroups operation
  * @method ResourceIteratorInterface getDescribeClusterParametersIterator(array $args = array()) The input array uses the parameters of the DescribeClusterParameters operation
  * @method ResourceIteratorInterface getDescribeClusterSecurityGroupsIterator(array $args = array()) The input array uses the parameters of the DescribeClusterSecurityGroups operation
@@ -98,8 +101,8 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method ResourceIteratorInterface getDescribeReservedNodeOfferingsIterator(array $args = array()) The input array uses the parameters of the DescribeReservedNodeOfferings operation
  * @method ResourceIteratorInterface getDescribeReservedNodesIterator(array $args = array()) The input array uses the parameters of the DescribeReservedNodes operation
  *
- * @link http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-redshift.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.Redshift.RedshiftClient.html API docs
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-redshift.html User guide
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.Redshift.RedshiftClient.html API docs
  */
 class RedshiftClient extends AbstractClient
 {
@@ -111,7 +114,7 @@ class RedshiftClient extends AbstractClient
      * @param array|Collection $config Client configuration data
      *
      * @return self
-     * @see \Aws\Common\Client\DefaultClient for a list of available configuration options
+     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
      */
     public static function factory($config = array())
     {

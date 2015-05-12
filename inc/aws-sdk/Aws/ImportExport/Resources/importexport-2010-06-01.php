@@ -88,6 +88,10 @@ return array (
                     'type' => 'string',
                     'location' => 'aws.query',
                 ),
+                'APIVersion' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
             ),
             'errorResponses' => array(
                 array(
@@ -109,6 +113,10 @@ return array (
                 array(
                     'reason' => 'The AWS Access Key ID specified in the request did not match the manifest\'s accessKeyId value. The manifest and the request authentication must use the same AWS Access Key ID.',
                     'class' => 'InvalidAccessKeyIdException',
+                ),
+                array(
+                    'reason' => 'The client tool version is invalid.',
+                    'class' => 'InvalidVersionException',
                 ),
             ),
         ),
@@ -133,10 +141,6 @@ return array (
                     'required' => true,
                     'type' => 'string',
                     'location' => 'aws.query',
-                    'enum' => array(
-                        'Import',
-                        'Export',
-                    ),
                 ),
                 'Manifest' => array(
                     'required' => true,
@@ -153,15 +157,15 @@ return array (
                     'format' => 'boolean-string',
                     'location' => 'aws.query',
                 ),
+                'APIVersion' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
             ),
             'errorResponses' => array(
                 array(
                     'reason' => 'One or more required parameters was missing from the request.',
                     'class' => 'MissingParameterException',
-                ),
-                array(
-                    'reason' => 'One or more parameters had an invalid value.',
-                    'class' => 'InvalidParameterException',
                 ),
                 array(
                     'reason' => 'One or more parameters had an invalid value.',
@@ -211,6 +215,121 @@ return array (
                     'reason' => 'Your manifest is not well-formed.',
                     'class' => 'MalformedManifestException',
                 ),
+                array(
+                    'reason' => 'Each account can create only a certain number of jobs per day. If you need to create more than this, please contact awsimportexport@amazon.com to explain your particular use case.',
+                    'class' => 'CreateJobQuotaExceededException',
+                ),
+                array(
+                    'reason' => 'The JOBID was missing, not found, or not associated with the AWS account.',
+                    'class' => 'InvalidJobIdException',
+                ),
+                array(
+                    'reason' => 'The client tool version is invalid.',
+                    'class' => 'InvalidVersionException',
+                ),
+            ),
+        ),
+        'GetShippingLabel' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'GetShippingLabelOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'GetShippingLabel',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2010-06-01',
+                ),
+                'jobIds' => array(
+                    'required' => true,
+                    'type' => 'array',
+                    'location' => 'aws.query',
+                    'sentAs' => 'jobIds.member',
+                    'items' => array(
+                        'name' => 'GenericString',
+                        'type' => 'string',
+                    ),
+                ),
+                'name' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+                'company' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+                'phoneNumber' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+                'country' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+                'stateOrProvince' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+                'city' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+                'postalCode' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+                'street1' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+                'street2' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+                'street3' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+                'APIVersion' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+            ),
+            'errorResponses' => array(
+                array(
+                    'reason' => 'The JOBID was missing, not found, or not associated with the AWS account.',
+                    'class' => 'InvalidJobIdException',
+                ),
+                array(
+                    'reason' => 'Indicates that the specified job has expired out of the system.',
+                    'class' => 'ExpiredJobIdException',
+                ),
+                array(
+                    'reason' => 'The specified job ID has been canceled and is no longer valid.',
+                    'class' => 'CanceledJobIdException',
+                ),
+                array(
+                    'reason' => 'The AWS Access Key ID specified in the request did not match the manifest\'s accessKeyId value. The manifest and the request authentication must use the same AWS Access Key ID.',
+                    'class' => 'InvalidAccessKeyIdException',
+                ),
+                array(
+                    'reason' => 'The address specified in the manifest is invalid.',
+                    'class' => 'InvalidAddressException',
+                ),
+                array(
+                    'reason' => 'The client tool version is invalid.',
+                    'class' => 'InvalidVersionException',
+                ),
+                array(
+                    'reason' => 'One or more parameters had an invalid value.',
+                    'class' => 'InvalidParameterException',
+                ),
             ),
         ),
         'GetStatus' => array(
@@ -235,6 +354,10 @@ return array (
                     'type' => 'string',
                     'location' => 'aws.query',
                 ),
+                'APIVersion' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
             ),
             'errorResponses' => array(
                 array(
@@ -252,6 +375,10 @@ return array (
                 array(
                     'reason' => 'The AWS Access Key ID specified in the request did not match the manifest\'s accessKeyId value. The manifest and the request authentication must use the same AWS Access Key ID.',
                     'class' => 'InvalidAccessKeyIdException',
+                ),
+                array(
+                    'reason' => 'The client tool version is invalid.',
+                    'class' => 'InvalidVersionException',
                 ),
             ),
         ),
@@ -280,6 +407,10 @@ return array (
                     'type' => 'string',
                     'location' => 'aws.query',
                 ),
+                'APIVersion' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
             ),
             'errorResponses' => array(
                 array(
@@ -289,6 +420,10 @@ return array (
                 array(
                     'reason' => 'The AWS Access Key ID specified in the request did not match the manifest\'s accessKeyId value. The manifest and the request authentication must use the same AWS Access Key ID.',
                     'class' => 'InvalidAccessKeyIdException',
+                ),
+                array(
+                    'reason' => 'The client tool version is invalid.',
+                    'class' => 'InvalidVersionException',
                 ),
             ),
         ),
@@ -323,15 +458,15 @@ return array (
                     'required' => true,
                     'type' => 'string',
                     'location' => 'aws.query',
-                    'enum' => array(
-                        'Import',
-                        'Export',
-                    ),
                 ),
                 'ValidateOnly' => array(
                     'required' => true,
                     'type' => 'boolean',
                     'format' => 'boolean-string',
+                    'location' => 'aws.query',
+                ),
+                'APIVersion' => array(
+                    'type' => 'string',
                     'location' => 'aws.query',
                 ),
             ),
@@ -400,6 +535,14 @@ return array (
                     'reason' => 'Your manifest is not well-formed.',
                     'class' => 'MalformedManifestException',
                 ),
+                array(
+                    'reason' => 'AWS Import/Export cannot update the job',
+                    'class' => 'UnableToUpdateJobIdException',
+                ),
+                array(
+                    'reason' => 'The client tool version is invalid.',
+                    'class' => 'InvalidVersionException',
+                ),
             ),
         ),
     ),
@@ -426,10 +569,6 @@ return array (
                     'type' => 'string',
                     'location' => 'xml',
                 ),
-                'AwsShippingAddress' => array(
-                    'type' => 'string',
-                    'location' => 'xml',
-                ),
                 'Signature' => array(
                     'type' => 'string',
                     'location' => 'xml',
@@ -439,6 +578,37 @@ return array (
                     'location' => 'xml',
                 ),
                 'WarningMessage' => array(
+                    'type' => 'string',
+                    'location' => 'xml',
+                ),
+                'ArtifactList' => array(
+                    'type' => 'array',
+                    'location' => 'xml',
+                    'items' => array(
+                        'name' => 'Artifact',
+                        'type' => 'object',
+                        'sentAs' => 'member',
+                        'properties' => array(
+                            'Description' => array(
+                                'type' => 'string',
+                            ),
+                            'URL' => array(
+                                'type' => 'string',
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        'GetShippingLabelOutput' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+            'properties' => array(
+                'ShippingLabelURL' => array(
+                    'type' => 'string',
+                    'location' => 'xml',
+                ),
+                'Warning' => array(
                     'type' => 'string',
                     'location' => 'xml',
                 ),
@@ -453,10 +623,6 @@ return array (
                     'location' => 'xml',
                 ),
                 'JobType' => array(
-                    'type' => 'string',
-                    'location' => 'xml',
-                ),
-                'AwsShippingAddress' => array(
                     'type' => 'string',
                     'location' => 'xml',
                 ),
@@ -512,6 +678,23 @@ return array (
                     'type' => 'string',
                     'location' => 'xml',
                 ),
+                'ArtifactList' => array(
+                    'type' => 'array',
+                    'location' => 'xml',
+                    'items' => array(
+                        'name' => 'Artifact',
+                        'type' => 'object',
+                        'sentAs' => 'member',
+                        'properties' => array(
+                            'Description' => array(
+                                'type' => 'string',
+                            ),
+                            'URL' => array(
+                                'type' => 'string',
+                            ),
+                        ),
+                    ),
+                ),
             ),
         ),
         'ListJobsOutput' => array(
@@ -559,17 +742,33 @@ return array (
                     'type' => 'string',
                     'location' => 'xml',
                 ),
+                'ArtifactList' => array(
+                    'type' => 'array',
+                    'location' => 'xml',
+                    'items' => array(
+                        'name' => 'Artifact',
+                        'type' => 'object',
+                        'sentAs' => 'member',
+                        'properties' => array(
+                            'Description' => array(
+                                'type' => 'string',
+                            ),
+                            'URL' => array(
+                                'type' => 'string',
+                            ),
+                        ),
+                    ),
+                ),
             ),
         ),
     ),
     'iterators' => array(
-        'operations' => array(
-            'ListJobs' => array(
-                'token_param' => 'Marker',
-                'more_key' => 'IsTruncated',
-                'limit_key' => 'MaxJobs',
-                'result_key' => 'Jobs',
-            ),
+        'ListJobs' => array(
+            'input_token' => 'Marker',
+            'output_token' => 'Jobs/#/JobId',
+            'more_results' => 'IsTruncated',
+            'limit_key' => 'MaxJobs',
+            'result_key' => 'Jobs',
         ),
     ),
 );

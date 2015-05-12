@@ -27,8 +27,10 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
 /**
  * Client to interact with AWS Support
  *
+ * @method Model addAttachmentsToSet(array $args = array()) {@command Support AddAttachmentsToSet}
  * @method Model addCommunicationToCase(array $args = array()) {@command Support AddCommunicationToCase}
  * @method Model createCase(array $args = array()) {@command Support CreateCase}
+ * @method Model describeAttachment(array $args = array()) {@command Support DescribeAttachment}
  * @method Model describeCases(array $args = array()) {@command Support DescribeCases}
  * @method Model describeCommunications(array $args = array()) {@command Support DescribeCommunications}
  * @method Model describeServices(array $args = array()) {@command Support DescribeServices}
@@ -47,8 +49,8 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method ResourceIteratorInterface getDescribeSeverityLevelsIterator(array $args = array()) The input array uses the parameters of the DescribeSeverityLevels operation
  * @method ResourceIteratorInterface getDescribeTrustedAdvisorChecksIterator(array $args = array()) The input array uses the parameters of the DescribeTrustedAdvisorChecks operation
  *
- * @link http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-support.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.Support.SupportClient.html API docs
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-support.html User guide
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.Support.SupportClient.html API docs
  */
 class SupportClient extends AbstractClient
 {
@@ -60,7 +62,7 @@ class SupportClient extends AbstractClient
      * @param array|Collection $config Client configuration data
      *
      * @return self
-     * @see \Aws\Common\Client\DefaultClient for a list of available configuration options
+     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
      */
     public static function factory($config = array())
     {

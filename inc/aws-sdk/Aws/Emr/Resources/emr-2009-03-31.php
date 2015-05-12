@@ -66,6 +66,11 @@ return array (
             'https' => true,
             'hostname' => 'elasticmapreduce.sa-east-1.amazonaws.com',
         ),
+        'cn-north-1' => array(
+            'http' => true,
+            'https' => true,
+            'hostname' => 'elasticmapreduce.cn-north-1.amazonaws.com.cn',
+        ),
         'us-gov-west-1' => array(
             'http' => true,
             'https' => true,
@@ -108,19 +113,10 @@ return array (
                             ),
                             'Market' => array(
                                 'type' => 'string',
-                                'enum' => array(
-                                    'ON_DEMAND',
-                                    'SPOT',
-                                ),
                             ),
                             'InstanceRole' => array(
                                 'required' => true,
                                 'type' => 'string',
-                                'enum' => array(
-                                    'MASTER',
-                                    'CORE',
-                                    'TASK',
-                                ),
                             ),
                             'BidPrice' => array(
                                 'type' => 'string',
@@ -195,12 +191,6 @@ return array (
                             ),
                             'ActionOnFailure' => array(
                                 'type' => 'string',
-                                'enum' => array(
-                                    'TERMINATE_JOB_FLOW',
-                                    'TERMINATE_CLUSTER',
-                                    'CANCEL_AND_WAIT',
-                                    'CONTINUE',
-                                ),
                             ),
                             'HadoopJarStep' => array(
                                 'required' => true,
@@ -253,6 +243,61 @@ return array (
                 ),
             ),
         ),
+        'AddTags' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\JsonCommand',
+            'responseClass' => 'EmptyOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Content-Type' => array(
+                    'static' => true,
+                    'location' => 'header',
+                    'default' => 'application/x-amz-json-1.1',
+                ),
+                'command.expects' => array(
+                    'static' => true,
+                    'default' => 'application/json',
+                ),
+                'X-Amz-Target' => array(
+                    'static' => true,
+                    'location' => 'header',
+                    'default' => 'ElasticMapReduce.AddTags',
+                ),
+                'ResourceId' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'json',
+                ),
+                'Tags' => array(
+                    'required' => true,
+                    'type' => 'array',
+                    'location' => 'json',
+                    'items' => array(
+                        'name' => 'Tag',
+                        'type' => 'object',
+                        'properties' => array(
+                            'Key' => array(
+                                'type' => 'string',
+                            ),
+                            'Value' => array(
+                                'type' => 'string',
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            'errorResponses' => array(
+                array(
+                    'reason' => 'This exception occurs when there is an internal failure in the EMR service.',
+                    'class' => 'InternalServerException',
+                ),
+                array(
+                    'reason' => 'This exception occurs when there is something wrong with user input.',
+                    'class' => 'InvalidRequestException',
+                ),
+            ),
+        ),
         'DescribeCluster' => array(
             'httpMethod' => 'POST',
             'uri' => '/',
@@ -275,10 +320,9 @@ return array (
                     'default' => 'ElasticMapReduce.DescribeCluster',
                 ),
                 'ClusterId' => array(
+                    'required' => true,
                     'type' => 'string',
                     'location' => 'json',
-                    'minLength' => 1,
-                    'maxLength' => 64,
                 ),
             ),
             'errorResponses' => array(
@@ -346,16 +390,6 @@ return array (
                     'items' => array(
                         'name' => 'JobFlowExecutionState',
                         'type' => 'string',
-                        'enum' => array(
-                            'STARTING',
-                            'BOOTSTRAPPING',
-                            'RUNNING',
-                            'WAITING',
-                            'SHUTTING_DOWN',
-                            'TERMINATED',
-                            'COMPLETED',
-                            'FAILED',
-                        ),
                     ),
                 ),
             ),
@@ -388,16 +422,14 @@ return array (
                     'default' => 'ElasticMapReduce.DescribeStep',
                 ),
                 'ClusterId' => array(
+                    'required' => true,
                     'type' => 'string',
                     'location' => 'json',
-                    'minLength' => 1,
-                    'maxLength' => 64,
                 ),
                 'StepId' => array(
+                    'required' => true,
                     'type' => 'string',
                     'location' => 'json',
-                    'minLength' => 1,
-                    'maxLength' => 64,
                 ),
             ),
             'errorResponses' => array(
@@ -433,16 +465,13 @@ return array (
                     'default' => 'ElasticMapReduce.ListBootstrapActions',
                 ),
                 'ClusterId' => array(
+                    'required' => true,
                     'type' => 'string',
                     'location' => 'json',
-                    'minLength' => 1,
-                    'maxLength' => 64,
                 ),
                 'Marker' => array(
                     'type' => 'string',
                     'location' => 'json',
-                    'minLength' => 1,
-                    'maxLength' => 512,
                 ),
             ),
             'errorResponses' => array(
@@ -501,22 +530,11 @@ return array (
                     'items' => array(
                         'name' => 'ClusterState',
                         'type' => 'string',
-                        'enum' => array(
-                            'STARTING',
-                            'BOOTSTRAPPING',
-                            'RUNNING',
-                            'WAITING',
-                            'TERMINATING',
-                            'TERMINATED',
-                            'TERMINATED_WITH_ERRORS',
-                        ),
                     ),
                 ),
                 'Marker' => array(
                     'type' => 'string',
                     'location' => 'json',
-                    'minLength' => 1,
-                    'maxLength' => 512,
                 ),
             ),
             'errorResponses' => array(
@@ -552,16 +570,13 @@ return array (
                     'default' => 'ElasticMapReduce.ListInstanceGroups',
                 ),
                 'ClusterId' => array(
+                    'required' => true,
                     'type' => 'string',
                     'location' => 'json',
-                    'minLength' => 1,
-                    'maxLength' => 64,
                 ),
                 'Marker' => array(
                     'type' => 'string',
                     'location' => 'json',
-                    'minLength' => 1,
-                    'maxLength' => 512,
                 ),
             ),
             'errorResponses' => array(
@@ -597,16 +612,13 @@ return array (
                     'default' => 'ElasticMapReduce.ListInstances',
                 ),
                 'ClusterId' => array(
+                    'required' => true,
                     'type' => 'string',
                     'location' => 'json',
-                    'minLength' => 1,
-                    'maxLength' => 64,
                 ),
                 'InstanceGroupId' => array(
                     'type' => 'string',
                     'location' => 'json',
-                    'minLength' => 1,
-                    'maxLength' => 64,
                 ),
                 'InstanceGroupTypes' => array(
                     'type' => 'array',
@@ -614,18 +626,11 @@ return array (
                     'items' => array(
                         'name' => 'InstanceGroupType',
                         'type' => 'string',
-                        'enum' => array(
-                            'MASTER',
-                            'CORE',
-                            'TASK',
-                        ),
                     ),
                 ),
                 'Marker' => array(
                     'type' => 'string',
                     'location' => 'json',
-                    'minLength' => 1,
-                    'maxLength' => 512,
                 ),
             ),
             'errorResponses' => array(
@@ -661,10 +666,9 @@ return array (
                     'default' => 'ElasticMapReduce.ListSteps',
                 ),
                 'ClusterId' => array(
+                    'required' => true,
                     'type' => 'string',
                     'location' => 'json',
-                    'minLength' => 1,
-                    'maxLength' => 64,
                 ),
                 'StepStates' => array(
                     'type' => 'array',
@@ -672,21 +676,20 @@ return array (
                     'items' => array(
                         'name' => 'StepState',
                         'type' => 'string',
-                        'enum' => array(
-                            'PENDING',
-                            'RUNNING',
-                            'COMPLETED',
-                            'CANCELLED',
-                            'FAILED',
-                            'INTERRUPTED',
-                        ),
+                    ),
+                ),
+                'StepIds' => array(
+                    'type' => 'array',
+                    'location' => 'json',
+                    'items' => array(
+                        'name' => 'XmlString',
+                        'type' => 'string',
+                        'maxLength' => 10280,
                     ),
                 ),
                 'Marker' => array(
                     'type' => 'string',
                     'location' => 'json',
-                    'minLength' => 1,
-                    'maxLength' => 512,
                 ),
             ),
             'errorResponses' => array(
@@ -741,8 +744,6 @@ return array (
                                 'items' => array(
                                     'name' => 'InstanceId',
                                     'type' => 'string',
-                                    'minLength' => 1,
-                                    'maxLength' => 64,
                                 ),
                             ),
                         ),
@@ -753,6 +754,53 @@ return array (
                 array(
                     'reason' => 'Indicates that an error occurred while processing the request and that the request was not completed.',
                     'class' => 'InternalServerErrorException',
+                ),
+            ),
+        ),
+        'RemoveTags' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\JsonCommand',
+            'responseClass' => 'EmptyOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Content-Type' => array(
+                    'static' => true,
+                    'location' => 'header',
+                    'default' => 'application/x-amz-json-1.1',
+                ),
+                'command.expects' => array(
+                    'static' => true,
+                    'default' => 'application/json',
+                ),
+                'X-Amz-Target' => array(
+                    'static' => true,
+                    'location' => 'header',
+                    'default' => 'ElasticMapReduce.RemoveTags',
+                ),
+                'ResourceId' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'json',
+                ),
+                'TagKeys' => array(
+                    'required' => true,
+                    'type' => 'array',
+                    'location' => 'json',
+                    'items' => array(
+                        'name' => 'String',
+                        'type' => 'string',
+                    ),
+                ),
+            ),
+            'errorResponses' => array(
+                array(
+                    'reason' => 'This exception occurs when there is an internal failure in the EMR service.',
+                    'class' => 'InternalServerException',
+                ),
+                array(
+                    'reason' => 'This exception occurs when there is something wrong with user input.',
+                    'class' => 'InvalidRequestException',
                 ),
             ),
         ),
@@ -828,19 +876,10 @@ return array (
                                     ),
                                     'Market' => array(
                                         'type' => 'string',
-                                        'enum' => array(
-                                            'ON_DEMAND',
-                                            'SPOT',
-                                        ),
                                     ),
                                     'InstanceRole' => array(
                                         'required' => true,
                                         'type' => 'string',
-                                        'enum' => array(
-                                            'MASTER',
-                                            'CORE',
-                                            'TASK',
-                                        ),
                                     ),
                                     'BidPrice' => array(
                                         'type' => 'string',
@@ -889,6 +928,30 @@ return array (
                             'type' => 'string',
                             'maxLength' => 256,
                         ),
+                        'EmrManagedMasterSecurityGroup' => array(
+                            'type' => 'string',
+                            'maxLength' => 256,
+                        ),
+                        'EmrManagedSlaveSecurityGroup' => array(
+                            'type' => 'string',
+                            'maxLength' => 256,
+                        ),
+                        'AdditionalMasterSecurityGroups' => array(
+                            'type' => 'array',
+                            'items' => array(
+                                'name' => 'XmlStringMaxLen256',
+                                'type' => 'string',
+                                'maxLength' => 256,
+                            ),
+                        ),
+                        'AdditionalSlaveSecurityGroups' => array(
+                            'type' => 'array',
+                            'items' => array(
+                                'name' => 'XmlStringMaxLen256',
+                                'type' => 'string',
+                                'maxLength' => 256,
+                            ),
+                        ),
                     ),
                 ),
                 'Steps' => array(
@@ -905,12 +968,6 @@ return array (
                             ),
                             'ActionOnFailure' => array(
                                 'type' => 'string',
-                                'enum' => array(
-                                    'TERMINATE_JOB_FLOW',
-                                    'TERMINATE_CLUSTER',
-                                    'CANCEL_AND_WAIT',
-                                    'CONTINUE',
-                                ),
                             ),
                             'HadoopJarStep' => array(
                                 'required' => true,
@@ -1029,6 +1086,27 @@ return array (
                     'type' => 'string',
                     'location' => 'json',
                     'maxLength' => 10280,
+                ),
+                'ServiceRole' => array(
+                    'type' => 'string',
+                    'location' => 'json',
+                    'maxLength' => 10280,
+                ),
+                'Tags' => array(
+                    'type' => 'array',
+                    'location' => 'json',
+                    'items' => array(
+                        'name' => 'Tag',
+                        'type' => 'object',
+                        'properties' => array(
+                            'Key' => array(
+                                'type' => 'string',
+                            ),
+                            'Value' => array(
+                                'type' => 'string',
+                            ),
+                        ),
+                    ),
                 ),
             ),
             'errorResponses' => array(
@@ -1201,6 +1279,10 @@ return array (
                 ),
             ),
         ),
+        'EmptyOutput' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+        ),
         'DescribeClusterOutput' => array(
             'type' => 'object',
             'additionalProperties' => true,
@@ -1263,6 +1345,26 @@ return array (
                                 'IamInstanceProfile' => array(
                                     'type' => 'string',
                                 ),
+                                'EmrManagedMasterSecurityGroup' => array(
+                                    'type' => 'string',
+                                ),
+                                'EmrManagedSlaveSecurityGroup' => array(
+                                    'type' => 'string',
+                                ),
+                                'AdditionalMasterSecurityGroups' => array(
+                                    'type' => 'array',
+                                    'items' => array(
+                                        'name' => 'String',
+                                        'type' => 'string',
+                                    ),
+                                ),
+                                'AdditionalSlaveSecurityGroups' => array(
+                                    'type' => 'array',
+                                    'items' => array(
+                                        'name' => 'String',
+                                        'type' => 'string',
+                                    ),
+                                ),
                             ),
                         ),
                         'LogUri' => array(
@@ -1310,6 +1412,30 @@ return array (
                                     ),
                                 ),
                             ),
+                        ),
+                        'Tags' => array(
+                            'type' => 'array',
+                            'items' => array(
+                                'name' => 'Tag',
+                                'type' => 'object',
+                                'properties' => array(
+                                    'Key' => array(
+                                        'type' => 'string',
+                                    ),
+                                    'Value' => array(
+                                        'type' => 'string',
+                                    ),
+                                ),
+                            ),
+                        ),
+                        'ServiceRole' => array(
+                            'type' => 'string',
+                        ),
+                        'NormalizedInstanceHours' => array(
+                            'type' => 'numeric',
+                        ),
+                        'MasterPublicDnsName' => array(
+                            'type' => 'string',
                         ),
                     ),
                 ),
@@ -1576,6 +1702,9 @@ return array (
                             'JobFlowRole' => array(
                                 'type' => 'string',
                             ),
+                            'ServiceRole' => array(
+                                'type' => 'string',
+                            ),
                         ),
                     ),
                 ),
@@ -1741,6 +1870,9 @@ return array (
                                         ),
                                     ),
                                 ),
+                            ),
+                            'NormalizedInstanceHours' => array(
+                                'type' => 'numeric',
                             ),
                         ),
                     ),
@@ -1916,6 +2048,33 @@ return array (
                             'Name' => array(
                                 'type' => 'string',
                             ),
+                            'Config' => array(
+                                'type' => 'object',
+                                'properties' => array(
+                                    'Jar' => array(
+                                        'type' => 'string',
+                                    ),
+                                    'Properties' => array(
+                                        'type' => 'object',
+                                        'additionalProperties' => array(
+                                            'type' => 'string',
+                                        ),
+                                    ),
+                                    'MainClass' => array(
+                                        'type' => 'string',
+                                    ),
+                                    'Args' => array(
+                                        'type' => 'array',
+                                        'items' => array(
+                                            'name' => 'String',
+                                            'type' => 'string',
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            'ActionOnFailure' => array(
+                                'type' => 'string',
+                            ),
                             'Status' => array(
                                 'type' => 'object',
                                 'properties' => array(
@@ -1958,10 +2117,6 @@ return array (
                 ),
             ),
         ),
-        'EmptyOutput' => array(
-            'type' => 'object',
-            'additionalProperties' => true,
-        ),
         'RunJobFlowOutput' => array(
             'type' => 'object',
             'additionalProperties' => true,
@@ -1974,35 +2129,33 @@ return array (
         ),
     ),
     'iterators' => array(
-        'operations' => array(
-            'DescribeJobFlows' => array(
-                'result_key' => 'JobFlows',
-            ),
-            'ListBootstrapActions' => array(
-                'token_param' => 'Marker',
-                'token_key' => 'Marker',
-                'result_key' => 'BootstrapActions',
-            ),
-            'ListClusters' => array(
-                'token_param' => 'Marker',
-                'token_key' => 'Marker',
-                'result_key' => 'Clusters',
-            ),
-            'ListInstanceGroups' => array(
-                'token_param' => 'Marker',
-                'token_key' => 'Marker',
-                'result_key' => 'InstanceGroups',
-            ),
-            'ListInstances' => array(
-                'token_param' => 'Marker',
-                'token_key' => 'Marker',
-                'result_key' => 'Instances',
-            ),
-            'ListSteps' => array(
-                'token_param' => 'Marker',
-                'token_key' => 'Marker',
-                'result_key' => 'Steps',
-            ),
+        'DescribeJobFlows' => array(
+            'result_key' => 'JobFlows',
+        ),
+        'ListBootstrapActions' => array(
+            'input_token' => 'Marker',
+            'output_token' => 'Marker',
+            'result_key' => 'BootstrapActions',
+        ),
+        'ListClusters' => array(
+            'input_token' => 'Marker',
+            'output_token' => 'Marker',
+            'result_key' => 'Clusters',
+        ),
+        'ListInstanceGroups' => array(
+            'input_token' => 'Marker',
+            'output_token' => 'Marker',
+            'result_key' => 'InstanceGroups',
+        ),
+        'ListInstances' => array(
+            'input_token' => 'Marker',
+            'output_token' => 'Marker',
+            'result_key' => 'Instances',
+        ),
+        'ListSteps' => array(
+            'input_token' => 'Marker',
+            'output_token' => 'Marker',
+            'result_key' => 'Steps',
         ),
     ),
 );

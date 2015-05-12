@@ -16,6 +16,7 @@
 
 namespace Aws\CloudSearch;
 
+use Aws\CloudSearchDomain\CloudSearchDomainClient;
 use Aws\Common\Client\AbstractClient;
 use Aws\Common\Client\ClientBuilder;
 use Aws\Common\Enum\ClientOptions as Options;
@@ -26,36 +27,42 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
 /**
  * Client to interact with Amazon CloudSearch
  *
+ * @method Model buildSuggesters(array $args = array()) {@command CloudSearch BuildSuggesters}
  * @method Model createDomain(array $args = array()) {@command CloudSearch CreateDomain}
+ * @method Model defineAnalysisScheme(array $args = array()) {@command CloudSearch DefineAnalysisScheme}
+ * @method Model defineExpression(array $args = array()) {@command CloudSearch DefineExpression}
  * @method Model defineIndexField(array $args = array()) {@command CloudSearch DefineIndexField}
- * @method Model defineRankExpression(array $args = array()) {@command CloudSearch DefineRankExpression}
+ * @method Model defineSuggester(array $args = array()) {@command CloudSearch DefineSuggester}
+ * @method Model deleteAnalysisScheme(array $args = array()) {@command CloudSearch DeleteAnalysisScheme}
  * @method Model deleteDomain(array $args = array()) {@command CloudSearch DeleteDomain}
+ * @method Model deleteExpression(array $args = array()) {@command CloudSearch DeleteExpression}
  * @method Model deleteIndexField(array $args = array()) {@command CloudSearch DeleteIndexField}
- * @method Model deleteRankExpression(array $args = array()) {@command CloudSearch DeleteRankExpression}
- * @method Model describeDefaultSearchField(array $args = array()) {@command CloudSearch DescribeDefaultSearchField}
+ * @method Model deleteSuggester(array $args = array()) {@command CloudSearch DeleteSuggester}
+ * @method Model describeAnalysisSchemes(array $args = array()) {@command CloudSearch DescribeAnalysisSchemes}
+ * @method Model describeAvailabilityOptions(array $args = array()) {@command CloudSearch DescribeAvailabilityOptions}
  * @method Model describeDomains(array $args = array()) {@command CloudSearch DescribeDomains}
+ * @method Model describeExpressions(array $args = array()) {@command CloudSearch DescribeExpressions}
  * @method Model describeIndexFields(array $args = array()) {@command CloudSearch DescribeIndexFields}
- * @method Model describeRankExpressions(array $args = array()) {@command CloudSearch DescribeRankExpressions}
+ * @method Model describeScalingParameters(array $args = array()) {@command CloudSearch DescribeScalingParameters}
  * @method Model describeServiceAccessPolicies(array $args = array()) {@command CloudSearch DescribeServiceAccessPolicies}
- * @method Model describeStemmingOptions(array $args = array()) {@command CloudSearch DescribeStemmingOptions}
- * @method Model describeStopwordOptions(array $args = array()) {@command CloudSearch DescribeStopwordOptions}
- * @method Model describeSynonymOptions(array $args = array()) {@command CloudSearch DescribeSynonymOptions}
+ * @method Model describeSuggesters(array $args = array()) {@command CloudSearch DescribeSuggesters}
  * @method Model indexDocuments(array $args = array()) {@command CloudSearch IndexDocuments}
- * @method Model updateDefaultSearchField(array $args = array()) {@command CloudSearch UpdateDefaultSearchField}
+ * @method Model listDomainNames(array $args = array()) {@command CloudSearch ListDomainNames}
+ * @method Model updateAvailabilityOptions(array $args = array()) {@command CloudSearch UpdateAvailabilityOptions}
+ * @method Model updateScalingParameters(array $args = array()) {@command CloudSearch UpdateScalingParameters}
  * @method Model updateServiceAccessPolicies(array $args = array()) {@command CloudSearch UpdateServiceAccessPolicies}
- * @method Model updateStemmingOptions(array $args = array()) {@command CloudSearch UpdateStemmingOptions}
- * @method Model updateStopwordOptions(array $args = array()) {@command CloudSearch UpdateStopwordOptions}
- * @method Model updateSynonymOptions(array $args = array()) {@command CloudSearch UpdateSynonymOptions}
+ * @method ResourceIteratorInterface getDescribeAnalysisSchemesIterator(array $args = array()) The input array uses the parameters of the DescribeAnalysisSchemes operation
  * @method ResourceIteratorInterface getDescribeDomainsIterator(array $args = array()) The input array uses the parameters of the DescribeDomains operation
+ * @method ResourceIteratorInterface getDescribeExpressionsIterator(array $args = array()) The input array uses the parameters of the DescribeExpressions operation
  * @method ResourceIteratorInterface getDescribeIndexFieldsIterator(array $args = array()) The input array uses the parameters of the DescribeIndexFields operation
- * @method ResourceIteratorInterface getDescribeRankExpressionsIterator(array $args = array()) The input array uses the parameters of the DescribeRankExpressions operation
+ * @method ResourceIteratorInterface getDescribeSuggestersIterator(array $args = array()) The input array uses the parameters of the DescribeSuggesters operation
  *
- * @link http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-cloudsearch.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.CloudSearch.CloudSearchClient.html API docs
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-cloudsearch.html User guide
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.CloudSearch.CloudSearchClient.html API docs
  */
 class CloudSearchClient extends AbstractClient
 {
-    const LATEST_API_VERSION = '2011-02-01';
+    const LATEST_API_VERSION = '2013-01-01';
 
     /**
      * Factory method to create a new Amazon CloudSearch client using an array of configuration options.
@@ -63,7 +70,7 @@ class CloudSearchClient extends AbstractClient
      * @param array|Collection $config Client configuration data
      *
      * @return self
-     * @see \Aws\Common\Client\DefaultClient for a list of available configuration options
+     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
      */
     public static function factory($config = array())
     {
@@ -74,5 +81,25 @@ class CloudSearchClient extends AbstractClient
                 Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/cloudsearch-%s.php'
             ))
             ->build();
+    }
+
+    /**
+     * Create a CloudSearchDomainClient for a particular domain to do searching
+     * and document uploads.
+     *
+     * @param string $domainName Name of the domain for which to create a domain client.
+     * @param array  $config     Config options for the CloudSearchDomainClient
+     *
+     * @return CloudSearchDomainClient
+     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
+     */
+    public function getDomainClient($domainName, array $config = array())
+    {
+        // Determine the Domain client's endpoint
+        $config['endpoint'] = $this->describeDomains(array(
+            'DomainNames' => array($domainName)
+        ))->getPath('DomainStatusList/0/SearchService/Endpoint');
+
+        return CloudSearchDomainClient::factory($config);
     }
 }

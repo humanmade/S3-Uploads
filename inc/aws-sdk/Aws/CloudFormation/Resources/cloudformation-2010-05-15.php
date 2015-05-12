@@ -63,6 +63,11 @@ return array (
             'https' => true,
             'hostname' => 'cloudformation.sa-east-1.amazonaws.com',
         ),
+        'cn-north-1' => array(
+            'http' => false,
+            'https' => true,
+            'hostname' => 'cloudformation.cn-north-1.amazonaws.com.cn',
+        ),
         'us-gov-west-1' => array(
             'http' => false,
             'https' => true,
@@ -141,6 +146,10 @@ return array (
                             'ParameterValue' => array(
                                 'type' => 'string',
                             ),
+                            'UsePreviousValue' => array(
+                                'type' => 'boolean',
+                                'format' => 'boolean-string',
+                            ),
                         ),
                     ),
                 ),
@@ -171,19 +180,11 @@ return array (
                     'items' => array(
                         'name' => 'Capability',
                         'type' => 'string',
-                        'enum' => array(
-                            'CAPABILITY_IAM',
-                        ),
                     ),
                 ),
                 'OnFailure' => array(
                     'type' => 'string',
                     'location' => 'aws.query',
-                    'enum' => array(
-                        'DO_NOTHING',
-                        'ROLLBACK',
-                        'DELETE',
-                    ),
                 ),
                 'StackPolicyBody' => array(
                     'type' => 'string',
@@ -217,12 +218,15 @@ return array (
             ),
             'errorResponses' => array(
                 array(
+                    'reason' => 'Quota for the resource has already been reached.',
                     'class' => 'LimitExceededException',
                 ),
                 array(
+                    'reason' => 'Resource with the name requested already exists.',
                     'class' => 'AlreadyExistsException',
                 ),
                 array(
+                    'reason' => 'The template contains resources with capabilities that were not specified in the Capabilities parameter.',
                     'class' => 'InsufficientCapabilitiesException',
                 ),
             ),
@@ -411,6 +415,10 @@ return array (
                             'ParameterValue' => array(
                                 'type' => 'string',
                             ),
+                            'UsePreviousValue' => array(
+                                'type' => 'boolean',
+                                'format' => 'boolean-string',
+                            ),
                         ),
                     ),
                 ),
@@ -461,6 +469,41 @@ return array (
                     'required' => true,
                     'type' => 'string',
                     'location' => 'aws.query',
+                ),
+            ),
+        ),
+        'GetTemplateSummary' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'GetTemplateSummaryOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'GetTemplateSummary',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2010-05-15',
+                ),
+                'TemplateBody' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                ),
+                'TemplateURL' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 1024,
+                ),
+                'StackName' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
                 ),
             ),
         ),
@@ -524,24 +567,6 @@ return array (
                     'items' => array(
                         'name' => 'StackStatus',
                         'type' => 'string',
-                        'enum' => array(
-                            'CREATE_IN_PROGRESS',
-                            'CREATE_FAILED',
-                            'CREATE_COMPLETE',
-                            'ROLLBACK_IN_PROGRESS',
-                            'ROLLBACK_FAILED',
-                            'ROLLBACK_COMPLETE',
-                            'DELETE_IN_PROGRESS',
-                            'DELETE_FAILED',
-                            'DELETE_COMPLETE',
-                            'UPDATE_IN_PROGRESS',
-                            'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS',
-                            'UPDATE_COMPLETE',
-                            'UPDATE_ROLLBACK_IN_PROGRESS',
-                            'UPDATE_ROLLBACK_FAILED',
-                            'UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS',
-                            'UPDATE_ROLLBACK_COMPLETE',
-                        ),
                     ),
                 ),
             ),
@@ -582,6 +607,48 @@ return array (
                 ),
             ),
         ),
+        'SignalResource' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'EmptyOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'SignalResource',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2010-05-15',
+                ),
+                'StackName' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                ),
+                'LogicalResourceId' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+                'UniqueId' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 64,
+                ),
+                'Status' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+            ),
+        ),
         'UpdateStack' => array(
             'httpMethod' => 'POST',
             'uri' => '/',
@@ -615,6 +682,11 @@ return array (
                     'minLength' => 1,
                     'maxLength' => 1024,
                 ),
+                'UsePreviousTemplate' => array(
+                    'type' => 'boolean',
+                    'format' => 'boolean-string',
+                    'location' => 'aws.query',
+                ),
                 'StackPolicyDuringUpdateBody' => array(
                     'type' => 'string',
                     'location' => 'aws.query',
@@ -641,6 +713,10 @@ return array (
                             'ParameterValue' => array(
                                 'type' => 'string',
                             ),
+                            'UsePreviousValue' => array(
+                                'type' => 'boolean',
+                                'format' => 'boolean-string',
+                            ),
                         ),
                     ),
                 ),
@@ -651,9 +727,6 @@ return array (
                     'items' => array(
                         'name' => 'Capability',
                         'type' => 'string',
-                        'enum' => array(
-                            'CAPABILITY_IAM',
-                        ),
                     ),
                 ),
                 'StackPolicyBody' => array(
@@ -668,9 +741,20 @@ return array (
                     'minLength' => 1,
                     'maxLength' => 1350,
                 ),
+                'NotificationARNs' => array(
+                    'type' => 'array',
+                    'location' => 'aws.query',
+                    'sentAs' => 'NotificationARNs.member',
+                    'maxItems' => 5,
+                    'items' => array(
+                        'name' => 'NotificationARN',
+                        'type' => 'string',
+                    ),
+                ),
             ),
             'errorResponses' => array(
                 array(
+                    'reason' => 'The template contains resources with capabilities that were not specified in the Capabilities parameter.',
                     'class' => 'InsufficientCapabilitiesException',
                 ),
             ),
@@ -892,6 +976,9 @@ return array (
                                         'ParameterValue' => array(
                                             'type' => 'string',
                                         ),
+                                        'UsePreviousValue' => array(
+                                            'type' => 'boolean',
+                                        ),
                                     ),
                                 ),
                             ),
@@ -998,6 +1085,59 @@ return array (
             'additionalProperties' => true,
             'properties' => array(
                 'TemplateBody' => array(
+                    'type' => 'string',
+                    'location' => 'xml',
+                ),
+            ),
+        ),
+        'GetTemplateSummaryOutput' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+            'properties' => array(
+                'Parameters' => array(
+                    'type' => 'array',
+                    'location' => 'xml',
+                    'items' => array(
+                        'name' => 'ParameterDeclaration',
+                        'type' => 'object',
+                        'sentAs' => 'member',
+                        'properties' => array(
+                            'ParameterKey' => array(
+                                'type' => 'string',
+                            ),
+                            'DefaultValue' => array(
+                                'type' => 'string',
+                            ),
+                            'ParameterType' => array(
+                                'type' => 'string',
+                            ),
+                            'NoEcho' => array(
+                                'type' => 'boolean',
+                            ),
+                            'Description' => array(
+                                'type' => 'string',
+                            ),
+                        ),
+                    ),
+                ),
+                'Description' => array(
+                    'type' => 'string',
+                    'location' => 'xml',
+                ),
+                'Capabilities' => array(
+                    'type' => 'array',
+                    'location' => 'xml',
+                    'items' => array(
+                        'name' => 'Capability',
+                        'type' => 'string',
+                        'sentAs' => 'member',
+                    ),
+                ),
+                'CapabilitiesReason' => array(
+                    'type' => 'string',
+                    'location' => 'xml',
+                ),
+                'Version' => array(
                     'type' => 'string',
                     'location' => 'xml',
                 ),
@@ -1145,27 +1285,28 @@ return array (
         ),
     ),
     'iterators' => array(
-        'operations' => array(
-            'DescribeStackEvents' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'result_key' => 'StackEvents',
-            ),
-            'DescribeStacks' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'result_key' => 'Stacks',
-            ),
-            'ListStackResources' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'result_key' => 'StackResourceSummaries',
-            ),
-            'ListStacks' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'result_key' => 'StackSummaries',
-            ),
+        'DescribeStackEvents' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'result_key' => 'StackEvents',
+        ),
+        'DescribeStackResources' => array(
+            'result_key' => 'StackResources',
+        ),
+        'DescribeStacks' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'result_key' => 'Stacks',
+        ),
+        'ListStackResources' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'result_key' => 'StackResourceSummaries',
+        ),
+        'ListStacks' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'result_key' => 'StackSummaries',
         ),
     ),
 );

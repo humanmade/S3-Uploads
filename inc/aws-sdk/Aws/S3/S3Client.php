@@ -23,6 +23,7 @@ use Aws\Common\Client\UploadBodyListener;
 use Aws\Common\Enum\ClientOptions as Options;
 use Aws\Common\Exception\RuntimeException;
 use Aws\Common\Exception\InvalidArgumentException;
+use Aws\Common\Signature\SignatureV4;
 use Aws\Common\Model\MultipartUpload\AbstractTransfer;
 use Aws\S3\Exception\AccessDeniedException;
 use Aws\S3\Exception\Parser\S3ExceptionParser;
@@ -30,7 +31,6 @@ use Aws\S3\Exception\S3Exception;
 use Aws\S3\Model\ClearBucket;
 use Aws\S3\Model\MultipartUpload\AbstractTransfer as AbstractMulti;
 use Aws\S3\Model\MultipartUpload\UploadBuilder;
-use Aws\S3\S3Signature;
 use Aws\S3\Sync\DownloadSyncBuilder;
 use Aws\S3\Sync\UploadSyncBuilder;
 use Guzzle\Common\Collection;
@@ -42,7 +42,6 @@ use Guzzle\Plugin\Backoff\CurlBackoffStrategy;
 use Guzzle\Plugin\Backoff\ExponentialBackoffStrategy;
 use Guzzle\Plugin\Backoff\HttpBackoffStrategy;
 use Guzzle\Plugin\Backoff\TruncatedBackoffStrategy;
-use Guzzle\Plugin\Md5\CommandContentMd5Plugin;
 use Guzzle\Service\Command\CommandInterface;
 use Guzzle\Service\Command\Factory\AliasFactory;
 use Guzzle\Service\Command\Factory\CompositeFactory;
@@ -52,7 +51,7 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
 /**
  * Client to interact with Amazon Simple Storage Service
  *
- * @method \Aws\S3\S3SignatureInterface getSignature()
+ * @method S3SignatureInterface getSignature() Returns the signature implementation used with the client
  * @method Model abortMultipartUpload(array $args = array()) {@command S3 AbortMultipartUpload}
  * @method Model completeMultipartUpload(array $args = array()) {@command S3 CompleteMultipartUpload}
  * @method Model copyObject(array $args = array()) {@command S3 CopyObject}
@@ -62,6 +61,7 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model deleteBucketCors(array $args = array()) {@command S3 DeleteBucketCors}
  * @method Model deleteBucketLifecycle(array $args = array()) {@command S3 DeleteBucketLifecycle}
  * @method Model deleteBucketPolicy(array $args = array()) {@command S3 DeleteBucketPolicy}
+ * @method Model deleteBucketReplication(array $args = array()) {@command S3 DeleteBucketReplication}
  * @method Model deleteBucketTagging(array $args = array()) {@command S3 DeleteBucketTagging}
  * @method Model deleteBucketWebsite(array $args = array()) {@command S3 DeleteBucketWebsite}
  * @method Model deleteObject(array $args = array()) {@command S3 DeleteObject}
@@ -72,7 +72,9 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model getBucketLocation(array $args = array()) {@command S3 GetBucketLocation}
  * @method Model getBucketLogging(array $args = array()) {@command S3 GetBucketLogging}
  * @method Model getBucketNotification(array $args = array()) {@command S3 GetBucketNotification}
+ * @method Model getBucketNotificationConfiguration(array $args = array()) {@command S3 GetBucketNotificationConfiguration}
  * @method Model getBucketPolicy(array $args = array()) {@command S3 GetBucketPolicy}
+ * @method Model getBucketReplication(array $args = array()) {@command S3 GetBucketReplication}
  * @method Model getBucketRequestPayment(array $args = array()) {@command S3 GetBucketRequestPayment}
  * @method Model getBucketTagging(array $args = array()) {@command S3 GetBucketTagging}
  * @method Model getBucketVersioning(array $args = array()) {@command S3 GetBucketVersioning}
@@ -92,7 +94,9 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model putBucketLifecycle(array $args = array()) {@command S3 PutBucketLifecycle}
  * @method Model putBucketLogging(array $args = array()) {@command S3 PutBucketLogging}
  * @method Model putBucketNotification(array $args = array()) {@command S3 PutBucketNotification}
+ * @method Model putBucketNotificationConfiguration(array $args = array()) {@command S3 PutBucketNotificationConfiguration}
  * @method Model putBucketPolicy(array $args = array()) {@command S3 PutBucketPolicy}
+ * @method Model putBucketReplication(array $args = array()) {@command S3 PutBucketReplication}
  * @method Model putBucketRequestPayment(array $args = array()) {@command S3 PutBucketRequestPayment}
  * @method Model putBucketTagging(array $args = array()) {@command S3 PutBucketTagging}
  * @method Model putBucketVersioning(array $args = array()) {@command S3 PutBucketVersioning}
@@ -102,17 +106,17 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model restoreObject(array $args = array()) {@command S3 RestoreObject}
  * @method Model uploadPart(array $args = array()) {@command S3 UploadPart}
  * @method Model uploadPartCopy(array $args = array()) {@command S3 UploadPartCopy}
- * @method waitUntilBucketExists(array $input) Wait until a bucket exists. The input array uses the parameters of the HeadBucket operation and waiter specific settings
- * @method waitUntilBucketNotExists(array $input) Wait until a bucket does not exist. The input array uses the parameters of the HeadBucket operation and waiter specific settings
- * @method waitUntilObjectExists(array $input) Wait until an object exists. The input array uses the parameters of the HeadObject operation and waiter specific settings
+ * @method waitUntilBucketExists(array $input) The input array uses the parameters of the HeadBucket operation and waiter specific settings
+ * @method waitUntilBucketNotExists(array $input) The input array uses the parameters of the HeadBucket operation and waiter specific settings
+ * @method waitUntilObjectExists(array $input) The input array uses the parameters of the HeadObject operation and waiter specific settings
  * @method ResourceIteratorInterface getListBucketsIterator(array $args = array()) The input array uses the parameters of the ListBuckets operation
  * @method ResourceIteratorInterface getListMultipartUploadsIterator(array $args = array()) The input array uses the parameters of the ListMultipartUploads operation
- * @method ResourceIteratorInterface getListObjectsIterator(array $args = array()) The input array uses the parameters of the ListObjects operation
  * @method ResourceIteratorInterface getListObjectVersionsIterator(array $args = array()) The input array uses the parameters of the ListObjectVersions operation
+ * @method ResourceIteratorInterface getListObjectsIterator(array $args = array()) The input array uses the parameters of the ListObjects operation
  * @method ResourceIteratorInterface getListPartsIterator(array $args = array()) The input array uses the parameters of the ListParts operation
  *
- * @link http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-s3.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html API docs
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-s3.html User guide
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.S3.S3Client.html API docs
  */
 class S3Client extends AbstractClient
 {
@@ -149,9 +153,6 @@ class S3Client extends AbstractClient
         'DeleteObjectExpirationConfig'  => 'DeleteBucketLifecycle',
     );
 
-    /**
-     * @inheritdoc
-     */
     protected $directory = __DIR__;
 
     /**
@@ -159,8 +160,8 @@ class S3Client extends AbstractClient
      *
      * @param array|Collection $config Client configuration data
      *
-     * @return self
-     * @see \Aws\Common\Client\DefaultClient for a list of available configuration options
+     * @return S3Client
+     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
      */
     public static function factory($config = array())
     {
@@ -168,25 +169,14 @@ class S3Client extends AbstractClient
 
         // Configure the custom exponential backoff plugin for retrying S3 specific errors
         if (!isset($config[Options::BACKOFF])) {
-            $config[Options::BACKOFF] = new BackoffPlugin(
-                new TruncatedBackoffStrategy(3,
-                    new HttpBackoffStrategy(null,
-                        new SocketTimeoutChecker(
-                            new CurlBackoffStrategy(null,
-                                new ExpiredCredentialsChecker($exceptionParser,
-                                    new ExponentialBackoffStrategy()
-                                )
-                            )
-                        )
-                    )
-                )
-            );
+            $config[Options::BACKOFF] = static::createBackoffPlugin($exceptionParser);
         }
+
+        $config[Options::SIGNATURE] = $signature = static::createSignature($config);
 
         $client = ClientBuilder::factory(__NAMESPACE__)
             ->setConfig($config)
             ->setConfigDefaults(array(
-                Options::SIGNATURE => new S3Signature(),
                 Options::VERSION => self::LATEST_API_VERSION,
                 Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/s3-%s.php'
             ))
@@ -222,25 +212,90 @@ class S3Client extends AbstractClient
 
         // Use virtual hosted buckets when possible
         $client->addSubscriber(new BucketStyleListener());
-
         // Ensure that ACP headers are applied when needed
         $client->addSubscriber(new AcpListener());
-
-        // Validate and add Content-MD5 hashes
-        $client->addSubscriber(new CommandContentMd5Plugin());
+        // Validate and add required Content-MD5 hashes (e.g. DeleteObjects)
+        $client->addSubscriber(new S3Md5Listener($signature));
 
         // Allow for specifying bodies with file paths and file handles
         $client->addSubscriber(new UploadBodyListener(array('PutObject', 'UploadPart')));
 
+        // Ensures that if a SSE-CPK key is provided, the key and md5 are formatted correctly
+        $client->addSubscriber(new SseCpkListener);
+
         // Add aliases for some S3 operations
         $default = CompositeFactory::getDefaultChain($client);
         $default->add(
-            new AliasFactory($client, self::$commandAliases),
+            new AliasFactory($client, static::$commandAliases),
             'Guzzle\Service\Command\Factory\ServiceDescriptionFactory'
         );
         $client->setCommandFactory($default);
 
         return $client;
+    }
+
+    /**
+     * Create an Amazon S3 specific backoff plugin
+     *
+     * @param S3ExceptionParser $exceptionParser
+     *
+     * @return BackoffPlugin
+     */
+    private static function createBackoffPlugin(S3ExceptionParser $exceptionParser)
+    {
+        return new BackoffPlugin(
+            new TruncatedBackoffStrategy(3,
+                new IncompleteMultipartUploadChecker(
+                    new CurlBackoffStrategy(null,
+                        new HttpBackoffStrategy(null,
+                            new SocketTimeoutChecker(
+                                new ExpiredCredentialsChecker($exceptionParser,
+                                    new ExponentialBackoffStrategy()
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    /**
+     * Create an appropriate signature based on the configuration settings
+     *
+     * @param $config
+     *
+     * @return \Aws\Common\Signature\SignatureInterface
+     * @throws InvalidArgumentException
+     */
+    private static function createSignature($config)
+    {
+        $currentValue = isset($config[Options::SIGNATURE]) ? $config[Options::SIGNATURE] : null;
+
+        // Force v4 if no value is provided, a region is in the config, and
+        // the region starts with "cn-" or "eu-central-".
+        $requiresV4 = !$currentValue
+            && isset($config['region'])
+            && (strpos($config['region'], 'eu-central-') === 0
+                || strpos($config['region'], 'cn-') === 0);
+
+        // Use the Amazon S3 signature V4 when the value is set to "v4" or when
+        // the value is not set and the region starts with "cn-".
+        if ($currentValue == 'v4' || $requiresV4) {
+            // Force SignatureV4 for specific regions or if specified in the config
+            $currentValue = new S3SignatureV4('s3');
+        } elseif (!$currentValue || $currentValue == 's3') {
+            // Use the Amazon S3 signature by default
+            $currentValue = new S3Signature();
+        }
+
+        // A region is require with v4
+        if ($currentValue instanceof SignatureV4 && !isset($config['region'])) {
+            throw new InvalidArgumentException('A region must be specified '
+                . 'when using signature version 4');
+        }
+
+        return $currentValue;
     }
 
     /**
@@ -256,12 +311,10 @@ class S3Client extends AbstractClient
     {
         $bucketLen = strlen($bucket);
         if ($bucketLen < 3 || $bucketLen > 63 ||
-            // Cannot start or end with a '.'
-            $bucket[0] == '.' || $bucket[$bucketLen - 1] == '.' ||
             // Cannot look like an IP address
             preg_match('/(\d+\.){3}\d+$/', $bucket) ||
             // Cannot include special characters, must start and end with lower alnum
-            !preg_match('/^[a-z0-9][a-z0-9\-\.]*[a-z0-9]?$/', $bucket)
+            !preg_match('/^[a-z0-9]([a-z0-9\-\.]*[a-z0-9])?$/', $bucket)
         ) {
             return false;
         }
@@ -288,41 +341,18 @@ class S3Client extends AbstractClient
                 . 'request object');
         }
 
-        if ($expires instanceof \DateTime) {
-            $expires = $expires->getTimestamp();
-        } elseif (!is_numeric($expires)) {
-            $expires = strtotime($expires);
-        }
-
-        // Operate on a clone of the request, so the original is not altered
-        $request = clone $request;
-
-        // URL encoding already occurs in the URI template expansion. Undo that and encode using the same encoding as
-        // GET object, PUT object, etc.
-        $path = $this->encodeKey(rawurldecode($request->getPath()));
-        $request->setPath($path);
-
-        // Make sure to handle temporary credentials
-        if ($token = $this->credentials->getSecurityToken()) {
-            $request->setHeader('x-amz-security-token', $token);
-            $request->getQuery()->set('x-amz-security-token', $token);
-        }
-
-        // Set query params required for pre-signed URLs
-        $request->getQuery()
-            ->set('AWSAccessKeyId', $this->credentials->getAccessKeyId())
-            ->set('Expires', $expires)
-            ->set('Signature', $this->signature->signString(
-                $this->signature->createCanonicalizedString($request, $expires),
-                $this->credentials
-            ));
-
-        return $request->getUrl();
+        return $this->signature->createPresignedUrl($request, $this->credentials, $expires);
     }
 
     /**
      * Returns the URL to an object identified by its bucket and key. If an expiration time is provided, the URL will
      * be signed and set to expire at the provided time.
+     *
+     * Note: This method does not ensure that the generated URL is valid. For example, the bucket referenced may not
+     * exist, the key referenced may not exist, and the URL might include parameters that require it to be signed.
+     * If you need to use parameters that require a signed URL (e.g., ResponseCacheControl), then you must sign the
+     * URL either by providing an $expires argument or by signing the URL returned by this method in some other
+     * manner.
      *
      * @param string $bucket  The name of the bucket where the object is located
      * @param string $key     The key of the object
@@ -443,7 +473,7 @@ class S3Client extends AbstractClient
     /**
      * Register the Amazon S3 stream wrapper and associates it with this client object
      *
-     * @return self
+     * @return $this
      */
     public function registerStreamWrapper()
     {
@@ -502,8 +532,7 @@ class S3Client extends AbstractClient
             ->setTransferOptions($options->toArray())
             ->addOptions($options['params'])
             ->setOption('ACL', $acl)
-            ->build()
-            ->upload();
+            ->build();
 
         if ($options['before_upload']) {
             $transfer->getEventDispatcher()->addListener(
@@ -512,7 +541,7 @@ class S3Client extends AbstractClient
             );
         }
 
-        return $transfer;
+        return $transfer->upload();
     }
 
     /**
@@ -534,7 +563,13 @@ class S3Client extends AbstractClient
      */
     public function uploadDirectory($directory, $bucket, $keyPrefix = null, array $options = array())
     {
-        $options = Collection::fromConfig($options, array('base_dir' => $directory));
+        $options = Collection::fromConfig(
+            $options,
+            array(
+                'base_dir' => realpath($directory) ?: $directory
+            )
+        );
+
         $builder = $options['builder'] ?: UploadSyncBuilder::getInstance();
         $builder->uploadFromDirectory($directory)
             ->setClient($this)

@@ -64,6 +64,11 @@ return array (
             'https' => true,
             'hostname' => 'storagegateway.sa-east-1.amazonaws.com',
         ),
+        'cn-north-1' => array(
+            'http' => false,
+            'https' => true,
+            'hostname' => 'storagegateway.cn-north-1.amazonaws.com.cn',
+        ),
     ),
     'operations' => array(
         'ActivateGateway' => array(
@@ -655,8 +660,6 @@ return array (
                     'required' => true,
                     'type' => 'numeric',
                     'location' => 'json',
-                    'minimum' => 107374182400,
-                    'maximum' => 2748779069440,
                 ),
                 'ClientToken' => array(
                     'required' => true,
@@ -1842,6 +1845,46 @@ return array (
                 ),
             ),
         ),
+        'ResetCache' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\JsonCommand',
+            'responseClass' => 'ResetCacheOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Content-Type' => array(
+                    'static' => true,
+                    'location' => 'header',
+                    'default' => 'application/x-amz-json-1.1',
+                ),
+                'command.expects' => array(
+                    'static' => true,
+                    'default' => 'application/json',
+                ),
+                'X-Amz-Target' => array(
+                    'static' => true,
+                    'location' => 'header',
+                    'default' => 'StorageGateway_20130630.ResetCache',
+                ),
+                'GatewayARN' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'json',
+                    'minLength' => 50,
+                    'maxLength' => 500,
+                ),
+            ),
+            'errorResponses' => array(
+                array(
+                    'reason' => 'An exception occurred because an invalid gateway request was issued to the service. See the error and message fields for more information.',
+                    'class' => 'InvalidGatewayRequestException',
+                ),
+                array(
+                    'reason' => 'An internal server error has occurred during the request. See the error and message fields for more information.',
+                    'class' => 'InternalServerErrorException',
+                ),
+            ),
+        ),
         'RetrieveTapeArchive' => array(
             'httpMethod' => 'POST',
             'uri' => '/',
@@ -2322,6 +2365,53 @@ return array (
                     'location' => 'json',
                     'minLength' => 1,
                     'maxLength' => 255,
+                ),
+            ),
+            'errorResponses' => array(
+                array(
+                    'reason' => 'An exception occurred because an invalid gateway request was issued to the service. See the error and message fields for more information.',
+                    'class' => 'InvalidGatewayRequestException',
+                ),
+                array(
+                    'reason' => 'An internal server error has occurred during the request. See the error and message fields for more information.',
+                    'class' => 'InternalServerErrorException',
+                ),
+            ),
+        ),
+        'UpdateVTLDeviceType' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\JsonCommand',
+            'responseClass' => 'UpdateVTLDeviceTypeOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Content-Type' => array(
+                    'static' => true,
+                    'location' => 'header',
+                    'default' => 'application/x-amz-json-1.1',
+                ),
+                'command.expects' => array(
+                    'static' => true,
+                    'default' => 'application/json',
+                ),
+                'X-Amz-Target' => array(
+                    'static' => true,
+                    'location' => 'header',
+                    'default' => 'StorageGateway_20130630.UpdateVTLDeviceType',
+                ),
+                'VTLDeviceARN' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'json',
+                    'minLength' => 50,
+                    'maxLength' => 500,
+                ),
+                'DeviceType' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'json',
+                    'minLength' => 2,
+                    'maxLength' => 50,
                 ),
             ),
             'errorResponses' => array(
@@ -3134,6 +3224,9 @@ return array (
                             'DiskNode' => array(
                                 'type' => 'string',
                             ),
+                            'DiskStatus' => array(
+                                'type' => 'string',
+                            ),
                             'DiskSizeInBytes' => array(
                                 'type' => 'numeric',
                             ),
@@ -3207,6 +3300,15 @@ return array (
                             ),
                         ),
                     ),
+                ),
+            ),
+        ),
+        'ResetCacheOutput' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+            'properties' => array(
+                'GatewayARN' => array(
+                    'type' => 'string',
                 ),
             ),
         ),
@@ -3314,57 +3416,64 @@ return array (
                 ),
             ),
         ),
+        'UpdateVTLDeviceTypeOutput' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+            'properties' => array(
+                'VTLDeviceARN' => array(
+                    'type' => 'string',
+                ),
+            ),
+        ),
     ),
     'iterators' => array(
-        'operations' => array(
-            'DescribeCachediSCSIVolumes' => array(
-                'result_key' => 'CachediSCSIVolumes',
-            ),
-            'DescribeStorediSCSIVolumes' => array(
-                'result_key' => 'StorediSCSIVolumes',
-            ),
-            'DescribeTapeArchives' => array(
-                'token_param' => 'Marker',
-                'token_key' => 'Marker',
-                'limit_key' => 'Limit',
-                'result_key' => 'TapeArchives',
-            ),
-            'DescribeTapeRecoveryPoints' => array(
-                'token_param' => 'Marker',
-                'token_key' => 'Marker',
-                'limit_key' => 'Limit',
-                'result_key' => 'TapeRecoveryPointInfos',
-            ),
-            'DescribeTapes' => array(
-                'token_param' => 'Marker',
-                'token_key' => 'Marker',
-                'limit_key' => 'Limit',
-                'result_key' => 'Tapes',
-            ),
-            'DescribeVTLDevices' => array(
-                'token_param' => 'Marker',
-                'token_key' => 'Marker',
-                'limit_key' => 'Limit',
-                'result_key' => 'VTLDevices',
-            ),
-            'ListGateways' => array(
-                'token_param' => 'Marker',
-                'token_key' => 'Marker',
-                'limit_key' => 'Limit',
-                'result_key' => 'Gateways',
-            ),
-            'ListLocalDisks' => array(
-                'result_key' => 'Disks',
-            ),
-            'ListVolumeRecoveryPoints' => array(
-                'result_key' => 'VolumeRecoveryPointInfos',
-            ),
-            'ListVolumes' => array(
-                'token_param' => 'Marker',
-                'token_key' => 'Marker',
-                'limit_key' => 'Limit',
-                'result_key' => 'VolumeInfos',
-            ),
+        'DescribeCachediSCSIVolumes' => array(
+            'result_key' => 'CachediSCSIVolumes',
+        ),
+        'DescribeStorediSCSIVolumes' => array(
+            'result_key' => 'StorediSCSIVolumes',
+        ),
+        'DescribeTapeArchives' => array(
+            'input_token' => 'Marker',
+            'limit_key' => 'Limit',
+            'output_token' => 'Marker',
+            'result_key' => 'TapeArchives',
+        ),
+        'DescribeTapeRecoveryPoints' => array(
+            'input_token' => 'Marker',
+            'limit_key' => 'Limit',
+            'output_token' => 'Marker',
+            'result_key' => 'TapeRecoveryPointInfos',
+        ),
+        'DescribeTapes' => array(
+            'input_token' => 'Marker',
+            'limit_key' => 'Limit',
+            'output_token' => 'Marker',
+            'result_key' => 'Tapes',
+        ),
+        'DescribeVTLDevices' => array(
+            'input_token' => 'Marker',
+            'limit_key' => 'Limit',
+            'output_token' => 'Marker',
+            'result_key' => 'VTLDevices',
+        ),
+        'ListGateways' => array(
+            'input_token' => 'Marker',
+            'limit_key' => 'Limit',
+            'output_token' => 'Marker',
+            'result_key' => 'Gateways',
+        ),
+        'ListLocalDisks' => array(
+            'result_key' => 'Disks',
+        ),
+        'ListVolumeRecoveryPoints' => array(
+            'result_key' => 'VolumeRecoveryPointInfos',
+        ),
+        'ListVolumes' => array(
+            'input_token' => 'Marker',
+            'limit_key' => 'Limit',
+            'output_token' => 'Marker',
+            'result_key' => 'VolumeInfos',
         ),
     ),
 );

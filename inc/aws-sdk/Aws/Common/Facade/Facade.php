@@ -20,6 +20,8 @@ use Aws\Common\Aws;
 
 /**
  * Base facade class that handles the delegation logic
+ *
+ * @deprecated "Facades" are being removed in version 3.0 of the SDK.
  */
 abstract class Facade implements FacadeInterface
 {
@@ -41,7 +43,7 @@ abstract class Facade implements FacadeInterface
             if (isset($service['alias'], $service['class'])) {
                 $facadeClass = __NAMESPACE__ . '\\' . $service['alias'];
                 $facadeAlias = ltrim($targetNamespace . '\\' . $service['alias'], '\\');
-                if (!class_exists($facadeAlias)) {
+                if (!class_exists($facadeAlias) && class_exists($facadeClass)) {
                     // @codeCoverageIgnoreStart
                     class_alias($facadeClass, $facadeAlias);
                     // @codeCoverageIgnoreEnd

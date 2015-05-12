@@ -53,6 +53,11 @@ return array (
             'https' => true,
             'hostname' => 'sdb.ap-southeast-1.amazonaws.com',
         ),
+        'ap-southeast-2' => array(
+            'http' => true,
+            'https' => true,
+            'hostname' => 'sdb.ap-southeast-2.amazonaws.com',
+        ),
         'sa-east-1' => array(
             'http' => true,
             'https' => true,
@@ -111,7 +116,6 @@ return array (
                                             'type' => 'string',
                                         ),
                                         'Value' => array(
-                                            'required' => true,
                                             'type' => 'string',
                                         ),
                                         'AlternateValueEncoding' => array(
@@ -308,7 +312,6 @@ return array (
                                 'type' => 'string',
                             ),
                             'Value' => array(
-                                'required' => true,
                                 'type' => 'string',
                             ),
                             'AlternateValueEncoding' => array(
@@ -833,6 +836,19 @@ return array (
                     'location' => 'xml',
                 ),
             ),
+        ),
+    ),
+    'iterators' => array(
+        'ListDomains' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'limit_key' => 'MaxNumberOfDomains',
+            'result_key' => 'DomainNames',
+        ),
+        'Select' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'result_key' => 'Items',
         ),
     ),
 );

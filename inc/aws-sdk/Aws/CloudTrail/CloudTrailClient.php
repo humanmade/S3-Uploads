@@ -22,6 +22,7 @@ use Aws\Common\Enum\ClientOptions as Options;
 use Aws\Common\Exception\Parser\JsonQueryExceptionParser;
 use Guzzle\Common\Collection;
 use Guzzle\Service\Resource\Model;
+use Guzzle\Service\Resource\ResourceIteratorInterface;
 
 /**
  * Client to interact with AWS CloudTrail
@@ -30,13 +31,14 @@ use Guzzle\Service\Resource\Model;
  * @method Model deleteTrail(array $args = array()) {@command CloudTrail DeleteTrail}
  * @method Model describeTrails(array $args = array()) {@command CloudTrail DescribeTrails}
  * @method Model getTrailStatus(array $args = array()) {@command CloudTrail GetTrailStatus}
+ * @method Model lookupEvents(array $args = array()) {@command CloudTrail LookupEvents}
  * @method Model startLogging(array $args = array()) {@command CloudTrail StartLogging}
  * @method Model stopLogging(array $args = array()) {@command CloudTrail StopLogging}
  * @method Model updateTrail(array $args = array()) {@command CloudTrail UpdateTrail}
  * @method ResourceIteratorInterface getDescribeTrailsIterator(array $args = array()) The input array uses the parameters of the DescribeTrails operation
  *
- * @link http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-cloudtrail.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.CloudTrail.CloudTrailClient.html API docs
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-cloudtrail.html User guide
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.CloudTrail.CloudTrailClient.html API docs
  */
 class CloudTrailClient extends AbstractClient
 {
@@ -48,7 +50,7 @@ class CloudTrailClient extends AbstractClient
      * @param array|Collection $config Client configuration data
      *
      * @return self
-     * @see \Aws\Common\Client\DefaultClient for a list of available configuration options
+     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
      */
     public static function factory($config = array())
     {

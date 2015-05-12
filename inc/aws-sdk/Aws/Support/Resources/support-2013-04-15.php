@@ -31,6 +31,75 @@ return array (
         ),
     ),
     'operations' => array(
+        'AddAttachmentsToSet' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\JsonCommand',
+            'responseClass' => 'AddAttachmentsToSetResponse',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Content-Type' => array(
+                    'static' => true,
+                    'location' => 'header',
+                    'default' => 'application/x-amz-json-1.1',
+                ),
+                'command.expects' => array(
+                    'static' => true,
+                    'default' => 'application/json',
+                ),
+                'X-Amz-Target' => array(
+                    'static' => true,
+                    'location' => 'header',
+                    'default' => 'AWSSupport_20130415.AddAttachmentsToSet',
+                ),
+                'attachmentSetId' => array(
+                    'type' => 'string',
+                    'location' => 'json',
+                ),
+                'attachments' => array(
+                    'required' => true,
+                    'type' => 'array',
+                    'location' => 'json',
+                    'items' => array(
+                        'name' => 'Attachment',
+                        'type' => 'object',
+                        'properties' => array(
+                            'fileName' => array(
+                                'type' => 'string',
+                            ),
+                            'data' => array(
+                                'type' => 'string',
+                                'filters' => array(
+                                    'base64_encode',
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            'errorResponses' => array(
+                array(
+                    'reason' => 'An internal server error occurred.',
+                    'class' => 'InternalServerErrorException',
+                ),
+                array(
+                    'reason' => 'An attachment set with the specified ID could not be found.',
+                    'class' => 'AttachmentSetIdNotFoundException',
+                ),
+                array(
+                    'reason' => 'The expiration time of the attachment set has passed. The set expires 1 hour after it is created.',
+                    'class' => 'AttachmentSetExpiredException',
+                ),
+                array(
+                    'reason' => 'A limit for the size of an attachment set has been exceeded. The limits are 3 attachments and 5 MB per attachment.',
+                    'class' => 'AttachmentSetSizeLimitExceededException',
+                ),
+                array(
+                    'reason' => 'The limit for the number of attachment sets created in a short period of time has been exceeded.',
+                    'class' => 'AttachmentLimitExceededException',
+                ),
+            ),
+        ),
         'AddCommunicationToCase' => array(
             'httpMethod' => 'POST',
             'uri' => '/',
@@ -72,15 +141,27 @@ return array (
                         'type' => 'string',
                     ),
                 ),
+                'attachmentSetId' => array(
+                    'type' => 'string',
+                    'location' => 'json',
+                ),
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'Returns HTTP error 500.',
+                    'reason' => 'An internal server error occurred.',
                     'class' => 'InternalServerErrorException',
                 ),
                 array(
-                    'reason' => 'Returned when the CaseId requested could not be located.',
+                    'reason' => 'The requested CaseId could not be located.',
                     'class' => 'CaseIdNotFoundException',
+                ),
+                array(
+                    'reason' => 'An attachment set with the specified ID could not be found.',
+                    'class' => 'AttachmentSetIdNotFoundException',
+                ),
+                array(
+                    'reason' => 'The expiration time of the attachment set has passed. The set expires 1 hour after it is created.',
+                    'class' => 'AttachmentSetExpiredException',
                 ),
             ),
         ),
@@ -111,7 +192,6 @@ return array (
                     'location' => 'json',
                 ),
                 'serviceCode' => array(
-                    'required' => true,
                     'type' => 'string',
                     'location' => 'json',
                 ),
@@ -120,7 +200,6 @@ return array (
                     'location' => 'json',
                 ),
                 'categoryCode' => array(
-                    'required' => true,
                     'type' => 'string',
                     'location' => 'json',
                 ),
@@ -148,15 +227,69 @@ return array (
                     'type' => 'string',
                     'location' => 'json',
                 ),
+                'attachmentSetId' => array(
+                    'type' => 'string',
+                    'location' => 'json',
+                ),
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'Returns HTTP error 500.',
+                    'reason' => 'An internal server error occurred.',
                     'class' => 'InternalServerErrorException',
                 ),
                 array(
-                    'reason' => 'Returned when you have exceeded the case creation limit for an account.',
+                    'reason' => 'The case creation limit for the account has been exceeded.',
                     'class' => 'CaseCreationLimitExceededException',
+                ),
+                array(
+                    'reason' => 'An attachment set with the specified ID could not be found.',
+                    'class' => 'AttachmentSetIdNotFoundException',
+                ),
+                array(
+                    'reason' => 'The expiration time of the attachment set has passed. The set expires 1 hour after it is created.',
+                    'class' => 'AttachmentSetExpiredException',
+                ),
+            ),
+        ),
+        'DescribeAttachment' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\JsonCommand',
+            'responseClass' => 'DescribeAttachmentResponse',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Content-Type' => array(
+                    'static' => true,
+                    'location' => 'header',
+                    'default' => 'application/x-amz-json-1.1',
+                ),
+                'command.expects' => array(
+                    'static' => true,
+                    'default' => 'application/json',
+                ),
+                'X-Amz-Target' => array(
+                    'static' => true,
+                    'location' => 'header',
+                    'default' => 'AWSSupport_20130415.DescribeAttachment',
+                ),
+                'attachmentId' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'location' => 'json',
+                ),
+            ),
+            'errorResponses' => array(
+                array(
+                    'reason' => 'An internal server error occurred.',
+                    'class' => 'InternalServerErrorException',
+                ),
+                array(
+                    'reason' => 'The limit for the number of DescribeAttachment requests in a short period of time has been exceeded.',
+                    'class' => 'DescribeAttachmentLimitExceededException',
+                ),
+                array(
+                    'reason' => 'An attachment with the specified ID could not be found.',
+                    'class' => 'AttachmentIdNotFoundException',
                 ),
             ),
         ),
@@ -221,14 +354,19 @@ return array (
                     'type' => 'string',
                     'location' => 'json',
                 ),
+                'includeCommunications' => array(
+                    'type' => 'boolean',
+                    'format' => 'boolean-string',
+                    'location' => 'json',
+                ),
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'Returns HTTP error 500.',
+                    'reason' => 'An internal server error occurred.',
                     'class' => 'InternalServerErrorException',
                 ),
                 array(
-                    'reason' => 'Returned when the CaseId requested could not be located.',
+                    'reason' => 'The requested CaseId could not be located.',
                     'class' => 'CaseIdNotFoundException',
                 ),
             ),
@@ -280,11 +418,11 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'Returns HTTP error 500.',
+                    'reason' => 'An internal server error occurred.',
                     'class' => 'InternalServerErrorException',
                 ),
                 array(
-                    'reason' => 'Returned when the CaseId requested could not be located.',
+                    'reason' => 'The requested CaseId could not be located.',
                     'class' => 'CaseIdNotFoundException',
                 ),
             ),
@@ -326,7 +464,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'Returns HTTP error 500.',
+                    'reason' => 'An internal server error occurred.',
                     'class' => 'InternalServerErrorException',
                 ),
             ),
@@ -359,7 +497,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'Returns HTTP error 500.',
+                    'reason' => 'An internal server error occurred.',
                     'class' => 'InternalServerErrorException',
                 ),
             ),
@@ -397,7 +535,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'Returns HTTP error 500.',
+                    'reason' => 'An internal server error occurred.',
                     'class' => 'InternalServerErrorException',
                 ),
             ),
@@ -435,7 +573,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'Returns HTTP error 500.',
+                    'reason' => 'An internal server error occurred.',
                     'class' => 'InternalServerErrorException',
                 ),
             ),
@@ -473,7 +611,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'Returns HTTP error 500.',
+                    'reason' => 'An internal server error occurred.',
                     'class' => 'InternalServerErrorException',
                 ),
             ),
@@ -507,7 +645,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'Returns HTTP error 500.',
+                    'reason' => 'An internal server error occurred.',
                     'class' => 'InternalServerErrorException',
                 ),
             ),
@@ -541,7 +679,7 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'Returns HTTP error 500.',
+                    'reason' => 'An internal server error occurred.',
                     'class' => 'InternalServerErrorException',
                 ),
             ),
@@ -574,17 +712,31 @@ return array (
             ),
             'errorResponses' => array(
                 array(
-                    'reason' => 'Returns HTTP error 500.',
+                    'reason' => 'An internal server error occurred.',
                     'class' => 'InternalServerErrorException',
                 ),
                 array(
-                    'reason' => 'Returned when the CaseId requested could not be located.',
+                    'reason' => 'The requested CaseId could not be located.',
                     'class' => 'CaseIdNotFoundException',
                 ),
             ),
         ),
     ),
     'models' => array(
+        'AddAttachmentsToSetResponse' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+            'properties' => array(
+                'attachmentSetId' => array(
+                    'type' => 'string',
+                    'location' => 'json',
+                ),
+                'expiryTime' => array(
+                    'type' => 'string',
+                    'location' => 'json',
+                ),
+            ),
+        ),
         'AddCommunicationToCaseResponse' => array(
             'type' => 'object',
             'additionalProperties' => true,
@@ -602,6 +754,27 @@ return array (
                 'caseId' => array(
                     'type' => 'string',
                     'location' => 'json',
+                ),
+            ),
+        ),
+        'DescribeAttachmentResponse' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+            'properties' => array(
+                'attachment' => array(
+                    'type' => 'object',
+                    'location' => 'json',
+                    'properties' => array(
+                        'fileName' => array(
+                            'type' => 'string',
+                        ),
+                        'data' => array(
+                            'type' => 'string',
+                            'filters' => array(
+                                'base64_decode',
+                            ),
+                        ),
+                    ),
                 ),
             ),
         ),
@@ -664,6 +837,21 @@ return array (
                                                 'timeCreated' => array(
                                                     'type' => 'string',
                                                 ),
+                                                'attachmentSet' => array(
+                                                    'type' => 'array',
+                                                    'items' => array(
+                                                        'name' => 'AttachmentDetails',
+                                                        'type' => 'object',
+                                                        'properties' => array(
+                                                            'attachmentId' => array(
+                                                                'type' => 'string',
+                                                            ),
+                                                            'fileName' => array(
+                                                                'type' => 'string',
+                                                            ),
+                                                        ),
+                                                    ),
+                                                ),
                                             ),
                                         ),
                                     ),
@@ -713,6 +901,21 @@ return array (
                             ),
                             'timeCreated' => array(
                                 'type' => 'string',
+                            ),
+                            'attachmentSet' => array(
+                                'type' => 'array',
+                                'items' => array(
+                                    'name' => 'AttachmentDetails',
+                                    'type' => 'object',
+                                    'properties' => array(
+                                        'attachmentId' => array(
+                                            'type' => 'string',
+                                        ),
+                                        'fileName' => array(
+                                            'type' => 'string',
+                                        ),
+                                    ),
+                                ),
                             ),
                         ),
                     ),
@@ -1022,34 +1225,32 @@ return array (
         ),
     ),
     'iterators' => array(
-        'operations' => array(
-            'DescribeCases' => array(
-                'token_param' => 'nextToken',
-                'token_key' => 'nextToken',
-                'limit_key' => 'maxResults',
-                'result_key' => 'cases',
-            ),
-            'DescribeCommunications' => array(
-                'token_param' => 'nextToken',
-                'token_key' => 'nextToken',
-                'limit_key' => 'maxResults',
-                'result_key' => 'communications',
-            ),
-            'DescribeServices' => array(
-                'result_key' => 'services',
-            ),
-            'DescribeTrustedAdvisorCheckRefreshStatuses' => array(
-                'result_key' => 'statuses',
-            ),
-            'DescribeTrustedAdvisorCheckSummaries' => array(
-                'result_key' => 'summaries',
-            ),
-            'DescribeSeverityLevels' => array(
-                'result_key' => 'severityLevelsList',
-            ),
-            'DescribeTrustedAdvisorChecks' => array(
-                'result_key' => 'checks',
-            ),
+        'DescribeCases' => array(
+            'input_token' => 'nextToken',
+            'output_token' => 'nextToken',
+            'limit_key' => 'maxResults',
+            'result_key' => 'cases',
+        ),
+        'DescribeCommunications' => array(
+            'input_token' => 'nextToken',
+            'output_token' => 'nextToken',
+            'limit_key' => 'maxResults',
+            'result_key' => 'communications',
+        ),
+        'DescribeServices' => array(
+            'result_key' => 'services',
+        ),
+        'DescribeTrustedAdvisorCheckRefreshStatuses' => array(
+            'result_key' => 'statuses',
+        ),
+        'DescribeTrustedAdvisorCheckSummaries' => array(
+            'result_key' => 'summaries',
+        ),
+        'DescribeSeverityLevels' => array(
+            'result_key' => 'severityLevelsList',
+        ),
+        'DescribeTrustedAdvisorChecks' => array(
+            'result_key' => 'checks',
         ),
     ),
 );

@@ -26,6 +26,7 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
 /**
  * Client to interact with Elastic Load Balancing
  *
+ * @method Model addTags(array $args = array()) {@command ElasticLoadBalancing AddTags}
  * @method Model applySecurityGroupsToLoadBalancer(array $args = array()) {@command ElasticLoadBalancing ApplySecurityGroupsToLoadBalancer}
  * @method Model attachLoadBalancerToSubnets(array $args = array()) {@command ElasticLoadBalancing AttachLoadBalancerToSubnets}
  * @method Model configureHealthCheck(array $args = array()) {@command ElasticLoadBalancing ConfigureHealthCheck}
@@ -43,11 +44,13 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model describeLoadBalancerPolicies(array $args = array()) {@command ElasticLoadBalancing DescribeLoadBalancerPolicies}
  * @method Model describeLoadBalancerPolicyTypes(array $args = array()) {@command ElasticLoadBalancing DescribeLoadBalancerPolicyTypes}
  * @method Model describeLoadBalancers(array $args = array()) {@command ElasticLoadBalancing DescribeLoadBalancers}
+ * @method Model describeTags(array $args = array()) {@command ElasticLoadBalancing DescribeTags}
  * @method Model detachLoadBalancerFromSubnets(array $args = array()) {@command ElasticLoadBalancing DetachLoadBalancerFromSubnets}
  * @method Model disableAvailabilityZonesForLoadBalancer(array $args = array()) {@command ElasticLoadBalancing DisableAvailabilityZonesForLoadBalancer}
  * @method Model enableAvailabilityZonesForLoadBalancer(array $args = array()) {@command ElasticLoadBalancing EnableAvailabilityZonesForLoadBalancer}
  * @method Model modifyLoadBalancerAttributes(array $args = array()) {@command ElasticLoadBalancing ModifyLoadBalancerAttributes}
  * @method Model registerInstancesWithLoadBalancer(array $args = array()) {@command ElasticLoadBalancing RegisterInstancesWithLoadBalancer}
+ * @method Model removeTags(array $args = array()) {@command ElasticLoadBalancing RemoveTags}
  * @method Model setLoadBalancerListenerSSLCertificate(array $args = array()) {@command ElasticLoadBalancing SetLoadBalancerListenerSSLCertificate}
  * @method Model setLoadBalancerPoliciesForBackendServer(array $args = array()) {@command ElasticLoadBalancing SetLoadBalancerPoliciesForBackendServer}
  * @method Model setLoadBalancerPoliciesOfListener(array $args = array()) {@command ElasticLoadBalancing SetLoadBalancerPoliciesOfListener}
@@ -56,8 +59,8 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method ResourceIteratorInterface getDescribeLoadBalancerPolicyTypesIterator(array $args = array()) The input array uses the parameters of the DescribeLoadBalancerPolicyTypes operation
  * @method ResourceIteratorInterface getDescribeLoadBalancersIterator(array $args = array()) The input array uses the parameters of the DescribeLoadBalancers operation
  *
- * @link http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-elasticloadbalancing.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.ElasticLoadBalancing.ElasticLoadBalancingClient.html API docs
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-elasticloadbalancing.html User guide
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.ElasticLoadBalancing.ElasticLoadBalancingClient.html API docs
  */
 class ElasticLoadBalancingClient extends AbstractClient
 {
@@ -69,7 +72,7 @@ class ElasticLoadBalancingClient extends AbstractClient
      * @param array|Collection $config Client configuration data
      *
      * @return self
-     * @see \Aws\Common\Client\DefaultClient for a list of available configuration options
+     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
      */
     public static function factory($config = array())
     {

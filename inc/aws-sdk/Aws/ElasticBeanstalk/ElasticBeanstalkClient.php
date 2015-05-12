@@ -26,6 +26,7 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
 /**
  * Client to interact with AWS Elastic Beanstalk
  *
+ * @method Model abortEnvironmentUpdate(array $args = array()) {@command ElasticBeanstalk AbortEnvironmentUpdate}
  * @method Model checkDNSAvailability(array $args = array()) {@command ElasticBeanstalk CheckDNSAvailability}
  * @method Model createApplication(array $args = array()) {@command ElasticBeanstalk CreateApplication}
  * @method Model createApplicationVersion(array $args = array()) {@command ElasticBeanstalk CreateApplicationVersion}
@@ -55,8 +56,8 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model updateConfigurationTemplate(array $args = array()) {@command ElasticBeanstalk UpdateConfigurationTemplate}
  * @method Model updateEnvironment(array $args = array()) {@command ElasticBeanstalk UpdateEnvironment}
  * @method Model validateConfigurationSettings(array $args = array()) {@command ElasticBeanstalk ValidateConfigurationSettings}
- * @method waitUntilEnvironmentReady(array $input) Wait using the EnvironmentReady waiter. The input array uses the parameters of the DescribeEnvironments operation and waiter specific settings
- * @method waitUntilEnvironmentTerminated(array $input) Wait using the EnvironmentTerminated waiter. The input array uses the parameters of the DescribeEnvironments operation and waiter specific settings
+ * @method waitUntilEnvironmentReady(array $input) The input array uses the parameters of the DescribeEnvironments operation and waiter specific settings
+ * @method waitUntilEnvironmentTerminated(array $input) The input array uses the parameters of the DescribeEnvironments operation and waiter specific settings
  * @method ResourceIteratorInterface getDescribeApplicationVersionsIterator(array $args = array()) The input array uses the parameters of the DescribeApplicationVersions operation
  * @method ResourceIteratorInterface getDescribeApplicationsIterator(array $args = array()) The input array uses the parameters of the DescribeApplications operation
  * @method ResourceIteratorInterface getDescribeConfigurationOptionsIterator(array $args = array()) The input array uses the parameters of the DescribeConfigurationOptions operation
@@ -64,8 +65,8 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method ResourceIteratorInterface getDescribeEventsIterator(array $args = array()) The input array uses the parameters of the DescribeEvents operation
  * @method ResourceIteratorInterface getListAvailableSolutionStacksIterator(array $args = array()) The input array uses the parameters of the ListAvailableSolutionStacks operation
  *
- * @link http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-elasticbeanstalk.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.ElasticBeanstalk.ElasticBeanstalkClient.html API docs
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-elasticbeanstalk.html User guide
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.ElasticBeanstalk.ElasticBeanstalkClient.html API docs
  */
 class ElasticBeanstalkClient extends AbstractClient
 {
@@ -77,7 +78,7 @@ class ElasticBeanstalkClient extends AbstractClient
      * @param array|Collection $config Client configuration data
      *
      * @return self
-     * @see \Aws\Common\Client\DefaultClient for a list of available configuration options
+     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
      */
     public static function factory($config = array())
     {

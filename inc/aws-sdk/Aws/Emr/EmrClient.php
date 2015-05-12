@@ -29,6 +29,7 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  *
  * @method Model addInstanceGroups(array $args = array()) {@command Emr AddInstanceGroups}
  * @method Model addJobFlowSteps(array $args = array()) {@command Emr AddJobFlowSteps}
+ * @method Model addTags(array $args = array()) {@command Emr AddTags}
  * @method Model describeCluster(array $args = array()) {@command Emr DescribeCluster}
  * @method Model describeJobFlows(array $args = array()) {@command Emr DescribeJobFlows}
  * @method Model describeStep(array $args = array()) {@command Emr DescribeStep}
@@ -38,6 +39,7 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model listInstances(array $args = array()) {@command Emr ListInstances}
  * @method Model listSteps(array $args = array()) {@command Emr ListSteps}
  * @method Model modifyInstanceGroups(array $args = array()) {@command Emr ModifyInstanceGroups}
+ * @method Model removeTags(array $args = array()) {@command Emr RemoveTags}
  * @method Model runJobFlow(array $args = array()) {@command Emr RunJobFlow}
  * @method Model setTerminationProtection(array $args = array()) {@command Emr SetTerminationProtection}
  * @method Model setVisibleToAllUsers(array $args = array()) {@command Emr SetVisibleToAllUsers}
@@ -49,8 +51,8 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method ResourceIteratorInterface getListInstancesIterator(array $args = array()) The input array uses the parameters of the ListInstances operation
  * @method ResourceIteratorInterface getListStepsIterator(array $args = array()) The input array uses the parameters of the ListSteps operation
  *
- * @link http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-emr.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.Emr.EmrClient.html API docs
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-emr.html User guide
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.Emr.EmrClient.html API docs
  */
 class EmrClient extends AbstractClient
 {
@@ -62,7 +64,7 @@ class EmrClient extends AbstractClient
      * @param array|Collection $config Client configuration data
      *
      * @return self
-     * @see \Aws\Common\Client\DefaultClient for a list of available configuration options
+     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
      */
     public static function factory($config = array())
     {

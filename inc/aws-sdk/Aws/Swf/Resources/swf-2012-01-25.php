@@ -66,6 +66,11 @@ return array (
             'https' => true,
             'hostname' => 'swf.sa-east-1.amazonaws.com',
         ),
+        'cn-north-1' => array(
+            'http' => false,
+            'https' => true,
+            'hostname' => 'swf.cn-north-1.amazonaws.com.cn',
+        ),
         'us-gov-west-1' => array(
             'http' => false,
             'https' => true,
@@ -194,14 +199,6 @@ return array (
                         'status' => array(
                             'required' => true,
                             'type' => 'string',
-                            'enum' => array(
-                                'COMPLETED',
-                                'FAILED',
-                                'CANCELED',
-                                'TERMINATED',
-                                'CONTINUED_AS_NEW',
-                                'TIMED_OUT',
-                            ),
                         ),
                     ),
                 ),
@@ -926,10 +923,6 @@ return array (
                     'required' => true,
                     'type' => 'string',
                     'location' => 'json',
-                    'enum' => array(
-                        'REGISTERED',
-                        'DEPRECATED',
-                    ),
                 ),
                 'nextPageToken' => array(
                     'type' => 'string',
@@ -1051,14 +1044,6 @@ return array (
                         'status' => array(
                             'required' => true,
                             'type' => 'string',
-                            'enum' => array(
-                                'COMPLETED',
-                                'FAILED',
-                                'CANCELED',
-                                'TERMINATED',
-                                'CONTINUED_AS_NEW',
-                                'TIMED_OUT',
-                            ),
                         ),
                     ),
                 ),
@@ -1147,10 +1132,6 @@ return array (
                     'required' => true,
                     'type' => 'string',
                     'location' => 'json',
-                    'enum' => array(
-                        'REGISTERED',
-                        'DEPRECATED',
-                    ),
                 ),
                 'maximumPageSize' => array(
                     'type' => 'numeric',
@@ -1327,10 +1308,6 @@ return array (
                     'required' => true,
                     'type' => 'string',
                     'location' => 'json',
-                    'enum' => array(
-                        'REGISTERED',
-                        'DEPRECATED',
-                    ),
                 ),
                 'nextPageToken' => array(
                     'type' => 'string',
@@ -1612,6 +1589,11 @@ return array (
                         ),
                     ),
                 ),
+                'defaultTaskPriority' => array(
+                    'type' => 'string',
+                    'location' => 'json',
+                    'maxLength' => 11,
+                ),
                 'defaultTaskScheduleToStartTimeout' => array(
                     'type' => 'string',
                     'location' => 'json',
@@ -1767,14 +1749,14 @@ return array (
                         ),
                     ),
                 ),
+                'defaultTaskPriority' => array(
+                    'type' => 'string',
+                    'location' => 'json',
+                    'maxLength' => 11,
+                ),
                 'defaultChildPolicy' => array(
                     'type' => 'string',
                     'location' => 'json',
-                    'enum' => array(
-                        'TERMINATE',
-                        'REQUEST_CANCEL',
-                        'ABANDON',
-                    ),
                 ),
             ),
             'errorResponses' => array(
@@ -2026,20 +2008,6 @@ return array (
                             'decisionType' => array(
                                 'required' => true,
                                 'type' => 'string',
-                                'enum' => array(
-                                    'ScheduleActivityTask',
-                                    'RequestCancelActivityTask',
-                                    'CompleteWorkflowExecution',
-                                    'FailWorkflowExecution',
-                                    'CancelWorkflowExecution',
-                                    'ContinueAsNewWorkflowExecution',
-                                    'RecordMarker',
-                                    'StartTimer',
-                                    'CancelTimer',
-                                    'SignalExternalWorkflowExecution',
-                                    'RequestCancelExternalWorkflowExecution',
-                                    'StartChildWorkflowExecution',
-                                ),
                             ),
                             'scheduleActivityTaskDecisionAttributes' => array(
                                 'type' => 'object',
@@ -2090,6 +2058,10 @@ return array (
                                                 'maxLength' => 256,
                                             ),
                                         ),
+                                    ),
+                                    'taskPriority' => array(
+                                        'type' => 'string',
+                                        'maxLength' => 11,
                                     ),
                                     'scheduleToStartTimeout' => array(
                                         'type' => 'string',
@@ -2169,17 +2141,16 @@ return array (
                                             ),
                                         ),
                                     ),
+                                    'taskPriority' => array(
+                                        'type' => 'string',
+                                        'maxLength' => 11,
+                                    ),
                                     'taskStartToCloseTimeout' => array(
                                         'type' => 'string',
                                         'maxLength' => 8,
                                     ),
                                     'childPolicy' => array(
                                         'type' => 'string',
-                                        'enum' => array(
-                                            'TERMINATE',
-                                            'REQUEST_CANCEL',
-                                            'ABANDON',
-                                        ),
                                     ),
                                     'tagList' => array(
                                         'type' => 'array',
@@ -2343,17 +2314,16 @@ return array (
                                             ),
                                         ),
                                     ),
+                                    'taskPriority' => array(
+                                        'type' => 'string',
+                                        'maxLength' => 11,
+                                    ),
                                     'taskStartToCloseTimeout' => array(
                                         'type' => 'string',
                                         'maxLength' => 8,
                                     ),
                                     'childPolicy' => array(
                                         'type' => 'string',
-                                        'enum' => array(
-                                            'TERMINATE',
-                                            'REQUEST_CANCEL',
-                                            'ABANDON',
-                                        ),
                                     ),
                                     'tagList' => array(
                                         'type' => 'array',
@@ -2517,6 +2487,11 @@ return array (
                         ),
                     ),
                 ),
+                'taskPriority' => array(
+                    'type' => 'string',
+                    'location' => 'json',
+                    'maxLength' => 11,
+                ),
                 'input' => array(
                     'type' => 'string',
                     'location' => 'json',
@@ -2546,11 +2521,6 @@ return array (
                 'childPolicy' => array(
                     'type' => 'string',
                     'location' => 'json',
-                    'enum' => array(
-                        'TERMINATE',
-                        'REQUEST_CANCEL',
-                        'ABANDON',
-                    ),
                 ),
             ),
             'errorResponses' => array(
@@ -2632,11 +2602,6 @@ return array (
                 'childPolicy' => array(
                     'type' => 'string',
                     'location' => 'json',
-                    'enum' => array(
-                        'TERMINATE',
-                        'REQUEST_CANCEL',
-                        'ABANDON',
-                    ),
                 ),
             ),
             'errorResponses' => array(
@@ -2734,6 +2699,9 @@ return array (
                                     'type' => 'string',
                                 ),
                             ),
+                        ),
+                        'defaultTaskPriority' => array(
+                            'type' => 'string',
                         ),
                         'defaultTaskScheduleToStartTimeout' => array(
                             'type' => 'string',
@@ -2858,6 +2826,9 @@ return array (
                                 ),
                             ),
                         ),
+                        'taskPriority' => array(
+                            'type' => 'string',
+                        ),
                         'childPolicy' => array(
                             'type' => 'string',
                         ),
@@ -2942,6 +2913,9 @@ return array (
                                 ),
                             ),
                         ),
+                        'defaultTaskPriority' => array(
+                            'type' => 'string',
+                        ),
                         'defaultChildPolicy' => array(
                             'type' => 'string',
                         ),
@@ -3009,6 +2983,9 @@ return array (
                                             'name' => 'Tag',
                                             'type' => 'string',
                                         ),
+                                    ),
+                                    'taskPriority' => array(
+                                        'type' => 'string',
                                     ),
                                     'continuedExecutionRunId' => array(
                                         'type' => 'string',
@@ -3132,6 +3109,9 @@ return array (
                                             ),
                                         ),
                                     ),
+                                    'taskPriority' => array(
+                                        'type' => 'string',
+                                    ),
                                     'taskStartToCloseTimeout' => array(
                                         'type' => 'string',
                                     ),
@@ -3219,6 +3199,9 @@ return array (
                                             ),
                                         ),
                                     ),
+                                    'taskPriority' => array(
+                                        'type' => 'string',
+                                    ),
                                     'startToCloseTimeout' => array(
                                         'type' => 'string',
                                     ),
@@ -3302,6 +3285,9 @@ return array (
                                                 'type' => 'string',
                                             ),
                                         ),
+                                    ),
+                                    'taskPriority' => array(
+                                        'type' => 'string',
                                     ),
                                     'decisionTaskCompletedEventId' => array(
                                         'type' => 'numeric',
@@ -3526,6 +3512,9 @@ return array (
                                                 'type' => 'string',
                                             ),
                                         ),
+                                    ),
+                                    'taskPriority' => array(
+                                        'type' => 'string',
                                     ),
                                     'decisionTaskCompletedEventId' => array(
                                         'type' => 'numeric',
@@ -4315,6 +4304,9 @@ return array (
                                             'type' => 'string',
                                         ),
                                     ),
+                                    'taskPriority' => array(
+                                        'type' => 'string',
+                                    ),
                                     'continuedExecutionRunId' => array(
                                         'type' => 'string',
                                     ),
@@ -4437,6 +4429,9 @@ return array (
                                             ),
                                         ),
                                     ),
+                                    'taskPriority' => array(
+                                        'type' => 'string',
+                                    ),
                                     'taskStartToCloseTimeout' => array(
                                         'type' => 'string',
                                     ),
@@ -4524,6 +4519,9 @@ return array (
                                             ),
                                         ),
                                     ),
+                                    'taskPriority' => array(
+                                        'type' => 'string',
+                                    ),
                                     'startToCloseTimeout' => array(
                                         'type' => 'string',
                                     ),
@@ -4607,6 +4605,9 @@ return array (
                                                 'type' => 'string',
                                             ),
                                         ),
+                                    ),
+                                    'taskPriority' => array(
+                                        'type' => 'string',
                                     ),
                                     'decisionTaskCompletedEventId' => array(
                                         'type' => 'numeric',
@@ -4831,6 +4832,9 @@ return array (
                                                 'type' => 'string',
                                             ),
                                         ),
+                                    ),
+                                    'taskPriority' => array(
+                                        'type' => 'string',
                                     ),
                                     'decisionTaskCompletedEventId' => array(
                                         'type' => 'numeric',
@@ -5317,49 +5321,47 @@ return array (
         ),
     ),
     'iterators' => array(
-        'operations' => array(
-            'GetWorkflowExecutionHistory' => array(
-                'token_param' => 'nextPageToken',
-                'token_key' => 'nextPageToken',
-                'limit_key' => 'maximumPageSize',
-                'result_key' => 'events',
-            ),
-            'ListActivityTypes' => array(
-                'token_param' => 'nextPageToken',
-                'token_key' => 'nextPageToken',
-                'limit_key' => 'maximumPageSize',
-                'result_key' => 'typeInfos',
-            ),
-            'ListClosedWorkflowExecutions' => array(
-                'token_param' => 'nextPageToken',
-                'token_key' => 'nextPageToken',
-                'limit_key' => 'maximumPageSize',
-                'result_key' => 'executionInfos',
-            ),
-            'ListDomains' => array(
-                'token_param' => 'nextPageToken',
-                'token_key' => 'nextPageToken',
-                'limit_key' => 'maximumPageSize',
-                'result_key' => 'domainInfos',
-            ),
-            'ListOpenWorkflowExecutions' => array(
-                'token_param' => 'nextPageToken',
-                'token_key' => 'nextPageToken',
-                'limit_key' => 'maximumPageSize',
-                'result_key' => 'executionInfos',
-            ),
-            'ListWorkflowTypes' => array(
-                'token_param' => 'nextPageToken',
-                'token_key' => 'nextPageToken',
-                'limit_key' => 'maximumPageSize',
-                'result_key' => 'typeInfos',
-            ),
-            'PollForDecisionTask' => array(
-                'token_param' => 'nextPageToken',
-                'token_key' => 'nextPageToken',
-                'limit_key' => 'maximumPageSize',
-                'result_key' => 'events',
-            ),
+        'GetWorkflowExecutionHistory' => array(
+            'limit_key' => 'maximumPageSize',
+            'input_token' => 'nextPageToken',
+            'output_token' => 'nextPageToken',
+            'result_key' => 'events',
+        ),
+        'ListActivityTypes' => array(
+            'limit_key' => 'maximumPageSize',
+            'input_token' => 'nextPageToken',
+            'output_token' => 'nextPageToken',
+            'result_key' => 'typeInfos',
+        ),
+        'ListClosedWorkflowExecutions' => array(
+            'limit_key' => 'maximumPageSize',
+            'input_token' => 'nextPageToken',
+            'output_token' => 'nextPageToken',
+            'result_key' => 'executionInfos',
+        ),
+        'ListDomains' => array(
+            'limit_key' => 'maximumPageSize',
+            'input_token' => 'nextPageToken',
+            'output_token' => 'nextPageToken',
+            'result_key' => 'domainInfos',
+        ),
+        'ListOpenWorkflowExecutions' => array(
+            'limit_key' => 'maximumPageSize',
+            'input_token' => 'nextPageToken',
+            'output_token' => 'nextPageToken',
+            'result_key' => 'executionInfos',
+        ),
+        'ListWorkflowTypes' => array(
+            'limit_key' => 'maximumPageSize',
+            'input_token' => 'nextPageToken',
+            'output_token' => 'nextPageToken',
+            'result_key' => 'typeInfos',
+        ),
+        'PollForDecisionTask' => array(
+            'limit_key' => 'maximumPageSize',
+            'input_token' => 'nextPageToken',
+            'output_token' => 'nextPageToken',
+            'result_key' => 'events',
         ),
     ),
 );

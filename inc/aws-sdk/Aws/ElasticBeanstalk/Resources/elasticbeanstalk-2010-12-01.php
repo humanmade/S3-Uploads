@@ -66,6 +66,41 @@ return array (
         ),
     ),
     'operations' => array(
+        'AbortEnvironmentUpdate' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/',
+            'class' => 'Aws\\Common\\Command\\QueryCommand',
+            'responseClass' => 'EmptyOutput',
+            'responseType' => 'model',
+            'parameters' => array(
+                'Action' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => 'AbortEnvironmentUpdate',
+                ),
+                'Version' => array(
+                    'static' => true,
+                    'location' => 'aws.query',
+                    'default' => '2010-12-01',
+                ),
+                'EnvironmentId' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                ),
+                'EnvironmentName' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 4,
+                    'maxLength' => 23,
+                ),
+            ),
+            'errorResponses' => array(
+                array(
+                    'reason' => 'Unable to perform the specified operation because the user does not have enough privileges for one of more downstream aws services',
+                    'class' => 'InsufficientPrivilegesException',
+                ),
+            ),
+        ),
         'CheckDNSAvailability' => array(
             'httpMethod' => 'POST',
             'uri' => '/',
@@ -321,18 +356,65 @@ return array (
                     'minLength' => 1,
                     'maxLength' => 100,
                 ),
-                'VersionLabel' => array(
-                    'type' => 'string',
-                    'location' => 'aws.query',
-                    'minLength' => 1,
-                    'maxLength' => 100,
-                ),
                 'EnvironmentName' => array(
                     'required' => true,
                     'type' => 'string',
                     'location' => 'aws.query',
                     'minLength' => 4,
                     'maxLength' => 23,
+                ),
+                'Description' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'maxLength' => 200,
+                ),
+                'CNAMEPrefix' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 4,
+                    'maxLength' => 63,
+                ),
+                'Tier' => array(
+                    'type' => 'object',
+                    'location' => 'aws.query',
+                    'properties' => array(
+                        'Name' => array(
+                            'type' => 'string',
+                        ),
+                        'Type' => array(
+                            'type' => 'string',
+                        ),
+                        'Version' => array(
+                            'type' => 'string',
+                        ),
+                    ),
+                ),
+                'Tags' => array(
+                    'type' => 'array',
+                    'location' => 'aws.query',
+                    'sentAs' => 'Tags.member',
+                    'items' => array(
+                        'name' => 'Tag',
+                        'type' => 'object',
+                        'properties' => array(
+                            'Key' => array(
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 128,
+                            ),
+                            'Value' => array(
+                                'type' => 'string',
+                                'minLength' => 1,
+                                'maxLength' => 256,
+                            ),
+                        ),
+                    ),
+                ),
+                'VersionLabel' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'minLength' => 1,
+                    'maxLength' => 100,
                 ),
                 'TemplateName' => array(
                     'type' => 'string',
@@ -344,17 +426,6 @@ return array (
                     'type' => 'string',
                     'location' => 'aws.query',
                     'maxLength' => 100,
-                ),
-                'CNAMEPrefix' => array(
-                    'type' => 'string',
-                    'location' => 'aws.query',
-                    'minLength' => 4,
-                    'maxLength' => 63,
-                ),
-                'Description' => array(
-                    'type' => 'string',
-                    'location' => 'aws.query',
-                    'maxLength' => 200,
                 ),
                 'OptionSettings' => array(
                     'type' => 'array',
@@ -918,14 +989,6 @@ return array (
                 'Severity' => array(
                     'type' => 'string',
                     'location' => 'aws.query',
-                    'enum' => array(
-                        'TRACE',
-                        'DEBUG',
-                        'INFO',
-                        'WARN',
-                        'ERROR',
-                        'FATAL',
-                    ),
                 ),
                 'StartTime' => array(
                     'type' => array(
@@ -1042,9 +1105,6 @@ return array (
                     'required' => true,
                     'type' => 'string',
                     'location' => 'aws.query',
-                    'enum' => array(
-                        'tail',
-                    ),
                 ),
             ),
         ),
@@ -1108,9 +1168,6 @@ return array (
                     'required' => true,
                     'type' => 'string',
                     'location' => 'aws.query',
-                    'enum' => array(
-                        'tail',
-                    ),
                 ),
             ),
         ),
@@ -1370,6 +1427,26 @@ return array (
                     'minLength' => 4,
                     'maxLength' => 23,
                 ),
+                'Description' => array(
+                    'type' => 'string',
+                    'location' => 'aws.query',
+                    'maxLength' => 200,
+                ),
+                'Tier' => array(
+                    'type' => 'object',
+                    'location' => 'aws.query',
+                    'properties' => array(
+                        'Name' => array(
+                            'type' => 'string',
+                        ),
+                        'Type' => array(
+                            'type' => 'string',
+                        ),
+                        'Version' => array(
+                            'type' => 'string',
+                        ),
+                    ),
+                ),
                 'VersionLabel' => array(
                     'type' => 'string',
                     'location' => 'aws.query',
@@ -1382,10 +1459,10 @@ return array (
                     'minLength' => 1,
                     'maxLength' => 100,
                 ),
-                'Description' => array(
+                'SolutionStackName' => array(
                     'type' => 'string',
                     'location' => 'aws.query',
-                    'maxLength' => 200,
+                    'maxLength' => 100,
                 ),
                 'OptionSettings' => array(
                     'type' => 'array',
@@ -1499,6 +1576,10 @@ return array (
         ),
     ),
     'models' => array(
+        'EmptyOutput' => array(
+            'type' => 'object',
+            'additionalProperties' => true,
+        ),
         'CheckDNSAvailabilityResultMessage' => array(
             'type' => 'object',
             'additionalProperties' => true,
@@ -1701,6 +1782,10 @@ return array (
                     'type' => 'string',
                     'location' => 'xml',
                 ),
+                'AbortableOperationInProgress' => array(
+                    'type' => 'boolean',
+                    'location' => 'xml',
+                ),
                 'Health' => array(
                     'type' => 'string',
                     'location' => 'xml',
@@ -1738,6 +1823,21 @@ return array (
                         ),
                     ),
                 ),
+                'Tier' => array(
+                    'type' => 'object',
+                    'location' => 'xml',
+                    'properties' => array(
+                        'Name' => array(
+                            'type' => 'string',
+                        ),
+                        'Type' => array(
+                            'type' => 'string',
+                        ),
+                        'Version' => array(
+                            'type' => 'string',
+                        ),
+                    ),
+                ),
             ),
         ),
         'CreateStorageLocationResultMessage' => array(
@@ -1749,10 +1849,6 @@ return array (
                     'location' => 'xml',
                 ),
             ),
-        ),
-        'EmptyOutput' => array(
-            'type' => 'object',
-            'additionalProperties' => true,
         ),
         'ApplicationVersionDescriptionsMessage' => array(
             'type' => 'object',
@@ -2045,6 +2141,22 @@ return array (
                                 ),
                             ),
                         ),
+                        'Queues' => array(
+                            'type' => 'array',
+                            'items' => array(
+                                'name' => 'Queue',
+                                'type' => 'object',
+                                'sentAs' => 'member',
+                                'properties' => array(
+                                    'Name' => array(
+                                        'type' => 'string',
+                                    ),
+                                    'URL' => array(
+                                        'type' => 'string',
+                                    ),
+                                ),
+                            ),
+                        ),
                     ),
                 ),
             ),
@@ -2097,6 +2209,9 @@ return array (
                             'Status' => array(
                                 'type' => 'string',
                             ),
+                            'AbortableOperationInProgress' => array(
+                                'type' => 'boolean',
+                            ),
                             'Health' => array(
                                 'type' => 'string',
                             ),
@@ -2129,6 +2244,20 @@ return array (
                                                 ),
                                             ),
                                         ),
+                                    ),
+                                ),
+                            ),
+                            'Tier' => array(
+                                'type' => 'object',
+                                'properties' => array(
+                                    'Name' => array(
+                                        'type' => 'string',
+                                    ),
+                                    'Type' => array(
+                                        'type' => 'string',
+                                    ),
+                                    'Version' => array(
+                                        'type' => 'string',
                                     ),
                                 ),
                             ),
@@ -2279,28 +2408,26 @@ return array (
         ),
     ),
     'iterators' => array(
-        'operations' => array(
-            'DescribeApplicationVersions' => array(
-                'result_key' => 'ApplicationVersions',
-            ),
-            'DescribeApplications' => array(
-                'result_key' => 'Applications',
-            ),
-            'DescribeConfigurationOptions' => array(
-                'result_key' => 'Options',
-            ),
-            'DescribeEnvironments' => array(
-                'result_key' => 'Environments',
-            ),
-            'DescribeEvents' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'limit_key' => 'MaxRecords',
-                'result_key' => 'Events',
-            ),
-            'ListAvailableSolutionStacks' => array(
-                'result_key' => 'SolutionStacks',
-            ),
+        'DescribeApplicationVersions' => array(
+            'result_key' => 'ApplicationVersions',
+        ),
+        'DescribeApplications' => array(
+            'result_key' => 'Applications',
+        ),
+        'DescribeConfigurationOptions' => array(
+            'result_key' => 'Options',
+        ),
+        'DescribeEnvironments' => array(
+            'result_key' => 'Environments',
+        ),
+        'DescribeEvents' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'limit_key' => 'MaxRecords',
+            'result_key' => 'Events',
+        ),
+        'ListAvailableSolutionStacks' => array(
+            'result_key' => 'SolutionStacks',
         ),
     ),
     'waiters' => array(

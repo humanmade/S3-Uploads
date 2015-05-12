@@ -16,9 +16,10 @@
 
 namespace Aws\S3\Sync;
 
-use \FilesystemIterator as FI;
+use FilesystemIterator as FI;
 use Aws\Common\Model\MultipartUpload\AbstractTransfer;
 use Aws\S3\Model\Acp;
+use Guzzle\Common\HasDispatcherInterface;
 use Guzzle\Common\Event;
 use Guzzle\Service\Command\CommandInterface;
 
@@ -35,11 +36,11 @@ class UploadSyncBuilder extends AbstractSyncBuilder
      *
      * @param string $path Path that contains files to upload
      *
-     * @return self
+     * @return $this
      */
     public function uploadFromDirectory($path)
     {
-        $this->baseDir = $path;
+        $this->baseDir = realpath($path);
         $this->sourceIterator = $this->filterIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(
             $path,
             FI::SKIP_DOTS | FI::UNIX_PATHS | FI::FOLLOW_SYMLINKS
@@ -53,7 +54,7 @@ class UploadSyncBuilder extends AbstractSyncBuilder
      *
      * @param string $glob Glob expression
      *
-     * @return self
+     * @return $this
      * @link http://www.php.net/manual/en/function.glob.php
      */
     public function uploadFromGlob($glob)
@@ -70,7 +71,7 @@ class UploadSyncBuilder extends AbstractSyncBuilder
      *
      * @param string $acl Canned ACL for each upload
      *
-     * @return self
+     * @return $this
      */
     public function setAcl($acl)
     {
@@ -84,7 +85,7 @@ class UploadSyncBuilder extends AbstractSyncBuilder
      *
      * @param Acp $acp Access control policy
      *
-     * @return self
+     * @return $this
      */
     public function setAcp(Acp $acp)
     {
@@ -99,7 +100,7 @@ class UploadSyncBuilder extends AbstractSyncBuilder
      *
      * @param int $size Size threshold
      *
-     * @return self
+     * @return $this
      */
     public function setMultipartUploadSize($size)
     {
@@ -122,6 +123,21 @@ class UploadSyncBuilder extends AbstractSyncBuilder
         ));
 
         return $sync;
+    }
+
+    protected function addCustomParamListener(HasDispatcherInterface $sync)
+    {
+        // Handle the special multi-part upload event
+        parent::addCustomParamListener($sync);
+        $params = $this->params;
+        $sync->getEventDispatcher()->addListener(
+            UploadSync::BEFORE_MULTIPART_BUILD,
+            function (Event $e) use ($params) {
+                foreach ($params as $k => $v) {
+                    $e['builder']->setOption($k, $v);
+                }
+            }
+        );
     }
 
     protected function getTargetIterator()

@@ -64,6 +64,11 @@ return array (
             'https' => true,
             'hostname' => 'sns.sa-east-1.amazonaws.com',
         ),
+        'cn-north-1' => array(
+            'http' => true,
+            'https' => true,
+            'hostname' => 'sns.cn-north-1.amazonaws.com.cn',
+        ),
         'us-gov-west-1' => array(
             'http' => true,
             'https' => true,
@@ -879,11 +884,42 @@ return array (
                     'type' => 'string',
                     'location' => 'aws.query',
                 ),
+                'MessageAttributes' => array(
+                    'type' => 'object',
+                    'location' => 'aws.query',
+                    'sentAs' => 'MessageAttributes.entry',
+                    'data' => array(
+                        'keyName' => 'Name',
+                        'valueName' => 'Value',
+                    ),
+                    'additionalProperties' => array(
+                        'type' => 'object',
+                        'data' => array(
+                            'shape_name' => 'String',
+                        ),
+                        'properties' => array(
+                            'DataType' => array(
+                                'required' => true,
+                                'type' => 'string',
+                            ),
+                            'StringValue' => array(
+                                'type' => 'string',
+                            ),
+                            'BinaryValue' => array(
+                                'type' => 'string',
+                            ),
+                        ),
+                    ),
+                ),
             ),
             'errorResponses' => array(
                 array(
                     'reason' => 'Indicates that a request parameter does not comply with the associated constraints.',
                     'class' => 'InvalidParameterException',
+                ),
+                array(
+                    'reason' => 'Indicates that a request parameter does not comply with the associated constraints.',
+                    'class' => 'InvalidParameterValueException',
                 ),
                 array(
                     'reason' => 'Indicates an internal service error.',
@@ -1675,32 +1711,30 @@ return array (
         ),
     ),
     'iterators' => array(
-        'operations' => array(
-            'ListEndpointsByPlatformApplication' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'result_key' => 'Endpoints',
-            ),
-            'ListPlatformApplications' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'result_key' => 'PlatformApplications',
-            ),
-            'ListSubscriptions' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'result_key' => 'Subscriptions',
-            ),
-            'ListSubscriptionsByTopic' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'result_key' => 'Subscriptions',
-            ),
-            'ListTopics' => array(
-                'token_param' => 'NextToken',
-                'token_key' => 'NextToken',
-                'result_key' => 'Topics/*/TopicArn',
-            ),
+        'ListEndpointsByPlatformApplication' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'result_key' => 'Endpoints',
+        ),
+        'ListPlatformApplications' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'result_key' => 'PlatformApplications',
+        ),
+        'ListSubscriptions' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'result_key' => 'Subscriptions',
+        ),
+        'ListSubscriptionsByTopic' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'result_key' => 'Subscriptions',
+        ),
+        'ListTopics' => array(
+            'input_token' => 'NextToken',
+            'output_token' => 'NextToken',
+            'result_key' => 'Topics/*/TopicArn',
         ),
     ),
 );

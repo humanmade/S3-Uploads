@@ -28,8 +28,11 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  *
  * @method Model addSourceIdentifierToSubscription(array $args = array()) {@command Rds AddSourceIdentifierToSubscription}
  * @method Model addTagsToResource(array $args = array()) {@command Rds AddTagsToResource}
+ * @method Model applyPendingMaintenanceAction(array $args = array()) {@command Rds ApplyPendingMaintenanceAction}
  * @method Model authorizeDBSecurityGroupIngress(array $args = array()) {@command Rds AuthorizeDBSecurityGroupIngress}
+ * @method Model copyDBParameterGroup(array $args = array()) {@command Rds CopyDBParameterGroup}
  * @method Model copyDBSnapshot(array $args = array()) {@command Rds CopyDBSnapshot}
+ * @method Model copyOptionGroup(array $args = array()) {@command Rds CopyOptionGroup}
  * @method Model createDBInstance(array $args = array()) {@command Rds CreateDBInstance}
  * @method Model createDBInstanceReadReplica(array $args = array()) {@command Rds CreateDBInstanceReadReplica}
  * @method Model createDBParameterGroup(array $args = array()) {@command Rds CreateDBParameterGroup}
@@ -45,6 +48,8 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model deleteDBSubnetGroup(array $args = array()) {@command Rds DeleteDBSubnetGroup}
  * @method Model deleteEventSubscription(array $args = array()) {@command Rds DeleteEventSubscription}
  * @method Model deleteOptionGroup(array $args = array()) {@command Rds DeleteOptionGroup}
+ * @method Model describeAccountAttributes(array $args = array()) {@command Rds DescribeAccountAttributes}
+ * @method Model describeCertificates(array $args = array()) {@command Rds DescribeCertificates}
  * @method Model describeDBEngineVersions(array $args = array()) {@command Rds DescribeDBEngineVersions}
  * @method Model describeDBInstances(array $args = array()) {@command Rds DescribeDBInstances}
  * @method Model describeDBLogFiles(array $args = array()) {@command Rds DescribeDBLogFiles}
@@ -60,6 +65,7 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model describeOptionGroupOptions(array $args = array()) {@command Rds DescribeOptionGroupOptions}
  * @method Model describeOptionGroups(array $args = array()) {@command Rds DescribeOptionGroups}
  * @method Model describeOrderableDBInstanceOptions(array $args = array()) {@command Rds DescribeOrderableDBInstanceOptions}
+ * @method Model describePendingMaintenanceActions(array $args = array()) {@command Rds DescribePendingMaintenanceActions}
  * @method Model describeReservedDBInstances(array $args = array()) {@command Rds DescribeReservedDBInstances}
  * @method Model describeReservedDBInstancesOfferings(array $args = array()) {@command Rds DescribeReservedDBInstancesOfferings}
  * @method Model downloadDBLogFilePortion(array $args = array()) {@command Rds DownloadDBLogFilePortion}
@@ -78,8 +84,8 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model restoreDBInstanceFromDBSnapshot(array $args = array()) {@command Rds RestoreDBInstanceFromDBSnapshot}
  * @method Model restoreDBInstanceToPointInTime(array $args = array()) {@command Rds RestoreDBInstanceToPointInTime}
  * @method Model revokeDBSecurityGroupIngress(array $args = array()) {@command Rds RevokeDBSecurityGroupIngress}
- * @method waitUntilDBInstanceAvailable(array $input) Wait using the DBInstanceAvailable waiter. The input array uses the parameters of the DescribeDBInstances operation and waiter specific settings
- * @method waitUntilDBInstanceDeleted(array $input) Wait using the DBInstanceDeleted waiter. The input array uses the parameters of the DescribeDBInstances operation and waiter specific settings
+ * @method waitUntilDBInstanceAvailable(array $input) The input array uses the parameters of the DescribeDBInstances operation and waiter specific settings
+ * @method waitUntilDBInstanceDeleted(array $input) The input array uses the parameters of the DescribeDBInstances operation and waiter specific settings
  * @method ResourceIteratorInterface getDescribeDBEngineVersionsIterator(array $args = array()) The input array uses the parameters of the DescribeDBEngineVersions operation
  * @method ResourceIteratorInterface getDescribeDBInstancesIterator(array $args = array()) The input array uses the parameters of the DescribeDBInstances operation
  * @method ResourceIteratorInterface getDescribeDBLogFilesIterator(array $args = array()) The input array uses the parameters of the DescribeDBLogFiles operation
@@ -96,15 +102,14 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method ResourceIteratorInterface getDescribeOrderableDBInstanceOptionsIterator(array $args = array()) The input array uses the parameters of the DescribeOrderableDBInstanceOptions operation
  * @method ResourceIteratorInterface getDescribeReservedDBInstancesIterator(array $args = array()) The input array uses the parameters of the DescribeReservedDBInstances operation
  * @method ResourceIteratorInterface getDescribeReservedDBInstancesOfferingsIterator(array $args = array()) The input array uses the parameters of the DescribeReservedDBInstancesOfferings operation
- * @method ResourceIteratorInterface getDownloadDBLogFilePortionIterator(array $args = array()) The input array uses the parameters of the DownloadDBLogFilePortion operation
  * @method ResourceIteratorInterface getListTagsForResourceIterator(array $args = array()) The input array uses the parameters of the ListTagsForResource operation
  *
- * @link http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-rds.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.Rds.RdsClient.html API docs
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-rds.html User guide
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.Rds.RdsClient.html API docs
  */
 class RdsClient extends AbstractClient
 {
-    const LATEST_API_VERSION = '2013-05-15';
+    const LATEST_API_VERSION = '2014-10-31';
 
     /**
      * Factory method to create a new Amazon Relational Database Service client using an array of configuration options.
@@ -112,7 +117,7 @@ class RdsClient extends AbstractClient
      * @param array|Collection $config Client configuration data
      *
      * @return self
-     * @see \Aws\Common\Client\DefaultClient for a list of available configuration options
+     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
      */
     public static function factory($config = array())
     {

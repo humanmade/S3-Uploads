@@ -25,4 +25,5 @@ class ViewerProtocolPolicy extends Enum
 {
     const ALLOW_ALL = 'allow-all';
     const HTTPS_ONLY = 'https-only';
+    const REDIRECT_TO_HTTPS = 'redirect-to-https';
 }

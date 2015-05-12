@@ -16,12 +16,10 @@
 
 namespace Aws\Glacier\Model\MultipartUpload;
 
-use Aws\Common\Enum\Size;
 use Aws\Common\Enum\UaString as Ua;
 use Aws\Common\Exception\InvalidArgumentException;
 use Aws\Common\Model\MultipartUpload\AbstractUploadBuilder;
 use Aws\Common\Model\MultipartUpload\TransferStateInterface as State;
-use Aws\Glacier\Model\MultipartUpload\UploadPartGenerator;
 
 /**
  * Easily create a multipart uploader used to quickly and reliably upload a
@@ -64,7 +62,7 @@ class UploadBuilder extends AbstractUploadBuilder
      *
      * @param string $accountId ID of the account
      *
-     * @return self
+     * @return $this
      */
     public function setAccountId($accountId)
     {
@@ -78,7 +76,7 @@ class UploadBuilder extends AbstractUploadBuilder
       *
       * @param string $vaultName Name of the vault
       *
-      * @return self
+      * @return $this
      */
     public function setVaultName($vaultName)
     {
@@ -92,7 +90,7 @@ class UploadBuilder extends AbstractUploadBuilder
      *
      * @param int $partSize Upload part size
      *
-     * @return self
+     * @return $this
      */
     public function setPartSize($partSize)
     {
@@ -106,7 +104,7 @@ class UploadBuilder extends AbstractUploadBuilder
       *
       * @param string $archiveDescription Archive description
       *
-      * @return self
+      * @return $this
      */
     public function setArchiveDescription($archiveDescription)
     {
@@ -121,7 +119,7 @@ class UploadBuilder extends AbstractUploadBuilder
      *
      * @param int $concurrency Concurrency level
      *
-     * @return self
+     * @return $this
      */
     public function setConcurrency($concurrency)
     {
@@ -135,7 +133,7 @@ class UploadBuilder extends AbstractUploadBuilder
      *
      * @param UploadPartGenerator $partGenerator Glacier upload helper object
      *
-     * @return self
+     * @return $this
      */
     public function setPartGenerator(UploadPartGenerator $partGenerator)
     {
@@ -169,7 +167,7 @@ class UploadBuilder extends AbstractUploadBuilder
             if (!$this->partGenerator) {
                 throw new InvalidArgumentException('You must provide an UploadPartGenerator when resuming an upload.');
             }
-            /** @var $state \Aws\Glacier\Model\MultipartUpload\TransferState */
+            /** @var TransferState $state */
             $this->state = TransferState::fromUploadId($this->client, UploadId::fromParams(array(
                 'accountId' => $this->accountId,
                 'vaultName' => $this->vaultName,

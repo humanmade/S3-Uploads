@@ -17,11 +17,11 @@
 namespace Aws\Common\Client;
 
 use Aws\Common\Aws;
-use Aws\Common\Credentials\Credentials;
 use Aws\Common\Credentials\CredentialsInterface;
 use Aws\Common\Enum\ClientOptions as Options;
 use Aws\Common\Exception\InvalidArgumentException;
 use Aws\Common\Exception\TransferException;
+use Aws\Common\RulesEndpointProvider;
 use Aws\Common\Signature\EndpointSignatureInterface;
 use Aws\Common\Signature\SignatureInterface;
 use Aws\Common\Signature\SignatureListener;
@@ -31,6 +31,7 @@ use Aws\Common\Waiter\WaiterFactoryInterface;
 use Aws\Common\Waiter\WaiterConfigFactory;
 use Guzzle\Common\Collection;
 use Guzzle\Http\Exception\CurlException;
+use Guzzle\Http\QueryAggregator\DuplicateAggregator;
 use Guzzle\Service\Client;
 use Guzzle\Service\Description\ServiceDescriptionInterface;
 
@@ -39,20 +40,17 @@ use Guzzle\Service\Description\ServiceDescriptionInterface;
  */
 abstract class AbstractClient extends Client implements AwsClientInterface
 {
-    /**
-     * @var CredentialsInterface AWS credentials
-     */
+    /** @var CredentialsInterface AWS credentials */
     protected $credentials;
 
-    /**
-     * @var SignatureInterface Signature implementation of the service
-     */
+    /** @var SignatureInterface Signature implementation of the service */
     protected $signature;
 
-    /**
-     * @var WaiterFactoryInterface Factory used to create waiter classes
-     */
+    /** @var WaiterFactoryInterface Factory used to create waiter classes */
     protected $waiterFactory;
+
+    /** @var DuplicateAggregator Cached query aggregator*/
+    protected $aggregator;
 
     /**
      * {@inheritdoc}
@@ -78,6 +76,7 @@ abstract class AbstractClient extends Client implements AwsClientInterface
         parent::__construct($config->get(Options::BASE_URL), $config);
         $this->credentials = $credentials;
         $this->signature = $signature;
+        $this->aggregator = new DuplicateAggregator();
 
         // Make sure the user agent is prefixed by the SDK version
         $this->setUserAgent('aws-sdk-php2/' . Aws::VERSION, true);
@@ -108,44 +107,29 @@ abstract class AbstractClient extends Client implements AwsClientInterface
 
     /**
      * Get an endpoint for a specific region from a service description
-     *
-     * @param ServiceDescriptionInterface $description Service description
-     * @param string                      $region      Region of the endpoint
-     * @param string                      $scheme      URL scheme
-     *
-     * @return string
-     * @throws InvalidArgumentException
+     * @deprecated This function will no longer be updated to work with new regions.
      */
     public static function getEndpoint(ServiceDescriptionInterface $description, $region, $scheme)
     {
-        $service = $description->getData('serviceFullName');
-        // Lookup the region in the service description
-        if (!($regions = $description->getData('regions'))) {
-            throw new InvalidArgumentException("No regions found in the {$service} description");
+        try {
+            $service = $description->getData('endpointPrefix');
+            $provider = RulesEndpointProvider::fromDefaults();
+            $result = $provider(array(
+                'service' => $service,
+                'region'  => $region,
+                'scheme'  => $scheme
+            ));
+            return $result['endpoint'];
+        } catch (\InvalidArgumentException $e) {
+            throw new InvalidArgumentException($e->getMessage(), 0, $e);
         }
-        // Ensure that the region exists for the service
-        if (!isset($regions[$region])) {
-            throw new InvalidArgumentException("{$region} is not a valid region for {$service}");
-        }
-        // Ensure that the scheme is valid
-        if ($regions[$region][$scheme] == false) {
-            throw new InvalidArgumentException("{$scheme} is not a valid URI scheme for {$service} in {$region}");
-        }
-
-        return $scheme . '://' . $regions[$region]['hostname'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getCredentials()
     {
         return $this->credentials;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setCredentials(CredentialsInterface $credentials)
     {
         $formerCredentials = $this->credentials;
@@ -160,49 +144,52 @@ abstract class AbstractClient extends Client implements AwsClientInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSignature()
     {
         return $this->signature;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getRegions()
     {
         return $this->serviceDescription->getData('regions');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getRegion()
     {
         return $this->getConfig(Options::REGION);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setRegion($region)
     {
         $config = $this->getConfig();
         $formerRegion = $config->get(Options::REGION);
         $global = $this->serviceDescription->getData('globalEndpoint');
+        $provider = $config->get('endpoint_provider');
+
+        if (!$provider) {
+            throw new \RuntimeException('No endpoint provider configured');
+        }
 
         // Only change the region if the service does not have a global endpoint
         if (!$global || $this->serviceDescription->getData('namespace') === 'S3') {
-            $baseUrl = self::getEndpoint($this->serviceDescription, $region, $config->get(Options::SCHEME));
-            $this->setBaseUrl($baseUrl);
-            $config->set(Options::BASE_URL, $baseUrl)->set(Options::REGION, $region);
+
+            $endpoint = call_user_func(
+                $provider,
+                array(
+                    'scheme'  => $config->get(Options::SCHEME),
+                    'region'  => $region,
+                    'service' => $config->get(Options::SERVICE)
+                )
+            );
+
+            $this->setBaseUrl($endpoint['endpoint']);
+            $config->set(Options::BASE_URL, $endpoint['endpoint']);
+            $config->set(Options::REGION, $region);
 
             // Update the signature if necessary
             $signature = $this->getSignature();
             if ($signature instanceof EndpointSignatureInterface) {
-                /** @var $signature EndpointSignatureInterface */
+                /** @var EndpointSignatureInterface $signature */
                 $signature->setRegionName($region);
             }
 
@@ -216,9 +203,6 @@ abstract class AbstractClient extends Client implements AwsClientInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function waitUntil($waiter, array $input = array())
     {
         $this->getWaiter($waiter, $input)->wait();
@@ -226,9 +210,6 @@ abstract class AbstractClient extends Client implements AwsClientInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getWaiter($waiter, array $input = array())
     {
         return $this->getWaiterFactory()->build($waiter)
@@ -236,9 +217,6 @@ abstract class AbstractClient extends Client implements AwsClientInterface
             ->setConfig($input);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setWaiterFactory(WaiterFactoryInterface $waiterFactory)
     {
         $this->waiterFactory = $waiterFactory;
@@ -246,9 +224,6 @@ abstract class AbstractClient extends Client implements AwsClientInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getWaiterFactory()
     {
         if (!$this->waiterFactory) {
@@ -258,16 +233,14 @@ abstract class AbstractClient extends Client implements AwsClientInterface
                 new WaiterClassFactory(substr($clientClass, 0, strrpos($clientClass, '\\')) . '\\Waiter')
             ));
             if ($this->getDescription()) {
-                $this->waiterFactory->addFactory(new WaiterConfigFactory($this->getDescription()->getData('waiters')));
+                $waiterConfig = $this->getDescription()->getData('waiters') ?: array();
+                $this->waiterFactory->addFactory(new WaiterConfigFactory($waiterConfig));
             }
         }
 
         return $this->waiterFactory;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getApiVersion()
     {
         return $this->serviceDescription->getApiVersion();
@@ -289,5 +262,22 @@ abstract class AbstractClient extends Client implements AwsClientInterface
                 ->setRequest($e->getRequest());
             throw $wrapped;
         }
+    }
+
+    /**
+     * Ensures that the duplicate query string aggregator is used so that
+     * query string values are sent over the wire as foo=bar&foo=baz.
+     * {@inheritdoc}
+     */
+    public function createRequest(
+        $method = 'GET',
+        $uri = null,
+        $headers = null,
+        $body = null,
+        array $options = array()
+    ) {
+        $request = parent::createRequest($method, $uri, $headers, $body, $options);
+        $request->getQuery()->setAggregator($this->aggregator);
+        return $request;
     }
 }

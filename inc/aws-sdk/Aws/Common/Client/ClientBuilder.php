@@ -17,18 +17,19 @@
 namespace Aws\Common\Client;
 
 use Aws\Common\Credentials\Credentials;
+use Aws\Common\Credentials\CredentialsInterface;
+use Aws\Common\Credentials\NullCredentials;
 use Aws\Common\Enum\ClientOptions as Options;
-use Aws\Common\Enum\Region;
 use Aws\Common\Exception\ExceptionListener;
 use Aws\Common\Exception\InvalidArgumentException;
 use Aws\Common\Exception\NamespaceExceptionFactory;
 use Aws\Common\Exception\Parser\DefaultXmlExceptionParser;
 use Aws\Common\Exception\Parser\ExceptionParserInterface;
 use Aws\Common\Iterator\AwsResourceIteratorFactory;
+use Aws\Common\RulesEndpointProvider;
 use Aws\Common\Signature\EndpointSignatureInterface;
 use Aws\Common\Signature\SignatureInterface;
 use Aws\Common\Signature\SignatureV2;
-use Aws\Common\Signature\SignatureV3;
 use Aws\Common\Signature\SignatureV3Https;
 use Aws\Common\Signature\SignatureV4;
 use Guzzle\Common\Collection;
@@ -37,7 +38,6 @@ use Guzzle\Plugin\Backoff\CurlBackoffStrategy;
 use Guzzle\Plugin\Backoff\ExponentialBackoffStrategy;
 use Guzzle\Plugin\Backoff\HttpBackoffStrategy;
 use Guzzle\Plugin\Backoff\TruncatedBackoffStrategy;
-use Guzzle\Service\Client;
 use Guzzle\Service\Description\ServiceDescription;
 use Guzzle\Service\Resource\ResourceIteratorClassFactory;
 use Guzzle\Log\LogAdapterInterface;
@@ -89,6 +89,12 @@ class ClientBuilder
      */
     protected $iteratorsConfig = array();
 
+    /** @var string */
+    private $clientClass;
+
+    /** @var string */
+    private $serviceName;
+
     /**
      * Factory method for creating the client builder
      *
@@ -109,6 +115,14 @@ class ClientBuilder
     public function __construct($namespace = null)
     {
         $this->clientNamespace = $namespace;
+
+        // Determine service and class name
+        $this->clientClass = 'Aws\Common\Client\DefaultClient';
+
+        if ($this->clientNamespace) {
+            $this->serviceName = substr($this->clientNamespace, strrpos($this->clientNamespace, '\\') + 1);
+            $this->clientClass = $this->clientNamespace . '\\' . $this->serviceName . 'Client';
+        }
     }
 
     /**
@@ -199,14 +213,19 @@ class ClientBuilder
             (self::$commonConfigRequirements + $this->configRequirements)
         );
 
-        // Resolve endpoint and signature from the config and service description
+        if ($config[Options::VERSION] === 'latest') {
+            $config[Options::VERSION] = constant("{$this->clientClass}::LATEST_API_VERSION");
+        }
+
+        if (!isset($config['endpoint_provider'])) {
+            $config['endpoint_provider'] = RulesEndpointProvider::fromDefaults();
+        }
+
+        // Resolve the endpoint, signature, and credentials
         $description = $this->updateConfigFromDescription($config);
         $signature = $this->getSignature($description, $config);
-
-        // Resolve credentials
-        if (!$credentials = $config->get('credentials')) {
-            $credentials = Credentials::factory($config);
-        }
+        $credentials = $this->getCredentials($config);
+        $this->extractHttpConfig($config);
 
         // Resolve exception parser
         if (!$this->exceptionParser) {
@@ -216,24 +235,7 @@ class ClientBuilder
         // Resolve backoff strategy
         $backoff = $config->get(Options::BACKOFF);
         if ($backoff === null) {
-            $backoff = new BackoffPlugin(
-                // Retry failed requests up to 3 times if it is determined that the request can be retried
-                new TruncatedBackoffStrategy(3,
-                    // Retry failed requests with 400-level responses due to throttling
-                    new ThrottlingErrorChecker($this->exceptionParser,
-                        // Retry failed requests with 500-level responses
-                        new HttpBackoffStrategy(array(500, 503, 509),
-                            // Retry failed requests due to transient network or cURL problems
-                            new CurlBackoffStrategy(null,
-                                // Retry requests that failed due to expired credentials
-                                new ExpiredCredentialsChecker($this->exceptionParser,
-                                    new ExponentialBackoffStrategy()
-                                )
-                            )
-                        )
-                    )
-                )
-            );
+            $backoff = $this->createDefaultBackoff();
             $config->set(Options::BACKOFF, $backoff);
         }
 
@@ -241,15 +243,8 @@ class ClientBuilder
             $this->addBackoffLogger($backoff, $config);
         }
 
-        // Determine service and class name
-        $clientClass = 'Aws\Common\Client\DefaultClient';
-        if ($this->clientNamespace) {
-            $serviceName = substr($this->clientNamespace, strrpos($this->clientNamespace, '\\') + 1);
-            $clientClass = $this->clientNamespace . '\\' . $serviceName . 'Client';
-        }
-
-        /** @var $client AwsClientInterface */
-        $client = new $clientClass($credentials, $signature, $config);
+        /** @var AwsClientInterface $client */
+        $client = new $this->clientClass($credentials, $signature, $config);
         $client->setDescription($description);
 
         // Add exception marshaling so that more descriptive exception are thrown
@@ -257,7 +252,7 @@ class ClientBuilder
             $exceptionFactory = new NamespaceExceptionFactory(
                 $this->exceptionParser,
                 "{$this->clientNamespace}\\Exception",
-                "{$this->clientNamespace}\\Exception\\{$serviceName}Exception"
+                "{$this->clientNamespace}\\Exception\\{$this->serviceName}Exception"
             );
             $client->addSubscriber(new ExceptionListener($exceptionFactory));
         }
@@ -369,40 +364,17 @@ class ClientBuilder
             $this->setIteratorsConfig($iterators);
         }
 
-        // Ensure that the service description has regions
-        if (!$description->getData('regions')) {
-            throw new InvalidArgumentException(
-                'No regions found in the ' . $description->getData('serviceFullName'). ' description'
-            );
-        }
-
-        // Make sure a valid region is set
-        $region = $config->get(Options::REGION);
-        $global = $description->getData('globalEndpoint');
-        if (!$global && !$region) {
-            throw new InvalidArgumentException(
-                'A region is required when using ' . $description->getData('serviceFullName')
-                . '. Set "region" to one of: ' . implode(', ', array_keys($description->getData('regions')))
-            );
-        } elseif ($global && (!$region || $description->getData('namespace') !== 'S3')) {
-            $region = Region::US_EAST_1;
-            $config->set(Options::REGION, $region);
-        }
-
-        if (!$config->get(Options::BASE_URL)) {
-            // Set the base URL using the scheme and hostname of the service's region
-            $config->set(Options::BASE_URL, AbstractClient::getEndpoint(
-                $description,
-                $region,
-                $config->get(Options::SCHEME)
-            ));
-        }
+        $this->handleRegion($config);
+        $this->handleEndpoint($config);
 
         return $description;
     }
 
     /**
-     * Return an appropriate signature object for a a client based on a description
+     * Return an appropriate signature object for a a client based on the
+     * "signature" configuration setting, or the default signature specified in
+     * a service description. The signature can be set to a valid signature
+     * version identifier string or an instance of Aws\Common\Signature\SignatureInterface.
      *
      * @param ServiceDescription $description Description that holds a signature option
      * @param Collection         $config      Configuration options
@@ -412,43 +384,143 @@ class ClientBuilder
      */
     protected function getSignature(ServiceDescription $description, Collection $config)
     {
-        if (!$signature = $config->get(Options::SIGNATURE)) {
-            switch ($description->getData('signatureVersion')) {
-                case 'v2':
-                    $signature = new SignatureV2();
-                    break;
-                case 'v3':
-                    $signature = new SignatureV3();
-                    break;
-                case 'v3https':
-                    $signature = new SignatureV3Https();
-                    break;
-                case 'v4':
-                    $signature = new SignatureV4();
-                    break;
-                default:
-                    throw new InvalidArgumentException('Service description does not specify a valid signatureVersion');
+        // If a custom signature has not been provided, then use the default
+        // signature setting specified in the service description.
+        $signature = $config->get(Options::SIGNATURE) ?: $description->getData('signatureVersion');
+
+        if (is_string($signature)) {
+            if ($signature == 'v4') {
+                $signature = new SignatureV4();
+            } elseif ($signature == 'v2') {
+                $signature = new SignatureV2();
+            } elseif ($signature == 'v3https') {
+                $signature = new SignatureV3Https();
+            } else {
+                throw new InvalidArgumentException("Invalid signature type: {$signature}");
             }
+        } elseif (!($signature instanceof SignatureInterface)) {
+            throw new InvalidArgumentException('The provided signature is not '
+                . 'a signature version string or an instance of '
+                . 'Aws\\Common\\Signature\\SignatureInterface');
         }
 
         // Allow a custom service name or region value to be provided
         if ($signature instanceof EndpointSignatureInterface) {
 
             // Determine the service name to use when signing
-            if (!$service = $config->get(Options::SIGNATURE_SERVICE)) {
-                if (!$service = $description->getData('signingName')) {
-                    $service = $description->getData('endpointPrefix');
-                }
-            }
-            $signature->setServiceName($service);
+            $signature->setServiceName($config->get(Options::SIGNATURE_SERVICE)
+                ?: $description->getData('signingName')
+                ?: $description->getData('endpointPrefix'));
 
             // Determine the region to use when signing requests
-            if (!$region = $config->get(Options::SIGNATURE_REGION)) {
-                $region = $config->get(Options::REGION);
-            }
-            $signature->setRegionName($region);
+            $signature->setRegionName($config->get(Options::SIGNATURE_REGION) ?: $config->get(Options::REGION));
         }
 
         return $signature;
+    }
+
+    protected function getCredentials(Collection $config)
+    {
+        $credentials = $config->get(Options::CREDENTIALS);
+
+        if (is_array($credentials)) {
+            $credentials = Credentials::factory($credentials);
+        } elseif ($credentials === false) {
+            $credentials = new NullCredentials();
+        } elseif (!$credentials instanceof CredentialsInterface) {
+            $credentials = Credentials::factory($config);
+        }
+
+        return $credentials;
+    }
+
+    private function handleRegion(Collection $config)
+    {
+        // Make sure a valid region is set
+        $region = $config[Options::REGION];
+        $description = $config[Options::SERVICE_DESCRIPTION];
+        $global = $description->getData('globalEndpoint');
+
+        if (!$global && !$region) {
+            throw new InvalidArgumentException(
+                'A region is required when using ' . $description->getData('serviceFullName')
+            );
+        } elseif ($global && !$region) {
+            $config[Options::REGION] = 'us-east-1';
+        }
+    }
+
+    private function handleEndpoint(Collection $config)
+    {
+        // Alias "endpoint" with "base_url" for forwards compatibility.
+        if ($config['endpoint']) {
+            $config[Options::BASE_URL] = $config['endpoint'];
+            return;
+        }
+
+        if ($config[Options::BASE_URL]) {
+            return;
+        }
+
+        $endpoint = call_user_func(
+            $config['endpoint_provider'],
+            array(
+                'scheme'  => $config[Options::SCHEME],
+                'region'  => $config[Options::REGION],
+                'service' => $config[Options::SERVICE]
+            )
+        );
+
+        $config[Options::BASE_URL] = $endpoint['endpoint'];
+
+        // Set a signature if one was not explicitly provided.
+        if (!$config->hasKey(Options::SIGNATURE)
+            && isset($endpoint['signatureVersion'])
+        ) {
+            $config->set(Options::SIGNATURE, $endpoint['signatureVersion']);
+        }
+
+        // The the signing region if endpoint rule specifies one.
+        if (isset($endpoint['credentialScope'])) {
+            $scope = $endpoint['credentialScope'];
+            if (isset($scope['region'])) {
+                $config->set(Options::SIGNATURE_REGION, $scope['region']);
+            }
+        }
+    }
+
+    private function createDefaultBackoff()
+    {
+        return new BackoffPlugin(
+            // Retry failed requests up to 3 times if it is determined that the request can be retried
+            new TruncatedBackoffStrategy(3,
+                // Retry failed requests with 400-level responses due to throttling
+                new ThrottlingErrorChecker($this->exceptionParser,
+                    // Retry failed requests due to transient network or cURL problems
+                    new CurlBackoffStrategy(null,
+                        // Retry failed requests with 500-level responses
+                        new HttpBackoffStrategy(array(500, 503, 509),
+                            // Retry requests that failed due to expired credentials
+                            new ExpiredCredentialsChecker($this->exceptionParser,
+                                new ExponentialBackoffStrategy()
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    private function extractHttpConfig(Collection $config)
+    {
+        $http = $config['http'];
+
+        if (!is_array($http)) {
+            return;
+        }
+
+        if (isset($http['verify'])) {
+            $config[Options::SSL_CERT] = $http['verify'];
+        }
     }
 }

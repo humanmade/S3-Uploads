@@ -54,7 +54,7 @@ class Acp implements ToArrayInterface, \IteratorAggregate, \Countable
      *
      * @param array $data Array of ACP data
      *
-     * @return self
+     * @return Acp
      */
     public static function fromArray(array $data)
     {
@@ -100,7 +100,7 @@ class Acp implements ToArrayInterface, \IteratorAggregate, \Countable
      *
      * @param Grantee $owner ACP policy owner
      *
-     * @return self
+     * @return $this
      *
      * @throws InvalidArgumentException if the grantee does not have an ID set
      */
@@ -130,7 +130,7 @@ class Acp implements ToArrayInterface, \IteratorAggregate, \Countable
      *
      * @param array|\Traversable $grants List of grants for the ACP
      *
-     * @return self
+     * @return $this
      *
      * @throws InvalidArgumentException
      */
@@ -140,7 +140,7 @@ class Acp implements ToArrayInterface, \IteratorAggregate, \Countable
 
         if ($grants) {
             if (is_array($grants) || $grants instanceof \Traversable) {
-                /** @var $grant Grant */
+                /** @var Grant $grant */
                 foreach ($grants as $grant) {
                     $this->addGrant($grant);
                 }
@@ -167,7 +167,7 @@ class Acp implements ToArrayInterface, \IteratorAggregate, \Countable
      *
      * @param Grant $grant Grant to add
      *
-     * @return self
+     * @return $this
      */
     public function addGrant(Grant $grant)
     {
@@ -205,13 +205,13 @@ class Acp implements ToArrayInterface, \IteratorAggregate, \Countable
      *
      * @param AbstractCommand $command Command to be updated
      *
-     * @return self
+     * @return $this
      */
     public function updateCommand(AbstractCommand $command)
     {
         $parameters = array();
         foreach ($this->grants as $grant) {
-            /** @var $grant Grant */
+            /** @var Grant $grant */
             $parameters = array_merge_recursive($parameters, $grant->getParameterArray());
         }
 

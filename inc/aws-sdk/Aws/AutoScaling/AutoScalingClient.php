@@ -26,20 +26,26 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
 /**
  * Client to interact with Auto Scaling
  *
+ * @method Model attachInstances(array $args = array()) {@command AutoScaling AttachInstances}
+ * @method Model completeLifecycleAction(array $args = array()) {@command AutoScaling CompleteLifecycleAction}
  * @method Model createAutoScalingGroup(array $args = array()) {@command AutoScaling CreateAutoScalingGroup}
  * @method Model createLaunchConfiguration(array $args = array()) {@command AutoScaling CreateLaunchConfiguration}
  * @method Model createOrUpdateTags(array $args = array()) {@command AutoScaling CreateOrUpdateTags}
  * @method Model deleteAutoScalingGroup(array $args = array()) {@command AutoScaling DeleteAutoScalingGroup}
  * @method Model deleteLaunchConfiguration(array $args = array()) {@command AutoScaling DeleteLaunchConfiguration}
+ * @method Model deleteLifecycleHook(array $args = array()) {@command AutoScaling DeleteLifecycleHook}
  * @method Model deleteNotificationConfiguration(array $args = array()) {@command AutoScaling DeleteNotificationConfiguration}
  * @method Model deletePolicy(array $args = array()) {@command AutoScaling DeletePolicy}
  * @method Model deleteScheduledAction(array $args = array()) {@command AutoScaling DeleteScheduledAction}
  * @method Model deleteTags(array $args = array()) {@command AutoScaling DeleteTags}
+ * @method Model describeAccountLimits(array $args = array()) {@command AutoScaling DescribeAccountLimits}
  * @method Model describeAdjustmentTypes(array $args = array()) {@command AutoScaling DescribeAdjustmentTypes}
  * @method Model describeAutoScalingGroups(array $args = array()) {@command AutoScaling DescribeAutoScalingGroups}
  * @method Model describeAutoScalingInstances(array $args = array()) {@command AutoScaling DescribeAutoScalingInstances}
  * @method Model describeAutoScalingNotificationTypes(array $args = array()) {@command AutoScaling DescribeAutoScalingNotificationTypes}
  * @method Model describeLaunchConfigurations(array $args = array()) {@command AutoScaling DescribeLaunchConfigurations}
+ * @method Model describeLifecycleHookTypes(array $args = array()) {@command AutoScaling DescribeLifecycleHookTypes}
+ * @method Model describeLifecycleHooks(array $args = array()) {@command AutoScaling DescribeLifecycleHooks}
  * @method Model describeMetricCollectionTypes(array $args = array()) {@command AutoScaling DescribeMetricCollectionTypes}
  * @method Model describeNotificationConfigurations(array $args = array()) {@command AutoScaling DescribeNotificationConfigurations}
  * @method Model describePolicies(array $args = array()) {@command AutoScaling DescribePolicies}
@@ -48,12 +54,17 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method Model describeScheduledActions(array $args = array()) {@command AutoScaling DescribeScheduledActions}
  * @method Model describeTags(array $args = array()) {@command AutoScaling DescribeTags}
  * @method Model describeTerminationPolicyTypes(array $args = array()) {@command AutoScaling DescribeTerminationPolicyTypes}
+ * @method Model detachInstances(array $args = array()) {@command AutoScaling DetachInstances}
  * @method Model disableMetricsCollection(array $args = array()) {@command AutoScaling DisableMetricsCollection}
  * @method Model enableMetricsCollection(array $args = array()) {@command AutoScaling EnableMetricsCollection}
+ * @method Model enterStandby(array $args = array()) {@command AutoScaling EnterStandby}
  * @method Model executePolicy(array $args = array()) {@command AutoScaling ExecutePolicy}
+ * @method Model exitStandby(array $args = array()) {@command AutoScaling ExitStandby}
+ * @method Model putLifecycleHook(array $args = array()) {@command AutoScaling PutLifecycleHook}
  * @method Model putNotificationConfiguration(array $args = array()) {@command AutoScaling PutNotificationConfiguration}
  * @method Model putScalingPolicy(array $args = array()) {@command AutoScaling PutScalingPolicy}
  * @method Model putScheduledUpdateGroupAction(array $args = array()) {@command AutoScaling PutScheduledUpdateGroupAction}
+ * @method Model recordLifecycleActionHeartbeat(array $args = array()) {@command AutoScaling RecordLifecycleActionHeartbeat}
  * @method Model resumeProcesses(array $args = array()) {@command AutoScaling ResumeProcesses}
  * @method Model setDesiredCapacity(array $args = array()) {@command AutoScaling SetDesiredCapacity}
  * @method Model setInstanceHealth(array $args = array()) {@command AutoScaling SetInstanceHealth}
@@ -69,8 +80,8 @@ use Guzzle\Service\Resource\ResourceIteratorInterface;
  * @method ResourceIteratorInterface getDescribeScheduledActionsIterator(array $args = array()) The input array uses the parameters of the DescribeScheduledActions operation
  * @method ResourceIteratorInterface getDescribeTagsIterator(array $args = array()) The input array uses the parameters of the DescribeTags operation
  *
- * @link http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-autoscaling.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.AutoScaling.AutoScalingClient.html API docs
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-autoscaling.html User guide
+ * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.AutoScaling.AutoScalingClient.html API docs
  */
 class AutoScalingClient extends AbstractClient
 {
@@ -82,7 +93,7 @@ class AutoScalingClient extends AbstractClient
      * @param array|Collection $config Client configuration data
      *
      * @return self
-     * @see \Aws\Common\Client\DefaultClient for a list of available configuration options
+     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
      */
     public static function factory($config = array())
     {
