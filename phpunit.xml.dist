@@ -1,0 +1,25 @@
+<phpunit
+	bootstrap="tests/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	>
+    <testsuites>
+        <!-- Default test suite to run all tests -->
+        <testsuite>
+            <directory prefix="test-" suffix=".php">tests</directory>
+        </testsuite>
+    </testsuites>
+
+	<filter>
+		<blacklist>
+			<directory suffix=".php">.</directory>
+		</blacklist>
+		<whitelist>
+			<directory suffix=".php">./lib</directory>
+			<file>./plugin.php</file>
+		</whitelist>
+	</filter>
+</phpunit>
