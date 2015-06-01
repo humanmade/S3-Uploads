@@ -25,4 +25,16 @@ function _manually_load_plugin() {
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
+if ( getenv( 'S3_UPLOADS_BUCKET' ) ) {
+	define( 'S3_UPLOADS_BUCKET', getenv( 'S3_UPLOADS_BUCKET' ) );
+}
+
+if ( getenv( 'S3_UPLOADS_KEY' ) ) {
+	define( 'S3_UPLOADS_KEY', getenv( 'S3_UPLOADS_KEY' ) );
+}
+
+if ( getenv( 'S3_UPLOADS_SECRET' ) ) {
+	define( 'S3_UPLOADS_SECRET', getenv( 'S3_UPLOADS_SECRET' ) );
+}
+
 require $test_root . '/includes/bootstrap.php';
