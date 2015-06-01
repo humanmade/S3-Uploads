@@ -14,12 +14,13 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once dirname( __FILE__ ) . '/inc/class-s3-uploads-wp-cli-command.php';
 }
 
-add_action( 'plugins_loaded', function() {
+add_action( 'plugins_loaded', 's3_uploads_init' );
 
+function s3_uploads_init() {
 	if ( ! defined( 'S3_UPLOADS_BUCKET' ) || ! defined( 'S3_UPLOADS_KEY' ) || ! defined( 'S3_UPLOADS_SECRET' ) ) {
 		return;
 	}
-	
+
 	$instance = S3_Uploads::get_instance();
 
 	add_filter( 'upload_dir', array( $instance, 'filter_upload_dir' ) );
@@ -27,4 +28,4 @@ add_action( 'plugins_loaded', function() {
 	remove_filter( 'admin_notices', 'wpthumb_errors' );
 
 	add_action( 'wp_handle_sideload_prefilter', array( $instance, 'filter_sideload_move_temp_file_to_s3' ) );
-});
+}
