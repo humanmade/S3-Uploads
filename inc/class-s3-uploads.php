@@ -113,6 +113,9 @@ class S3_Uploads {
 			unset($editors[$position]);
 		}
 
+		require_once dirname( __FILE__ ) . '/class-s3-uploads-image-editor-imagick.php';
+		array_unshift( $editors, 'S3_Uploads_Image_Editor_Imagick' );
+
 		return $editors;
 	}
 
