@@ -55,5 +55,17 @@ class Test_S3_Uploads_Image_Editor_Imagick extends WP_UnitTestCase {
 		$this->assertEquals( 'canola-100x100.jpg', $status['file'] );
 		$this->assertEquals( 100, $status['width'] );
 		$this->assertEquals( 100, $status['height'] );
+
+		$image = getimagesize( $status['path'] );
+
+		$this->assertEquals( array(
+			100,
+			100,
+			2,
+			'width="100" height="100"',
+			'bits' => 8,
+			'channels' => 3,
+			'mime' => 'image/jpeg'
+		), $image );
 	}
 }

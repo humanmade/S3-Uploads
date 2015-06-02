@@ -21,8 +21,12 @@ class S3_Uploads_Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 
 		$save = parent::_save( $image, $temp_filename, $mime_type );
 
-		if ( ! is_wp_error( $save ) ) {
-			copy( $temp_filename, $filename );
+		if ( is_wp_error( $save ) ) {
+			return $save;
+		}
+
+		if ( ! copy( $save['path'], $filename ) ) {
+			return new WP_Error( 'unable-to-copy-to-s3', 'Unable to copy the temp image to S3' );
 		}
 
 		return array(
