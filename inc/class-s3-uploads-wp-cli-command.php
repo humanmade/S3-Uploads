@@ -3,10 +3,10 @@
 class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 	/**
-     * Verifies the API keys entered will work for writing and deleting from S3.
-     *
-     * @subcommand verify
-     **/
+	 * Verifies the API keys entered will work for writing and deleting from S3.
+	 *
+	 * @subcommand verify
+	 */
     public function verify_api_keys() {
 
 		S3_Uploads::get_instance(); // Boot
