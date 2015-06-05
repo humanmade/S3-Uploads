@@ -27,7 +27,7 @@ wp s3-uploads create-iam-user --admin-key=<key> --admin-secret=<secret>
 
 This will provide you with a new Access Key and Secret Key which you can configure S3-Uploads with. Paste the values in the `wp-config.php`. Once you have migrated your media to S3 with any of the below methods, you'll want to enable S3 Uploads: `wp s3-uploads enable`.
 
-If you want to create your IAM user yourself, or attach the neccessary permissions to an existing user, you can output the policy via `wp s3-uploads generate-iam-policy` 
+If you want to create your IAM user yourself, or attach the neccessary permissions to an existing user, you can output the policy via `wp s3-uploads generate-iam-policy`
 
 Migrating your Media to S3
 ==========
@@ -61,10 +61,30 @@ wp s3-uploads upload-directory <from> <to> [--sync] [--dry-run]
 
 Passing `--sync` will only upload files that are newer in `<from>` or that don't exist on S3 already. Use `--dry-run` to test.
 
-There is also an all purpose `cp` command for arbitraty copying to and from S3. 
+There is also an all purpose `cp` command for arbitraty copying to and from S3.
 
 ```
 wp s3-uploads cp <from> <to>
 ```
 
 Note: as either `<from>` or `<to>` can be S3 or local locations, you must speficy the full S3 location via `s3://mybucket/mydirectory` for example `cp ./test.txt s3://mybucket/test.txt`.
+
+Cache Control
+==========
+
+You can define the default HTTP `Cache-Control` header for uploaded media using the
+following constant:
+
+```PHP
+define( 'S3_UPLOADS_CACHE_CONTROL', 30 * 24 * 60 * 60 );
+	// will expire in 30 days time
+```
+
+You can also configure the `Expires` header using the `S3_UPLOADS_EXPIRES` constant
+For instance if you wanted to set an asset to effectively not expire, you could
+set the Expires header way off in the future.  For example:
+
+```PHP
+define( 'S3_UPLOADS_EXPIRES', gmdate( 'D, d M Y H:i:s', time() + (10 * 365 * 24 * 60 * 60) ) .' GMT' );
+	// will expire in 10 years time
+```
