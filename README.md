@@ -61,7 +61,7 @@ wp s3-uploads upload-directory <from> <to> [--sync] [--dry-run]
 
 Passing `--sync` will only upload files that are newer in `<from>` or that don't exist on S3 already. Use `--dry-run` to test.
 
-There is also an all purpose `cp` command for arbitraty copying to and from S3.
+There is also an all purpose `cp` command for arbitrary copying to and from S3.
 
 ```
 wp s3-uploads cp <from> <to>
