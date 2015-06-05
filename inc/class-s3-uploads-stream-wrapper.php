@@ -42,6 +42,7 @@ class S3_Uploads_Stream_Wrapper extends Aws\S3\StreamWrapper {
 
 		parent::stream_flush();
 
+		return;
 	}
 
 	public function stream_metadata( $path, $option, $value ) {
