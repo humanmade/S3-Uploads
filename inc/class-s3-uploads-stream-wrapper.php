@@ -17,6 +17,17 @@ class S3_Uploads_Stream_Wrapper extends Aws\S3\StreamWrapper {
 		static::$client = $client;
 	}
 
+	// Override
+	public function stream_flush() {
+
+		// Theses are the parameters passed to S3Client::putObject()
+		// http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_putObject
+		$this->params = apply_filters( 's3_uploads_putObject_params', $this->params );
+
+		parent::stream_flush();
+
+	}
+
 	public function stream_metadata( $path, $option, $value ) {
 		// not implemented
 	}
