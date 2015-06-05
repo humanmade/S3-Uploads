@@ -3,11 +3,12 @@
 class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 	/**
-     * Verifies the API keys entered will work for reading, writing, etc.
+     * Verifies the API keys entered will work for writing and deleting from S3.
      *
      * @subcommand verify
      **/
     public function verify_api_keys() {
+
 		S3_Uploads::get_instance(); // Boot
 
 		$upload_dir = wp_upload_dir();
@@ -16,20 +17,23 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		$s3_path = $upload_dir['basedir'] . '/' . mt_rand() . '.jpg';
 
 		// Attempt to copy the file to S3
-		WP_CLI::print_value( 'Uploading file '. $s3_path );
+		WP_CLI::print_value( 'Attempting to upload file '. $s3_path );
+		
+		// Set Error Handler so we can catch it if it fails 
+		set_error_handler( array( $this, 'copy_fail' ) );
+
+		// Copies canolda from the test dir, upto S3
 		$copy = copy(
 			dirname( dirname(__FILE__) ) . '/tests/data/canola.jpg',
 			$s3_path
 		);
 
-		// Check if copy worked
-		if ( ! $copy ) {
-			WP_CLI::error( 'Failed to copy '. $s3_path );
-			return;
-		}
+		restore_error_handler();
+
+		WP_CLI::print_value( 'File uploaded to S3 successfully' );
 
 		// Delete off S3
-		WP_CLI::print_value( 'Deleting file '. $s3_path );
+		WP_CLI::print_value( 'Attempting to delete file '. $s3_path );
 		$delete = unlink( $s3_path );
 
 		// Check that delete worked
@@ -38,8 +42,18 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 			return;
 		}
 
-		WP_CLI::success( 'Success' );
+		WP_CLI::print_value( 'File deleted from S3 successfully' );
 
+		WP_CLI::success( 'Looks like your configuration is correct.' );
+
+    }
+
+    /**
+     * Used to handle when we failed uploading. 
+     * Alternative is annon. function, but that breaks < PHP 5.3
+     */
+    public function copy_fail() {
+		WP_CLI::error( 'Failed to copy / write to S3 - check your policy?' );
     }
 
 	/**
