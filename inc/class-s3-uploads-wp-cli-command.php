@@ -19,16 +19,17 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		// Attempt to copy the file to S3
 		WP_CLI::print_value( 'Attempting to upload file '. $s3_path );
 		
-		// Set Error Handler so we can catch it if it fails 
-		set_error_handler( array( $this, 'copy_fail' ) );
-
-		// Copies canolda from the test dir, upto S3
+		// Copy canola from the test dir, upto S3
 		$copy = copy(
 			dirname( dirname(__FILE__) ) . '/tests/data/canola.jpg',
 			$s3_path
 		);
-
-		restore_error_handler();
+        
+        // Check that copy worked
+        if ( ! $copy ) {
+            WP_CLI::error( 'Failed to copy / write to S3 - check your policy?' );
+            return;
+        }
 
 		WP_CLI::print_value( 'File uploaded to S3 successfully' );
 
@@ -46,14 +47,6 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 		WP_CLI::success( 'Looks like your configuration is correct.' );
 
-    }
-
-    /**
-     * Used to handle when we failed uploading. 
-     * Alternative is annon. function, but that breaks < PHP 5.3
-     */
-    public function copy_fail() {
-		WP_CLI::error( 'Failed to copy / write to S3 - check your policy?' );
     }
 
 	/**
