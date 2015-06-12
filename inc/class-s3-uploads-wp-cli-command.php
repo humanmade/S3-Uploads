@@ -7,7 +7,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 *
 	 * @subcommand verify
 	 */
-    public function verify_api_keys() {
+	public function verify_api_keys() {
 
 		S3_Uploads::get_instance(); // Boot
 
@@ -25,11 +25,11 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 			$s3_path
 		);
         
-        // Check that copy worked
-        if ( ! $copy ) {
-            WP_CLI::error( 'Failed to copy / write to S3 - check your policy?' );
-            return;
-        }
+		// Check that copy worked
+		if ( ! $copy ) {
+			WP_CLI::error( 'Failed to copy / write to S3 - check your policy?' );
+			return;
+		}
 
 		WP_CLI::print_value( 'File uploaded to S3 successfully' );
 
@@ -47,7 +47,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 		WP_CLI::success( 'Looks like your configuration is correct.' );
 
-    }
+	}
 
 	/**
 	 * @subcommand migrate-attachments
