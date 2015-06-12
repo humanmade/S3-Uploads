@@ -24,6 +24,7 @@ before_script:
 
 script:
   - phpunit --coverage-clover clover.xml
+  - cat clover.xml
 
 after_script:
   # Push coverage off to Codecov
