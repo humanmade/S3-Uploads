@@ -3,7 +3,7 @@
 /*
  * This file is part of the Monolog package.
  *
- * (c) Thomas Tourlourat <thomas@tourlourat.com>
+ * (c) Jordi Boggiano <j.boggiano@seld.be>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -27,7 +27,7 @@ use Monolog\Formatter\NormalizerFormatter;
  */
 class MongoDBHandler extends AbstractProcessingHandler
 {
-    private $mongoCollection;
+    protected $mongoCollection;
 
     public function __construct($mongo, $database, $collection, $level = Logger::DEBUG, $bubble = true)
     {

@@ -32,8 +32,8 @@ class CubeHandler extends AbstractProcessingHandler
      * Create a Cube handler
      *
      * @throws UnexpectedValueException when given url is not a valid url.
-     * A valid url must consists of three parts : protocol://host:port
-     * Only valid protocol used by Cube are http and udp
+     *                                  A valid url must consists of three parts : protocol://host:port
+     *                                  Only valid protocol used by Cube are http and udp
      */
     public function __construct($url, $level = Logger::DEBUG, $bubble = true)
     {
@@ -64,7 +64,7 @@ class CubeHandler extends AbstractProcessingHandler
     protected function connectUdp()
     {
         if (!extension_loaded('sockets')) {
-            throw new \LogicException('The sockets extension is needed to use udp URLs with the CubeHandler');
+            throw new MissingExtensionException('The sockets extension is required to use udp URLs with the CubeHandler');
         }
 
         $this->udpConnection = socket_create(AF_INET, SOCK_DGRAM, 0);
@@ -103,7 +103,7 @@ class CubeHandler extends AbstractProcessingHandler
     {
         $date = $record['datetime'];
 
-        $data = array('time' => $date->format('Y-m-d\TH:i:s.u'));
+        $data = array('time' => $date->format('Y-m-d\TH:i:s.uO'));
         unset($record['datetime']);
 
         if (isset($record['context']['type'])) {

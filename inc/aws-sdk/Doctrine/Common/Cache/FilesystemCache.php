@@ -1,5 +1,4 @@
 <?php
-
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -23,8 +22,8 @@ namespace Doctrine\Common\Cache;
 /**
  * Filesystem cache driver.
  *
- * @since   2.3
- * @author  Fabio B. Silva <fabio.bat.silva@gmail.com>
+ * @since  2.3
+ * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
  */
 class FilesystemCache extends FileCache
 {
@@ -33,7 +32,10 @@ class FilesystemCache extends FileCache
     /**
      * {@inheritdoc}
      */
-    protected $extension = self::EXTENSION;
+    public function __construct($directory, $extension = self::EXTENSION)
+    {
+        parent::__construct($directory, $extension);
+    }
 
     /**
      * {@inheritdoc}
@@ -101,14 +103,9 @@ class FilesystemCache extends FileCache
             $lifeTime = time() + $lifeTime;
         }
 
-        $data       = serialize($data);
-        $filename   = $this->getFilename($id);
-        $filepath   = pathinfo($filename, PATHINFO_DIRNAME);
+        $data      = serialize($data);
+        $filename  = $this->getFilename($id);
 
-        if ( ! is_dir($filepath)) {
-            mkdir($filepath, 0777, true);
-        }
-
-        return file_put_contents($filename, $lifeTime . PHP_EOL . $data);
+        return $this->writeFile($filename, $lifeTime . PHP_EOL . $data);
     }
 }

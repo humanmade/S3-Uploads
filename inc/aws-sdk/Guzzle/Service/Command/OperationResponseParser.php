@@ -22,6 +22,9 @@ class OperationResponseParser extends DefaultResponseParser
     /** @var self */
     protected static $instance;
 
+    /** @var bool */
+    private $schemaInModels;
+
     /**
      * @return self
      * @codeCoverageIgnore
@@ -36,11 +39,13 @@ class OperationResponseParser extends DefaultResponseParser
     }
 
     /**
-     * @param VisitorFlyweight $factory Factory to use when creating visitors
+     * @param VisitorFlyweight $factory        Factory to use when creating visitors
+     * @param bool             $schemaInModels Set to true to inject schemas into models
      */
-    public function __construct(VisitorFlyweight $factory)
+    public function __construct(VisitorFlyweight $factory, $schemaInModels = false)
     {
         $this->factory = $factory;
+        $this->schemaInModels = $schemaInModels;
     }
 
     /**
@@ -75,9 +80,10 @@ class OperationResponseParser extends DefaultResponseParser
             return parent::handleParsing($command, $response, $contentType);
         } elseif ($command[AbstractCommand::RESPONSE_PROCESSING] != AbstractCommand::TYPE_MODEL) {
             // Returns a model with no visiting if the command response processing is not model
-            return new Model(parent::handleParsing($command, $response, $contentType), $model);
+            return new Model(parent::handleParsing($command, $response, $contentType));
         } else {
-            return new Model($this->visitResult($model, $command, $response), $model);
+            // Only inject the schema into the model if "schemaInModel" is true
+            return new Model($this->visitResult($model, $command, $response), $this->schemaInModels ? $model : null);
         }
     }
 
@@ -91,13 +97,16 @@ class OperationResponseParser extends DefaultResponseParser
      */
     protected function parseClass(CommandInterface $command)
     {
-        $className = $command->getOperation()->getResponseClass();
-        if (!class_exists($className)) {
-            throw new ResponseClassException("{$className} does not exist");
+        // Emit the operation.parse_class event. If a listener injects a 'result' property, then that will be the result
+        $event = new CreateResponseClassEvent(array('command' => $command));
+        $command->getClient()->getEventDispatcher()->dispatch('command.parse_response', $event);
+        if ($result = $event->getResult()) {
+            return $result;
         }
 
+        $className = $command->getOperation()->getResponseClass();
         if (!method_exists($className, 'fromCommand')) {
-            throw new ResponseClassException("{$className} must implement the fromCommand() method");
+            throw new ResponseClassException("{$className} must exist and implement a static fromCommand() method");
         }
 
         return $className::fromCommand($command);
@@ -114,7 +123,7 @@ class OperationResponseParser extends DefaultResponseParser
      */
     protected function visitResult(Parameter $model, CommandInterface $command, Response $response)
     {
-        $foundVisitors = $result = array();
+        $foundVisitors = $result = $knownProps = array();
         $props = $model->getProperties();
 
         foreach ($props as $schema) {
@@ -134,9 +143,15 @@ class OperationResponseParser extends DefaultResponseParser
 
         // Apply the parameter value with the location visitor
         foreach ($props as $schema) {
+            $knownProps[$schema->getName()] = 1;
             if ($location = $schema->getLocation()) {
                 $foundVisitors[$location]->visit($command, $response, $schema, $result);
             }
+        }
+
+        // Remove any unknown and potentially unsafe top-level properties
+        if ($additional === false) {
+            $result = array_intersect_key($result, $knownProps);
         }
 
         // Call the after() method of each found visitor

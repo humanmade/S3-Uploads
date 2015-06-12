@@ -15,9 +15,6 @@ class XmlVisitor extends AbstractRequestVisitor
     /** @var \SplObjectStorage Data object for persisting XML data */
     protected $data;
 
-    /** @var \XMLWriter XML writer resource */
-    protected $writer;
-
     /** @var bool Content-Type header added when XML is found */
     protected $contentType = 'application/xml';
 
@@ -56,7 +53,7 @@ class XmlVisitor extends AbstractRequestVisitor
 
         // If data was found that needs to be serialized, then do so
         if (isset($this->data[$command])) {
-            $xml = $this->finishDocument($this->writer);
+            $xml = $this->finishDocument($this->data[$command]);
             unset($this->data[$command]);
         } else {
             // Check if XML should always be sent for the command
@@ -68,11 +65,11 @@ class XmlVisitor extends AbstractRequestVisitor
         }
 
         if ($xml) {
-            $request->setBody($xml);
             // Don't overwrite the Content-Type if one is set
             if ($this->contentType && !$request->hasHeader('Content-Type')) {
                 $request->setHeader('Content-Type', $this->contentType);
             }
+            $request->setBody($xml);
         }
     }
 
@@ -190,7 +187,7 @@ class XmlVisitor extends AbstractRequestVisitor
     }
 
     /**
-     * Create a new xml writier and start a document
+     * Create a new xml writer and start a document
      *
      * @param  string $encoding document encoding
      *
@@ -198,11 +195,11 @@ class XmlVisitor extends AbstractRequestVisitor
      */
     protected function startDocument($encoding)
     {
-        $this->writer = new \XMLWriter();
-        $this->writer->openMemory();
-        $this->writer->startDocument('1.0', $encoding);
+        $xmlWriter = new \XMLWriter();
+        $xmlWriter->openMemory();
+        $xmlWriter->startDocument('1.0', $encoding);
 
-        return $this->writer;
+        return $xmlWriter;
     }
 
     /**
@@ -236,10 +233,20 @@ class XmlVisitor extends AbstractRequestVisitor
      */
     protected function addXmlObject(\XMLWriter $xmlWriter, Parameter $param, &$value)
     {
+        $noAttributes = array();
+        // add values which have attributes
         foreach ($value as $name => $v) {
             if ($property = $param->getProperty($name)) {
-                $this->addXml($xmlWriter, $property, $v);
+                if ($property->getData('xmlAttribute')) {
+                    $this->addXml($xmlWriter, $property, $v);
+                } else {
+                    $noAttributes[] = array('value' => $v, 'property' => $property);
+                }
             }
+        }
+        // now add values with no attributes
+        foreach ($noAttributes as $element) {
+            $this->addXml($xmlWriter, $element['property'], $element['value']);
         }
     }
 }

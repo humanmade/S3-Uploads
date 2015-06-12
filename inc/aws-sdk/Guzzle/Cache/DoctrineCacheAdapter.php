@@ -36,6 +36,6 @@ class DoctrineCacheAdapter extends AbstractCacheAdapter
 
     public function save($id, $data, $lifeTime = false, array $options = null)
     {
-        return $this->cache->save($id, $data, $lifeTime);
+        return $this->cache->save($id, $data, $lifeTime !== false ? $lifeTime : 0);
     }
 }

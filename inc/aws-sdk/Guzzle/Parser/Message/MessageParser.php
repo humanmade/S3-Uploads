@@ -33,7 +33,7 @@ class MessageParser extends AbstractMessageParser
             'body'     => $parts['body']
         );
 
-        $parsed['request_url'] = $this->getUrlPartsFromMessage($parts['start_line'][1], $parsed);
+        $parsed['request_url'] = $this->getUrlPartsFromMessage(isset($parts['start_line'][1]) ? $parts['start_line'][1] : '' , $parsed);
 
         return $parsed;
     }

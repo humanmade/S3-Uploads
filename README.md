@@ -2,6 +2,7 @@ S3-Uploads
 ==========
 
 [![Build Status](https://travis-ci.org/humanmade/S3-Uploads.svg?branch=master)](https://travis-ci.org/humanmade/S3-Uploads)
+[![codecov.io](http://codecov.io/github/humanmade/S3-Uploads/coverage.svg?branch=master)](http://codecov.io/github/humanmade/S3-Uploads?branch=master)
 
 WordPress plugin to store uploads on S3. S3-Uploads aims to be a lightweight "drop-in" for storing uploads on Amazon S3 instead of the local filesystem.
 
@@ -68,10 +69,30 @@ wp s3-uploads upload-directory <from> <to> [--sync] [--dry-run]
 
 Passing `--sync` will only upload files that are newer in `<from>` or that don't exist on S3 already. Use `--dry-run` to test.
 
-There is also an all purpose `cp` command for arbitraty copying to and from S3.
+There is also an all purpose `cp` command for arbitrary copying to and from S3.
 
 ```
 wp s3-uploads cp <from> <to>
 ```
 
 Note: as either `<from>` or `<to>` can be S3 or local locations, you must speficy the full S3 location via `s3://mybucket/mydirectory` for example `cp ./test.txt s3://mybucket/test.txt`.
+
+Cache Control
+==========
+
+You can define the default HTTP `Cache-Control` header for uploaded media using the
+following constant:
+
+```PHP
+define( 'S3_UPLOADS_CACHE_CONTROL', 30 * 24 * 60 * 60 );
+	// will expire in 30 days time
+```
+
+You can also configure the `Expires` header using the `S3_UPLOADS_EXPIRES` constant
+For instance if you wanted to set an asset to effectively not expire, you could
+set the Expires header way off in the future.  For example:
+
+```PHP
+define( 'S3_UPLOADS_EXPIRES', gmdate( 'D, d M Y H:i:s', time() + (10 * 365 * 24 * 60 * 60) ) .' GMT' );
+	// will expire in 10 years time
+```

@@ -11,6 +11,8 @@
 
 namespace Monolog\Formatter;
 
+use Exception;
+
 /**
  * Normalizes incoming records to remove objects/resources so it's easier to dump to various targets
  *
@@ -28,6 +30,9 @@ class NormalizerFormatter implements FormatterInterface
     public function __construct($dateFormat = null)
     {
         $this->dateFormat = $dateFormat ?: static::SIMPLE_DATE;
+        if (!function_exists('json_encode')) {
+            throw new \RuntimeException('PHP\'s json extension is required to use Monolog\'s NormalizerFormatter');
+        }
     }
 
     /**
@@ -53,13 +58,27 @@ class NormalizerFormatter implements FormatterInterface
     protected function normalize($data)
     {
         if (null === $data || is_scalar($data)) {
+            if (is_float($data)) {
+                if (is_infinite($data)) {
+                    return ($data > 0 ? '' : '-') . 'INF';
+                }
+                if (is_nan($data)) {
+                    return 'NaN';
+                }
+            }
+
             return $data;
         }
 
         if (is_array($data) || $data instanceof \Traversable) {
             $normalized = array();
 
+            $count = 1;
             foreach ($data as $key => $value) {
+                if ($count++ >= 1000) {
+                    $normalized['...'] = 'Over 1000 items, aborting normalization';
+                    break;
+                }
                 $normalized[$key] = $this->normalize($value);
             }
 
@@ -71,6 +90,10 @@ class NormalizerFormatter implements FormatterInterface
         }
 
         if (is_object($data)) {
+            if ($data instanceof Exception) {
+                return $this->normalizeException($data);
+            }
+
             return sprintf("[object] (%s: %s)", get_class($data), $this->toJson($data, true));
         }
 
@@ -79,6 +102,32 @@ class NormalizerFormatter implements FormatterInterface
         }
 
         return '[unknown('.gettype($data).')]';
+    }
+
+    protected function normalizeException(Exception $e)
+    {
+        $data = array(
+            'class' => get_class($e),
+            'message' => $e->getMessage(),
+            'code' => $e->getCode(),
+            'file' => $e->getFile().':'.$e->getLine(),
+        );
+
+        $trace = $e->getTrace();
+        foreach ($trace as $frame) {
+            if (isset($frame['file'])) {
+                $data['trace'][] = $frame['file'].':'.$frame['line'];
+            } else {
+                // We should again normalize the frames, because it might contain invalid items
+                $data['trace'][] = $this->toJson($this->normalize($frame), true);
+            }
+        }
+
+        if ($previous = $e->getPrevious()) {
+            $data['previous'] = $this->normalizeException($previous);
+        }
+
+        return $data;
     }
 
     protected function toJson($data, $ignoreErrors = false)

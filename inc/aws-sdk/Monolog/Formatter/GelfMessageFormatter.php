@@ -67,19 +67,29 @@ class GelfMessageFormatter extends NormalizerFormatter
     public function format(array $record)
     {
         $record = parent::format($record);
+
+        if (!isset($record['datetime'], $record['message'], $record['level'])) {
+            throw new \InvalidArgumentException('The record should at least contain datetime, message and level keys, '.var_export($record, true).' given');
+        }
+
         $message = new Message();
         $message
             ->setTimestamp($record['datetime'])
             ->setShortMessage((string) $record['message'])
-            ->setFacility($record['channel'])
             ->setHost($this->systemName)
-            ->setLine(isset($record['extra']['line']) ? $record['extra']['line'] : null)
-            ->setFile(isset($record['extra']['file']) ? $record['extra']['file'] : null)
             ->setLevel($this->logLevels[$record['level']]);
 
-        // Do not duplicate these values in the additional fields
-        unset($record['extra']['line']);
-        unset($record['extra']['file']);
+        if (isset($record['channel'])) {
+            $message->setFacility($record['channel']);
+        }
+        if (isset($record['extra']['line'])) {
+            $message->setLine($record['extra']['line']);
+            unset($record['extra']['line']);
+        }
+        if (isset($record['extra']['file'])) {
+            $message->setFile($record['extra']['file']);
+            unset($record['extra']['file']);
+        }
 
         foreach ($record['extra'] as $key => $val) {
             $message->setAdditional($this->extraPrefix . $key, is_scalar($val) ? $val : $this->toJson($val));
@@ -87,6 +97,13 @@ class GelfMessageFormatter extends NormalizerFormatter
 
         foreach ($record['context'] as $key => $val) {
             $message->setAdditional($this->contextPrefix . $key, is_scalar($val) ? $val : $this->toJson($val));
+        }
+
+        if (null === $message->getFile() && isset($record['context']['exception']['file'])) {
+            if (preg_match("/^(.+):([0-9]+)$/", $record['context']['exception']['file'], $matches)) {
+                $message->setFile($matches[1]);
+                $message->setLine($matches[2]);
+            }
         }
 
         return $message;
