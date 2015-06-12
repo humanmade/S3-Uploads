@@ -97,12 +97,7 @@ class Parameter
         if ($description) {
             if (isset($data['$ref'])) {
                 if ($model = $description->getModel($data['$ref'])) {
-                    // The name of the original parameter should override the ref name if one is available
-                    $name = empty($data['name']) ? null : $data['name'];
-                    $data = $model->toArray();
-                    if ($name) {
-                        $data['name'] = $name;
-                    }
+                    $data = $model->toArray() + $data;
                 }
             } elseif (isset($data['extends'])) {
                 // If this parameter extends from another parameter then start with the actual data
@@ -189,9 +184,11 @@ class Parameter
      */
     public function getValue($value)
     {
-        return $this->static || ($this->default !== null && !$value && ($this->type != 'boolean' || $value !== false))
-            ? $this->default
-            : $value;
+        if ($this->static || ($this->default !== null && $value === null)) {
+            return $this->default;
+        }
+
+        return $value;
     }
 
     /**

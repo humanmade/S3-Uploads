@@ -17,13 +17,13 @@ use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ContainerAwareEventDispatcherTest extends \PHPUnit_Framework_TestCase
+class ContainerAwareEventDispatcherTest extends AbstractEventDispatcherTest
 {
-    protected function setUp()
+    protected function createEventDispatcher()
     {
-        if (!class_exists('Symfony\Component\DependencyInjection\Container')) {
-            $this->markTestSkipped('The "DependencyInjection" component is not available');
-        }
+        $container = new Container();
+
+        return new ContainerAwareEventDispatcher($container);
     }
 
     public function testAddAListenerService()
@@ -182,8 +182,6 @@ class ContainerAwareEventDispatcherTest extends \PHPUnit_Framework_TestCase
 
     public function testGetListenersOnLazyLoad()
     {
-        $event = new Event();
-
         $service = $this->getMock('Symfony\Component\EventDispatcher\Tests\Service');
 
         $container = new Container();
@@ -201,8 +199,6 @@ class ContainerAwareEventDispatcherTest extends \PHPUnit_Framework_TestCase
 
     public function testRemoveAfterDispatch()
     {
-        $event = new Event();
-
         $service = $this->getMock('Symfony\Component\EventDispatcher\Tests\Service');
 
         $container = new Container();
@@ -218,8 +214,6 @@ class ContainerAwareEventDispatcherTest extends \PHPUnit_Framework_TestCase
 
     public function testRemoveBeforeDispatch()
     {
-        $event = new Event();
-
         $service = $this->getMock('Symfony\Component\EventDispatcher\Tests\Service');
 
         $container = new Container();
@@ -245,8 +239,6 @@ class SubscriberService implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            'onEvent' => 'onEvent',
-            'onEvent' => array('onEvent', 10),
             'onEvent' => array('onEvent'),
         );
     }

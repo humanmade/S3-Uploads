@@ -86,7 +86,7 @@ class Operation implements OperationInterface
      *                       name, if a matching PSR-0 compliant class name is found, or set to 'primitive' by default.
      * - deprecated:         (bool) Set to true if this is a deprecated command
      * - errorResponses:     (array) Errors that could occur when executing the command. Array of hashes, each with a
-     *                       'code' (the HTTP response code), 'phrase' (response reason phrase or description of the
+     *                       'code' (the HTTP response code), 'reason' (response reason phrase or description of the
      *                       error), and 'class' (a custom exception class that would be thrown if the error is
      *                       encountered).
      * - data:               (array) Any extra data that might be used to help build or serialize the operation
@@ -507,7 +507,7 @@ class Operation implements OperationInterface
     /**
      * Get the additionalParameters of the operation
      *
-     * @return Paramter|null
+     * @return Parameter|null
      */
     public function getAdditionalParameters()
     {
@@ -535,16 +535,13 @@ class Operation implements OperationInterface
      */
     protected function inferResponseType()
     {
-        if (!$this->responseClass || $this->responseClass == 'array' || $this->responseClass == 'string'
-            || $this->responseClass == 'boolean' || $this->responseClass == 'integer'
-        ) {
+        static $primitives = array('array' => 1, 'boolean' => 1, 'string' => 1, 'integer' => 1, '' => 1);
+        if (isset($primitives[$this->responseClass])) {
             $this->responseType = self::TYPE_PRIMITIVE;
         } elseif ($this->description && $this->description->hasModel($this->responseClass)) {
             $this->responseType = self::TYPE_MODEL;
-        } elseif (strpos($this->responseClass, '\\') !== false) {
-            $this->responseType = self::TYPE_CLASS;
         } else {
-            $this->responseType = self::TYPE_PRIMITIVE;
+            $this->responseType = self::TYPE_CLASS;
         }
     }
 }

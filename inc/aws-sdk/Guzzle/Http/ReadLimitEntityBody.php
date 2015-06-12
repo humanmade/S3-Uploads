@@ -2,6 +2,8 @@
 
 namespace Guzzle\Http;
 
+use Guzzle\Stream\StreamInterface;
+
 /**
  * EntityBody decorator used to return only a subset of an entity body
  */
@@ -22,7 +24,6 @@ class ReadLimitEntityBody extends AbstractEntityBodyDecorator
     {
         parent::__construct($body);
         $this->setLimit($limit)->setOffset($offset);
-        $this->body->seek($offset);
     }
 
     /**
@@ -31,12 +32,27 @@ class ReadLimitEntityBody extends AbstractEntityBodyDecorator
      */
     public function __toString()
     {
-        return substr((string) $this->body, $this->offset, $this->limit) ?: '';
+        if (!$this->body->isReadable() ||
+            (!$this->body->isSeekable() && $this->body->isConsumed())
+        ) {
+            return '';
+        }
+
+        $originalPos = $this->body->ftell();
+        $this->body->seek($this->offset);
+        $data = '';
+        while (!$this->feof()) {
+            $data .= $this->read(1048576);
+        }
+        $this->body->seek($originalPos);
+
+        return (string) $data ?: '';
     }
 
     public function isConsumed()
     {
-        return (($this->offset + $this->limit) - $this->body->ftell()) <= 0;
+        return $this->body->isConsumed() ||
+            ($this->body->ftell() >= $this->offset + $this->limit);
     }
 
     /**

@@ -130,6 +130,12 @@ return array(
             'class'   => 'Aws\DirectConnect\DirectConnectClient'
         ),
 
+        'ds' => array(
+            'alias'   => 'DirectoryService',
+            'extends' => 'default_settings',
+            'class'   => 'Aws\DirectoryService\DirectoryServiceClient'
+        ),
+
         'dynamodb' => array(
             'alias'   => 'DynamoDb',
             'extends' => 'default_settings',
@@ -165,6 +171,12 @@ return array(
             'alias'   => 'ElasticBeanstalk',
             'extends' => 'default_settings',
             'class'   => 'Aws\ElasticBeanstalk\ElasticBeanstalkClient'
+        ),
+
+        'efs' => array(
+            'alias'   => 'Efs',
+            'extends' => 'default_settings',
+            'class'   => 'Aws\Efs\EfsClient'
         ),
 
         'elasticloadbalancing' => array(

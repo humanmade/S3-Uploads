@@ -11,6 +11,8 @@
 
 namespace Monolog\Processor;
 
+use Monolog\Logger;
+
 /**
  * Injects line/file:class/function where the log message came from
  *
@@ -24,12 +26,27 @@ namespace Monolog\Processor;
  */
 class IntrospectionProcessor
 {
+    private $level;
+
+    private $skipClassesPartials;
+
+    public function __construct($level = Logger::DEBUG, array $skipClassesPartials = array('Monolog\\'))
+    {
+        $this->level = Logger::toMonologLevel($level);
+        $this->skipClassesPartials = $skipClassesPartials;
+    }
+
     /**
      * @param  array $record
      * @return array
      */
     public function __invoke(array $record)
     {
+        // return if the level is not high enough
+        if ($record['level'] < $this->level) {
+            return $record;
+        }
+
         $trace = debug_backtrace();
 
         // skip first since it's always the current method
@@ -38,8 +55,15 @@ class IntrospectionProcessor
         array_shift($trace);
 
         $i = 0;
-        while (isset($trace[$i]['class']) && false !== strpos($trace[$i]['class'], 'Monolog\\')) {
-            $i++;
+
+        while (isset($trace[$i]['class'])) {
+            foreach ($this->skipClassesPartials as $part) {
+                if (strpos($trace[$i]['class'], $part) !== false) {
+                    $i++;
+                    continue 2;
+                }
+            }
+            break;
         }
 
         // we should have the call source now

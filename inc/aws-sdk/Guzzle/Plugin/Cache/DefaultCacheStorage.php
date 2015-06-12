@@ -39,11 +39,26 @@ class DefaultCacheStorage implements CacheStorageInterface
     public function cache(RequestInterface $request, Response $response)
     {
         $currentTime = time();
-        $ttl = $request->getParams()->get('cache.override_ttl') ?: $response->getMaxAge() ?: $this->defaultTtl;
+
+        $overrideTtl = $request->getParams()->get('cache.override_ttl');
+        if ($overrideTtl) {
+            $ttl = $overrideTtl;
+        } else {
+            $maxAge = $response->getMaxAge();
+            if ($maxAge !== null) {
+                $ttl = $maxAge;
+            } else {
+                $ttl = $this->defaultTtl;
+            }
+        }
 
         if ($cacheControl = $response->getHeader('Cache-Control')) {
             $stale = $cacheControl->getDirective('stale-if-error');
-            $ttl += $stale == true ? $ttl : $stale;
+            if ($stale === true) {
+                $ttl += $ttl;
+            } else if (is_numeric($stale)) {
+                $ttl += $stale;
+            }
         }
 
         // Determine which manifest key should be used

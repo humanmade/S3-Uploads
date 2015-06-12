@@ -182,6 +182,24 @@ class StreamWrapper
             } elseif ($mode == 'a') {
                 $this->openAppendStream($params, $errors);
             } else {
+
+                /**
+                 * Modification by Joe Hoyle
+                 *
+                 * As we open a temp stream, we don't actually know if we have writing ability yet.
+                 * This means functions like copy() will not fail correctly, as the write to s3
+                 * is only attemped on stream_flush() which is too late to report to copy()
+                 * et al that the write has failed.
+                 *
+                 * As a work around, we attempt to write an empty object.
+                 */
+                try {
+                    $p = $params;
+                    $p['Body'] = '';
+                    static::$client->putObject($p);
+                } catch (\Exception $e) {
+                    return $this->triggerError($e->getMessage());
+                }
                 $this->openWriteStream($params, $errors);
             }
         }
@@ -305,107 +323,107 @@ class StreamWrapper
     }
 
     /**
-	 * Provides information for is_dir, is_file, filesize, etc. Works on buckets, keys, and prefixes
-	 *
-	 * @param string $path
-	 * @param int    $flags
-	 *
-	 * @return array Returns an array of stat data
-	 * @link http://www.php.net/manual/en/streamwrapper.url-stat.php
-	 */
-	public function url_stat($path, $flags)
-	{
-		$extension = pathinfo($path, PATHINFO_EXTENSION);
+     * Provides information for is_dir, is_file, filesize, etc. Works on buckets, keys, and prefixes
+     *
+     * @param string $path
+     * @param int    $flags
+     *
+     * @return array Returns an array of stat data
+     * @link http://www.php.net/manual/en/streamwrapper.url-stat.php
+     */
+    public function url_stat($path, $flags)
+    {
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
 
-		/**
-		 * If the file is actually just a path to a directory
-		 * then return it as always existing. This is to work
-		 * around wp_upload_dir doing file_exists checks on
-		 * the uploads directory on every page load
-		 */
-		if ( ! $extension ) {
+        /**
+         * If the file is actually just a path to a directory
+         * then return it as always existing. This is to work
+         * around wp_upload_dir doing file_exists checks on
+         * the uploads directory on every page load
+         */
+        if ( ! $extension ) {
 
-			return array (
-				0 => 0,
-				'dev' => 0,
-				1 => 0,
-				'ino' => 0,
-				2 => 16895,
-				'mode' => 16895,
-				3 => 0,
-				'nlink' => 0,
-				4 => 0,
-				'uid' => 0,
-				5 => 0,
-				'gid' => 0,
-				6 => -1,
-				'rdev' => -1,
-				7 => 0,
-				'size' => 0,
-				8 => 0,
-				'atime' => 0,
-				9 => 0,
-				'mtime' => 0,
-				10 => 0,
-				'ctime' => 0,
-				11 => -1,
-				'blksize' => -1,
-				12 => -1,
-				'blocks' => -1,
-			);
-		}
+            return array (
+                0 => 0,
+                'dev' => 0,
+                1 => 0,
+                'ino' => 0,
+                2 => 16895,
+                'mode' => 16895,
+                3 => 0,
+                'nlink' => 0,
+                4 => 0,
+                'uid' => 0,
+                5 => 0,
+                'gid' => 0,
+                6 => -1,
+                'rdev' => -1,
+                7 => 0,
+                'size' => 0,
+                8 => 0,
+                'atime' => 0,
+                9 => 0,
+                'mtime' => 0,
+                10 => 0,
+                'ctime' => 0,
+                11 => -1,
+                'blksize' => -1,
+                12 => -1,
+                'blocks' => -1,
+            );
+        }
 
-		// Check if this path is in the url_stat cache
-		if (isset(self::$nextStat[$path])) {
-			return self::$nextStat[$path];
-		}
+        // Check if this path is in the url_stat cache
+        if (isset(self::$nextStat[$path])) {
+            return self::$nextStat[$path];
+        }
 
-		$parts = $this->getParams($path);
+        $parts = $this->getParams($path);
 
-		// Stat a bucket or just s3://
-		if (!$parts['Key'] && (!$parts['Bucket'] || self::$client->doesBucketExist($parts['Bucket']))) {
-			return $this->formatUrlStat($path);
-		}
+        // Stat a bucket or just s3://
+        if (!$parts['Key'] && (!$parts['Bucket'] || self::$client->doesBucketExist($parts['Bucket']))) {
+            return $this->formatUrlStat($path);
+        }
 
-		// You must pass either a bucket or a bucket + key
-		if (!$parts['Key']) {
-			return $this->triggerError("File or directory not found: {$path}", $flags);
-		}
+        // You must pass either a bucket or a bucket + key
+        if (!$parts['Key']) {
+            return $this->triggerError("File or directory not found: {$path}", $flags);
+        }
 
-		try {
-			try {
-				// Attempt to stat and cache regular object
-				return $this->formatUrlStat(self::$client->headObject($parts)->toArray());
-			} catch (NoSuchKeyException $e) {
-				// Maybe this isn't an actual key, but a prefix. Do a prefix listing of objects to determine.
+        try {
+            try {
+                // Attempt to stat and cache regular object
+                return $this->formatUrlStat(self::$client->headObject($parts)->toArray());
+            } catch (NoSuchKeyException $e) {
+                // Maybe this isn't an actual key, but a prefix. Do a prefix listing of objects to determine.
 
-				/**
-				 * Modification by Joe Hoyle
-				 * 
-				 * If there is an extension, we don't need to check if it's a dir. There is an issue with checking
-				 * if it's a dir, as s3 doesn't have true directories. See https://forums.aws.amazon.com/thread.jspa?threadID=142985
-				 * for a more in-depth example.
-				 */
-				if ( $extension ) {
-					return $this->triggerError("File or directory not found: {$path}", $flags);
-				}
+                /**
+                 * Modification by Joe Hoyle
+                 * 
+                 * If there is an extension, we don't need to check if it's a dir. There is an issue with checking
+                 * if it's a dir, as s3 doesn't have true directories. See https://forums.aws.amazon.com/thread.jspa?threadID=142985
+                 * for a more in-depth example.
+                 */
+                if ( $extension ) {
+                    return $this->triggerError("File or directory not found: {$path}", $flags);
+                }
 
-				$result = self::$client->listObjects(array(
-					'Bucket'  => $parts['Bucket'],
-					'Prefix'  => $parts['Key'],
-					'MaxKeys' => 1
-				));
-				if (!$result['Contents'] && !$result['CommonPrefixes']) {
-					return $this->triggerError("File or directory not found: {$path}", $flags);
-				}
+                $result = self::$client->listObjects(array(
+                    'Bucket'  => $parts['Bucket'],
+                    'Prefix'  => $parts['Key'],
+                    'MaxKeys' => 1
+                ));
+                if (!$result['Contents'] && !$result['CommonPrefixes']) {
+                    return $this->triggerError("File or directory not found: {$path}", $flags);
+                }
 
-				// This is a directory prefix
-				return $this->formatUrlStat($path);
-			}
-		} catch (\Exception $e) {
-			return $this->triggerError($e->getMessage(), $flags);
-		}
-	}
+                // This is a directory prefix
+                return $this->formatUrlStat($path);
+            }
+        } catch (\Exception $e) {
+            return $this->triggerError($e->getMessage(), $flags);
+        }
+    }
 
     /**
      * Support for mkdir().

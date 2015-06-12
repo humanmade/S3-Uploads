@@ -1,5 +1,4 @@
 <?php
-
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -23,40 +22,46 @@ namespace Doctrine\Common\Cache;
 /**
  * Base class for cache provider implementations.
  *
- * @since   2.2
- * @author  Benjamin Eberlei <kontakt@beberlei.de>
- * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author  Jonathan Wage <jonwage@gmail.com>
- * @author  Roman Borschel <roman@code-factory.org>
- * @author  Fabio B. Silva <fabio.bat.silva@gmail.com>
+ * @since  2.2
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
+ * @author Jonathan Wage <jonwage@gmail.com>
+ * @author Roman Borschel <roman@code-factory.org>
+ * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
  */
-abstract class CacheProvider implements Cache
+abstract class CacheProvider implements Cache, FlushableCache, ClearableCache, MultiGetCache
 {
     const DOCTRINE_NAMESPACE_CACHEKEY = 'DoctrineNamespaceCacheKey[%s]';
 
     /**
-     * @var string The namespace to prefix all cache ids with
+     * The namespace to prefix all cache ids with.
+     *
+     * @var string
      */
     private $namespace = '';
 
     /**
-     * @var string The namespace version
+     * The namespace version.
+     *
+     * @var integer|null
      */
     private $namespaceVersion;
 
     /**
-     * Set the namespace to prefix all cache ids with.
+     * Sets the namespace to prefix all cache ids with.
      *
      * @param string $namespace
+     *
      * @return void
      */
     public function setNamespace($namespace)
     {
-        $this->namespace = (string) $namespace;
+        $this->namespace        = (string) $namespace;
+        $this->namespaceVersion = null;
     }
 
     /**
-     * Retrieve the namespace that prefixes all cache ids.
+     * Retrieves the namespace that prefixes all cache ids.
      *
      * @return string
      */
@@ -71,6 +76,27 @@ abstract class CacheProvider implements Cache
     public function fetch($id)
     {
         return $this->doFetch($this->getNamespacedId($id));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchMultiple(array $keys)
+    {
+        // note: the array_combine() is in place to keep an association between our $keys and the $namespacedKeys
+        $namespacedKeys = array_combine($keys, array_map(array($this, 'getNamespacedId'), $keys));
+        $items          = $this->doFetchMultiple($namespacedKeys);
+        $foundItems     = array();
+
+        // no internal array function supports this sort of mapping: needs to be iterative
+        // this filters and combines keys in one pass
+        foreach ($namespacedKeys as $requestedKey => $namespacedKey) {
+            if (isset($items[$namespacedKey])) {
+                $foundItems[$requestedKey] = $items[$namespacedKey];
+            }
+        }
+
+        return $foundItems;
     }
 
     /**
@@ -106,9 +132,7 @@ abstract class CacheProvider implements Cache
     }
 
     /**
-     * Deletes all cache entries.
-     *
-     * @return boolean TRUE if the cache entries were successfully flushed, FALSE otherwise.
+     * {@inheritDoc}
      */
     public function flushAll()
     {
@@ -116,9 +140,7 @@ abstract class CacheProvider implements Cache
     }
 
     /**
-     * Delete all cache entries.
-     *
-     * @return boolean TRUE if the cache entries were successfully deleted, FALSE otherwise.
+     * {@inheritDoc}
      */
     public function deleteAll()
     {
@@ -131,10 +153,11 @@ abstract class CacheProvider implements Cache
     }
 
     /**
-     * Prefix the passed id with the configured namespace value
+     * Prefixes the passed id with the configured namespace value.
      *
-     * @param string $id  The id to namespace
-     * @return string $id The namespaced id
+     * @param string $id The id to namespace.
+     *
+     * @return string The namespaced id.
      */
     private function getNamespacedId($id)
     {
@@ -144,9 +167,9 @@ abstract class CacheProvider implements Cache
     }
 
     /**
-     * Namespace cache key
+     * Returns the namespace cache key.
      *
-     * @return string $namespaceCacheKey
+     * @return string
      */
     private function getNamespaceCacheKey()
     {
@@ -154,9 +177,9 @@ abstract class CacheProvider implements Cache
     }
 
     /**
-     * Namespace version
+     * Returns the namespace version.
      *
-     * @return string $namespaceVersion
+     * @return integer
      */
     private function getNamespaceVersion()
     {
@@ -179,17 +202,38 @@ abstract class CacheProvider implements Cache
     }
 
     /**
+     * Default implementation of doFetchMultiple. Each driver that supports multi-get should owerwrite it.
+     *
+     * @param array $keys Array of keys to retrieve from cache
+     * @return array Array of values retrieved for the given keys.
+     */
+    protected function doFetchMultiple(array $keys)
+    {
+        $returnValues = array();
+
+        foreach ($keys as $index => $key) {
+            if (false !== ($item = $this->doFetch($key))) {
+                $returnValues[$key] = $item;
+            }
+        }
+
+        return $returnValues;
+    }
+
+    /**
      * Fetches an entry from the cache.
      *
-     * @param string $id cache id The id of the cache entry to fetch.
-     * @return string The cached data or FALSE, if no cache entry exists for the given id.
+     * @param string $id The id of the cache entry to fetch.
+     *
+     * @return string|boolean The cached data or FALSE, if no cache entry exists for the given id.
      */
     abstract protected function doFetch($id);
 
     /**
-     * Test if an entry exists in the cache.
+     * Tests if an entry exists in the cache.
      *
-     * @param string $id cache id The cache id of the entry to check for.
+     * @param string $id The cache id of the entry to check for.
+     *
      * @return boolean TRUE if a cache entry exists for the given cache id, FALSE otherwise.
      */
     abstract protected function doContains($id);
@@ -197,35 +241,37 @@ abstract class CacheProvider implements Cache
     /**
      * Puts data into the cache.
      *
-     * @param string $id The cache id.
-     * @param string $data The cache entry/data.
-     * @param bool|int $lifeTime The lifetime. If != false, sets a specific lifetime for this
-     *                           cache entry (null => infinite lifeTime).
+     * @param string $id       The cache id.
+     * @param string $data     The cache entry/data.
+     * @param int    $lifeTime The lifetime. If != 0, sets a specific lifetime for this
+     *                           cache entry (0 => infinite lifeTime).
      *
      * @return boolean TRUE if the entry was successfully stored in the cache, FALSE otherwise.
      */
-    abstract protected function doSave($id, $data, $lifeTime = false);
+    abstract protected function doSave($id, $data, $lifeTime = 0);
 
     /**
      * Deletes a cache entry.
      *
-     * @param string $id cache id
+     * @param string $id The cache id.
+     *
      * @return boolean TRUE if the cache entry was successfully deleted, FALSE otherwise.
      */
     abstract protected function doDelete($id);
 
     /**
-     * Deletes all cache entries.
+     * Flushes all cache entries.
      *
-     * @return boolean TRUE if the cache entry was successfully deleted, FALSE otherwise.
+     * @return boolean TRUE if the cache entries were successfully flushed, FALSE otherwise.
      */
     abstract protected function doFlush();
 
-     /**
-     * Retrieves cached information from data store
+    /**
+     * Retrieves cached information from the data store.
      *
-     * @since   2.2
-     * @return  array An associative array with server's statistics if available, NULL otherwise.
+     * @since 2.2
+     *
+     * @return array|null An associative array with server's statistics if available, NULL otherwise.
      */
     abstract protected function doGetStats();
 }
