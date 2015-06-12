@@ -15,6 +15,7 @@
     <filter>
 		<blacklist>
 			<directory suffix=".php">.</directory>
+			<directory suffix=".php">./inc/aws-sdk/</directory>
 		</blacklist>
 		<whitelist>
 			<directory suffix=".php">./inc</directory>
