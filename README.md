@@ -20,6 +20,13 @@ define( 'S3_UPLOADS_KEY', '' );
 define( 'S3_UPLOADS_SECRET', '' );
 ```
 
+The next thing that you should do is to verify your setup. You can do this using the `verify` command
+like so:
+
+```
+wp s3-uploads verify
+```
+
 You'll want to create a new IAM user for the S3-Uploads plugin, so you are not using admin level access keys on your site. S3-Uploads can create the IAM user for you and asign the correct permissions.
 
 ```
