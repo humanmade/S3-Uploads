@@ -63,4 +63,29 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 
 		$this->assertFalse( $result );
 	}
+
+	/**
+	 * As s3 doesn't have directories, we expect that mkdir does not cause any s3
+	 * connectivity.
+	 */
+	public function test_file_exists_on_dir_does_not_cause_network_activity() {
+
+		stream_wrapper_unregister( 's3' );
+
+		// incorrect secret so we'll ato fail if any writing / reading is attempted
+		$params = array( 'key' => S3_UPLOADS_KEY, 'secret' => 123 );
+		$s3 = Aws\Common\Aws::factory( $params )->get( 's3' );
+
+		S3_Uploads_Stream_Wrapper::register( $s3 );
+		stream_context_set_option( stream_context_get_default(), 's3', 'ACL', Aws\S3\Enum\CannedAcl::PUBLIC_READ );
+
+		$bucket_root = strtok( S3_UPLOADS_BUCKET, '/' );
+
+		// result would fail as we don't have permission to write here.
+		$result = file_exists( 's3://' . $bucket_root . '/some_dir' );
+		$this->assertTrue( $result );
+
+		$result = is_dir( 's3://' . $bucket_root . '/some_dir' );
+		$this->assertTrue( $result );
+	}
 }
