@@ -89,8 +89,8 @@ class S3_Uploads {
 	 */
 	public function s3() {
 
-		require_once dirname( __FILE__ ) . '/aws-sdk/aws-autoloader.php';
-		require_once dirname( __FILE__ ) . '/class-s3-uploads-stream-wrapper.php';
+		require_once dirname( dirname( __FILE__ ) ) . '/lib/aws-sdk/aws-autoloader.php';
+		require_once dirname( __FILE__ ). '/class-s3-uploads-stream-wrapper.php';
 
 		if ( ! empty( $this->s3 ) )
 			return $this->s3;

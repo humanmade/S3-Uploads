@@ -17,7 +17,7 @@
 			<directory suffix=".php">./inc</directory>
 			<file>./s3-uploads.php</file>
 			<exclude>
-				<directory suffix=".php">./inc/aws-sdk</directory>
+				<directory suffix=".php">./lib</directory>
 			</exclude>
 		</whitelist>
 	</filter>
