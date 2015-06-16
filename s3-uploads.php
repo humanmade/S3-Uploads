@@ -22,9 +22,9 @@ function s3_uploads_init() {
 	}
 
 	// Make sure the plugin is enabled when autoenable is on, or in a CLI system
-	if ( ( ! defined( 'WP_CLI') || ! WP_CLI ) &&
-	     ( defined( 'S3_UPLOADS_AUTOENABLE' ) && false === S3_UPLOADS_AUTOENABLE ) &&
-	     'enabled' !== get_option( 's3_uploads_enabled' ) ) {
+	if ( ( ! defined( 'WP_CLI') || ! WP_CLI ) &&                                      // If CLI is enabled, skip our other checks
+	     ( defined( 'S3_UPLOADS_AUTOENABLE' ) && false === S3_UPLOADS_AUTOENABLE ) && // If the constant is used and set to false, skip
+	     'enabled' !== get_option( 's3_uploads_enabled' ) ) {                         // If the plugin is not enabled, skip
 		return;
 	}
 
