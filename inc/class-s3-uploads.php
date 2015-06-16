@@ -11,7 +11,7 @@ class S3_Uploads {
 	public $original_upload_dir;
 
 	/**
-	 * 
+	 *
 	 * @return S3_Uploads
 	 */
 	public static function get_instance() {
@@ -30,14 +30,19 @@ class S3_Uploads {
 		$this->secret = $secret;
 		$this->bucket_url = $bucket_url;
 		$this->region = $region;
+	}
 
+	/**
+	 * Register the stream wrapper for s3
+	 */
+	public function register_stream_wrapper() {
 		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
 			require_once dirname( __FILE__ ) . '/class-s3-uploads-local-stream-wrapper.php';
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
 			$s3 = $this->s3();
 			S3_Uploads_Stream_Wrapper::register( $s3 );
-			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', Aws\S3\Enum\CannedAcl::PUBLIC_READ );
+			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', 'public-read' );
 		}
 
 		stream_context_set_option( stream_context_get_default(), 's3', 'seekable', true );

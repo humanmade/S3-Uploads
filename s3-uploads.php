@@ -22,6 +22,7 @@ function s3_uploads_init() {
 	}
 
 	$instance = S3_Uploads::get_instance();
+	$instance->register_stream_wrapper();
 
 	add_filter( 'upload_dir', array( $instance, 'filter_upload_dir' ) );
 	add_filter( 'wp_image_editors', array( $instance, 'filter_editors' ), 9 );
