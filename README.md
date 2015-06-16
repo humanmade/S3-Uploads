@@ -88,11 +88,11 @@ define( 'S3_UPLOADS_CACHE_CONTROL', 30 * 24 * 60 * 60 );
 	// will expire in 30 days time
 ```
 
-You can also configure the `Expires` header using the `S3_UPLOADS_EXPIRES` constant
+You can also configure the `Expires` header using the `S3_UPLOADS_HTTP_EXPIRES` constant
 For instance if you wanted to set an asset to effectively not expire, you could
 set the Expires header way off in the future.  For example:
 
 ```PHP
-define( 'S3_UPLOADS_EXPIRES', gmdate( 'D, d M Y H:i:s', time() + (10 * 365 * 24 * 60 * 60) ) .' GMT' );
+define( 'S3_UPLOADS_HTTP_EXPIRES', gmdate( 'D, d M Y H:i:s', time() + (10 * 365 * 24 * 60 * 60) ) .' GMT' );
 	// will expire in 10 years time
 ```
