@@ -88,4 +88,28 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 		$result = is_dir( 's3://' . $bucket_root . '/some_dir' );
 		$this->assertTrue( $result );
 	}
+
+	public function test_http_expires_headers() {
+		$expires = strtotime( "+15 days" );
+		define( 'S3_UPLOADS_HTTP_EXPIRES', $expires );
+
+		copy( dirname( __FILE__ ) . '/data/canola.jpg', 's3://' . S3_UPLOADS_BUCKET . '/canola.jpg' );
+
+		$request = wp_remote_head( 'https://s3.amazonaws.com/' . S3_UPLOADS_BUCKET . '/canola.jpg' );
+		$headers = wp_remote_retrieve_headers( $request );
+
+		$this->assertEquals( $expires, strtotime( $headers['expires'] ) );
+	}
+
+	public function test_http_cache_control_headers() {
+
+		define( 'S3_UPLOADS_HTTP_CACHE_CONTROL', 'private, max-age=600' );
+
+		copy( dirname( __FILE__ ) . '/data/canola.jpg', 's3://' . S3_UPLOADS_BUCKET . '/canola.jpg' );
+
+		$request = wp_remote_head( 'https://s3.amazonaws.com/' . S3_UPLOADS_BUCKET . '/canola.jpg' );
+		$headers = wp_remote_retrieve_headers( $request );
+
+		$this->assertEquals( 'private, max-age=600', $headers['cache-control'] );
+	}
 }
