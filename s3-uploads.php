@@ -21,7 +21,12 @@ function s3_uploads_init() {
 		return;
 	}
 
+	if ( ! defined( 'S3_UPLOADS_REGION' ) ) {
+		wp_die( 'S3_UPLOADS_REGION constant is required. Please define it in your wp-config.php' );
+	}
+
 	$instance = S3_Uploads::get_instance();
+	$instance->register_stream_wrapper();
 
 	add_filter( 'upload_dir', array( $instance, 'filter_upload_dir' ) );
 	add_filter( 'wp_image_editors', array( $instance, 'filter_editors' ), 9 );
