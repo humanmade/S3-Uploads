@@ -157,37 +157,10 @@ class S3_Uploads_Stream_Wrapper extends Aws\S3\StreamWrapper {
 		}
 
 		try {
-			try {
-				// Attempt to stat and cache regular object
-				return $this->formatUrlStat(self::$client->headObject($parts)->toArray());
-			} catch (NoSuchKeyException $e) {
-				// Maybe this isn't an actual key, but a prefix. Do a prefix listing of objects to determine.
-
-				/**
-				 * Modification by Joe Hoyle
-				 * 
-				 * If there is an extension, we don't need to check if it's a dir. There is an issue with checking
-				 * if it's a dir, as s3 doesn't have true directories. See https://forums.aws.amazon.com/thread.jspa?threadID=142985
-				 * for a more in-depth example.
-				 */
-				if ( $extension ) {
-					return $this->triggerError("File or directory not found: {$path}", $flags);
-				}
-
-				$result = self::$client->listObjects(array(
-					'Bucket'  => $parts['Bucket'],
-					'Prefix'  => $parts['Key'],
-					'MaxKeys' => 1
-				));
-				if (!$result['Contents'] && !$result['CommonPrefixes']) {
-					return $this->triggerError("File or directory not found: {$path}", $flags);
-				}
-
-				// This is a directory prefix
-				return $this->formatUrlStat($path);
-			}
-		} catch (\Exception $e) {
-			return $this->triggerError($e->getMessage(), $flags);
+			// Attempt to stat and cache regular object
+			return $this->formatUrlStat( self::$client->headObject( $parts )->toArray() );
+		} catch ( Exception $e ) {
+			return $this->triggerError( $e->getMessage(), $flags );
 		}
 	}
 
