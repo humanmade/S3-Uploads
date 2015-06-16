@@ -84,4 +84,34 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 		$this->assertTrue( file_exists( 's3://' . S3_UPLOADS_BUCKET . '/canola.jpg' ) );
 		$this->assertFalse( file_exists( 's3://' . S3_UPLOADS_BUCKET . '/canola-missing.jpg' ) );
 	}
+
+	public function test_getimagesize_via_stream_wrapper() {
+
+		copy( dirname( __FILE__ ) . '/data/canola.jpg', 's3://' . S3_UPLOADS_BUCKET . '/canola.jpg' );
+		$file = 's3://' . S3_UPLOADS_BUCKET . '/canola.jpg';
+
+		$image = getimagesize( $file );
+
+		$this->assertEquals( array(
+			160,
+			120,
+			2,
+			'width="160" height="120"',
+			'bits' => 8,
+			'channels' => 3,
+			'mime' => 'image/jpeg'
+		), $image );
+	}
+
+	public function test_stream_wrapper_supports_seeking() {
+
+		$file = 's3://' . S3_UPLOADS_BUCKET . '/canola.jpg';
+		copy( dirname( __FILE__ ) . '/data/canola.jpg', $file );
+
+		$f = fopen( $file, 'r' );
+		$result = fseek( $f, 0, SEEK_END );
+		fclose( $f );
+
+		$this->assertEquals( 0, $result );
+	}
 }
