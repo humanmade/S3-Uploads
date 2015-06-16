@@ -361,6 +361,26 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		WP_CLI::success( sprintf( 'Successfully deleted %s', $prefix ) );
 	}
 
+	/**
+	 * Ensable the auto-rewriting of media links to S3
+	 */
+	public function enable( $args, $assoc_args ) {
+		if ( false === add_option( 's3_uploads_enabled', 'enabled', '', 'yes' ) ) {
+			update_option( 's3_uploads_enabled', 'enabled' );
+		}
+
+		WP_CLI::success( 'Media URL rewriting enabled.' );
+	}
+
+	/**
+	 * Disable the auto-rewriting of media links to S3
+	 */
+	public function disable( $args, $assoc_args ) {
+		delete_option( 's3_uploads_enabled' );
+
+		WP_CLI::success( 'Media URL rewriting disabled.' );
+	}
+
 	private function recurse_copy($src,$dst) {
 		$dir = opendir($src);
 		@mkdir($dst);

@@ -21,8 +21,10 @@ function s3_uploads_init() {
 		return;
 	}
 
-	// Make sure the plugin is enabled
-	if ( ( defined( 'S3_UPLOADS_AUTOENABLE' ) && false === S3_UPLOADS_AUTOENABLE ) && 'enabled' !== get_option( 's3_uploads_enabled' ) ) {
+	// Make sure the plugin is enabled when autoenable is on, or in a CLI system
+	if ( ( ! defined( 'WP_CLI') || ! WP_CLI ) &&
+	     ( defined( 'S3_UPLOADS_AUTOENABLE' ) && false === S3_UPLOADS_AUTOENABLE ) &&
+	     'enabled' !== get_option( 's3_uploads_enabled' ) ) {
 		return;
 	}
 
