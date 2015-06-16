@@ -11,7 +11,7 @@ class S3_Uploads {
 	public $original_upload_dir;
 
 	/**
-	 * 
+	 *
 	 * @return S3_Uploads
 	 */
 	public static function get_instance() {
