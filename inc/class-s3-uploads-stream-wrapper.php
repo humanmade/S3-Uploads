@@ -9,11 +9,11 @@ class S3_Uploads_Stream_Wrapper extends Aws\S3\StreamWrapper {
 	 */
 	public static function register( Aws\S3\S3Client $client)
 	{
-		if (in_array('s3', stream_get_wrappers())) {
+		if ( in_array('s3', stream_get_wrappers() ) ) {
 			stream_wrapper_unregister('s3');
 		}
 
-		stream_wrapper_register('s3', __CLASS__, STREAM_IS_URL);
+		stream_wrapper_register( 's3', __CLASS__, STREAM_IS_URL );
 		static::$client = $client;
 	}
 
@@ -140,20 +140,20 @@ class S3_Uploads_Stream_Wrapper extends Aws\S3\StreamWrapper {
 		}
 
 		// Check if this path is in the url_stat cache
-		if (isset(self::$nextStat[$path])) {
-			return self::$nextStat[$path];
+		if ( isset ( self::$nextStat[ $path ] ) ) {
+			return self::$nextStat[ $path ];
 		}
 
-		$parts = $this->getParams($path);
+		$parts = $this->getParams( $path );
 
 		// Stat a bucket or just s3://
-		if (!$parts['Key'] && (!$parts['Bucket'] || self::$client->doesBucketExist($parts['Bucket']))) {
-			return $this->formatUrlStat($path);
+		if ( ! $parts['Key'] && ( ! $parts['Bucket'] || self::$client->doesBucketExist( $parts['Bucket'] ) ) ) {
+			return $this->formatUrlStat( $path );
 		}
 
 		// You must pass either a bucket or a bucket + key
-		if (!$parts['Key']) {
-			return $this->triggerError("File or directory not found: {$path}", $flags);
+		if ( ! $parts['Key'] ) {
+			return $this->triggerError( "File or directory not found: {$path}", $flags );
 		}
 
 		try {
