@@ -17,27 +17,38 @@ class S3_Uploads {
 	public static function get_instance() {
 
 		if ( ! self::$instance ) {
-			self::$instance = new S3_Uploads( S3_UPLOADS_BUCKET, S3_UPLOADS_KEY, S3_UPLOADS_SECRET, defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null, defined( 'S3_UPLOADS_REGION' ) ? S3_UPLOADS_REGION : null );
+			self::$instance = new S3_Uploads(
+				S3_UPLOADS_BUCKET,
+				S3_UPLOADS_KEY,
+				S3_UPLOADS_SECRET,
+				S3_UPLOADS_REGION,
+				defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null
+			);
 		}
 
 		return self::$instance;
 	}
 
-	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null ) {
+	public function __construct( $bucket, $key, $secret, $region, $bucket_url = null ) {
 
 		$this->bucket = $bucket;
 		$this->key = $key;
 		$this->secret = $secret;
 		$this->bucket_url = $bucket_url;
 		$this->region = $region;
+	}
 
+	/**
+	 * Register the stream wrapper for s3
+	 */
+	public function register_stream_wrapper() {
 		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
 			require_once dirname( __FILE__ ) . '/class-s3-uploads-local-stream-wrapper.php';
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
 			$s3 = $this->s3();
 			S3_Uploads_Stream_Wrapper::register( $s3 );
-			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', Aws\S3\Enum\CannedAcl::PUBLIC_READ );
+			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', 'public-read' );
 		}
 
 		stream_context_set_option( stream_context_get_default(), 's3', 'seekable', true );
@@ -76,6 +87,19 @@ class S3_Uploads {
 		return 'https://' . $bucket . '.s3.amazonaws.com' . $path;
 	}
 
+	/**
+	 * Get the S3 bucket name
+	 *
+	 * @return string
+	 */
+	public function get_s3_bucket() {
+		return $bucket = strtok( $this->bucket, '/' );
+	}
+
+	public function get_s3_bucket_region() {
+		return $this->region;
+	}
+
 	public function get_original_upload_dir() {
 
 		if ( empty( $this->original_upload_dir ) )
@@ -83,7 +107,7 @@ class S3_Uploads {
 
 		return $this->original_upload_dir;
 	}
-	
+
 	/**
 	 * @return Aws\S3\S3Client
 	 */
@@ -95,14 +119,14 @@ class S3_Uploads {
 		if ( ! empty( $this->s3 ) )
 			return $this->s3;
 
-		$params = array( 'key' => $this->key, 'secret' => $this->secret );
+		$params = array(
+			'credentials'  => array( 'key' => $this->key, 'secret' => $this->secret ),
+			'version'      => '2006-03-01',
+			'region'       => $this->region,
+			'signature'    => 'v4',
+		);
 
-		if ( $this->region ) {
-			$params['signature'] = 'v4';
-			$params['region'] = $this->region;
-		}
-
-		$this->s3 = Aws\Common\Aws::factory( $params )->get( 's3' );
+		$this->s3 = new Aws\S3\S3Client( $params );
 
 		return $this->s3;
 	}
