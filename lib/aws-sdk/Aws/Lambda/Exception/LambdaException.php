@@ -1,10 +1,9 @@
 <?php
-
 namespace Aws\Lambda\Exception;
 
-use Aws\Common\Exception\ServiceResponseException;
+use Aws\Exception\AwsException;
 
 /**
- * Exception thrown by the Lambda service client.
+ * Represents an error interacting with AWS Lambda
  */
-class LambdaException extends ServiceResponseException {}
+class LambdaException extends AwsException {}

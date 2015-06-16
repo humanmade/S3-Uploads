@@ -1,54 +1,24 @@
 <?php
-
 namespace Aws\CloudSearchDomain;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Enum\ClientOptions as Options;
-use Aws\Common\Exception\BadMethodCallException;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
+use Aws\AwsClient;
+use GuzzleHttp\Psr7\Uri;
 
 /**
- * Client to interact with Amazon CloudSearch Domain
- *
- * @method Model search(array $args = array()) {@command CloudSearchDomain Search}
- * @method Model suggest(array $args = array()) {@command CloudSearchDomain Suggest}
- * @method Model uploadDocuments(array $args = array()) {@command CloudSearchDomain UploadDocuments}
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-cloudsearchdomain.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.CloudSearchDomain.CloudSearchDomainClient.html API docs
+ * This client is used to search and upload documents to an **Amazon CloudSearch** Domain.
  */
-class CloudSearchDomainClient extends AbstractClient
+class CloudSearchDomainClient extends AwsClient
 {
-    const LATEST_API_VERSION = '2013-01-01';
-
-    /**
-     * Factory method to create a new Amazon CloudSearch Domain client using an array of configuration options.
-     *
-     * You must provide the `endpoint` option for this client, but credentials and `region` are not needed.
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     */
-    public static function factory($config = array())
+    public static function getArguments()
     {
-        return CloudSearchDomainClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/cloudsearchdomain-%s.php'
-            ))
-            ->build();
-    }
+        $args = parent::getArguments();
+        $args['endpoint']['required'] = true;
+        $args['region']['default'] = function (array $args) {
+            // Determine the region from the provided endpoint.
+            // (e.g. http://search-blah.{region}.cloudsearch.amazonaws.com)
+            return explode('.', new Uri($args['endpoint']))[1];
+        };
 
-    /**
-     * @internal
-     * @throws BadMethodCallException Do not call this method.
-     */
-    public function setRegion($region)
-    {
-        throw new BadMethodCallException('You cannot change the region of a CloudSearchDomain client.');
+        return $args;
     }
 }

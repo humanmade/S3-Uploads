@@ -1,62 +1,20 @@
 <?php
-/**
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- * http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 namespace Aws\Sns\MessageValidator;
-
-use Aws\Common\Exception\InvalidArgumentException;
-use Aws\Common\Exception\UnexpectedValueException;
-use Guzzle\Common\Collection;
 
 class Message
 {
-    protected static $requiredKeys = array(
-        '__default' => array(
-            'Message',
-            'MessageId',
-            'Timestamp',
-            'TopicArn',
-            'Type',
-            'Signature',
-            'SigningCertURL',
-        ),
-        'SubscriptionConfirmation' => array(
-            'SubscribeURL',
-            'Token'
-        ),
-        'UnsubscribeConfirmation' => array(
-            'SubscribeURL',
-            'Token'
-        ),
-    );
+    private static $requiredKeys = [
+        '__default' => ['Message', 'MessageId', 'Timestamp', 'TopicArn',
+            'Type', 'Signature', 'SigningCertURL',],
+        'SubscriptionConfirmation' => ['SubscribeURL', 'Token'],
+        'UnsubscribeConfirmation' => ['SubscribeURL', 'Token']
+    ];
 
-    protected static $signableKeys = array(
-        'Message',
-        'MessageId',
-        'Subject',
-        'SubscribeURL',
-        'Timestamp',
-        'Token',
-        'TopicArn',
-        'Type',
-    );
+    private static $signableKeys = ['Message', 'MessageId', 'Subject',
+        'SubscribeURL', 'Timestamp', 'Token', 'TopicArn', 'Type'];
 
-    /**
-     * @var Collection The message data
-     */
-    protected $data;
+    /** @var array The message data */
+    private $data;
 
     /**
      * Creates a Message object from an array of raw message data
@@ -64,21 +22,30 @@ class Message
      * @param array $data The message data
      *
      * @return Message
-     * @throws InvalidArgumentException If a valid type is not provided or there are other required keys missing
+     * @throws \InvalidArgumentException If a valid type is not provided or
+     *     there are other required keys missing
      */
     public static function fromArray(array $data)
     {
         // Make sure the type key is set
         if (!isset($data['Type'])) {
-            throw new InvalidArgumentException('The "Type" key must be provided to instantiate a Message object.');
+            throw new \InvalidArgumentException('The "Type" key must be '
+                . 'provided to instantiate a Message object.');
         }
 
         // Determine required keys and create a collection from the message data
         $requiredKeys = array_merge(
             self::$requiredKeys['__default'],
-            isset(self::$requiredKeys[$data['Type']]) ? self::$requiredKeys[$data['Type']] : array()
+            isset(self::$requiredKeys[$data['Type']])
+                ? self::$requiredKeys[$data['Type']]
+                : []
         );
-        $data = Collection::fromConfig($data, array(), $requiredKeys);
+
+        foreach ($requiredKeys as $key) {
+            if (empty($data[$key])) {
+                throw new \InvalidArgumentException($key . ' is required');
+            }
+        }
 
         return new self($data);
     }
@@ -87,29 +54,35 @@ class Message
      * Creates a message object from the raw POST data
      *
      * @return Message
-     * @throws UnexpectedValueException If the POST data is absent, or not a valid JSON document
+     * @throws \RuntimeException If the POST data is absent, or not a valid JSON document
      */
     public static function fromRawPostData()
     {
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (!is_array($data)) {
-            throw new UnexpectedValueException('POST data absent, or not a valid JSON document', json_last_error());
+        if (!isset($_SERVER['HTTP_X_AMZ_SNS_MESSAGE_TYPE'])) {
+            throw new \RuntimeException('SNS message type header not provided.');
         }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (!is_array($data)) {
+            throw new \RuntimeException('POST data invalid');
+        }
+
         return self::fromArray($data);
     }
 
     /**
-     * @param Collection $data A Collection of message data with all required keys
+     * @param array $data Message data with all required keys.
      */
-    public function __construct(Collection $data)
+    public function __construct(array $data)
     {
         $this->data = $data;
     }
 
     /**
-     * Get the entire message data as a Collection
+     * Get the entire message data as an array.
      *
-     * @return Collection
+     * @return array
      */
     public function getData()
     {
@@ -119,11 +92,13 @@ class Message
     /**
      * Gets a single key from the message data
      *
+     * @param string $key Key to retrieve
+     *
      * @return string
      */
     public function get($key)
     {
-        return $this->data->get($key);
+        return isset($this->data[$key]) ? $this->data[$key] : null;
     }
 
     /**
@@ -135,12 +110,8 @@ class Message
     public function getStringToSign()
     {
         $stringToSign = '';
-
-        $data = $this->data->toArray();
-        ksort($data);
-
-        foreach ($data as $key => $value) {
-            if (in_array($key, self::$signableKeys)) {
+        foreach (self::$signableKeys as $key) {
+            if ($value = $this->get($key)) {
                 $stringToSign .= "{$key}\n{$value}\n";
             }
         }

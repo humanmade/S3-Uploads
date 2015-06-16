@@ -1,10 +1,9 @@
 <?php
-
 namespace Aws\MachineLearning\Exception;
 
-use Aws\Common\Exception\ServiceResponseException;
+use Aws\Exception\AwsException;
 
 /**
- * Exception thrown by the MachineLearning service client.
+ * Amazon Machine Learning exception.
  */
-class MachineLearningException extends ServiceResponseException {}
+class MachineLearningException extends AwsException {}

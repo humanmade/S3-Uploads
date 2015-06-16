@@ -1,447 +1,188 @@
 <?php
-/**
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- * http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 namespace Aws\S3;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Client\ExpiredCredentialsChecker;
-use Aws\Common\Client\UploadBodyListener;
-use Aws\Common\Enum\ClientOptions as Options;
-use Aws\Common\Exception\RuntimeException;
-use Aws\Common\Exception\InvalidArgumentException;
-use Aws\Common\Signature\SignatureV4;
-use Aws\Common\Model\MultipartUpload\AbstractTransfer;
-use Aws\S3\Exception\AccessDeniedException;
-use Aws\S3\Exception\Parser\S3ExceptionParser;
+use Aws\Api\ApiProvider;
+use Aws\Api\DocModel;
+use Aws\Api\Service;
+use Aws\AwsClient;
+use Aws\ClientResolver;
+use Aws\Exception\AwsException;
+use Aws\HandlerList;
+use Aws\Middleware;
+use Aws\RetryMiddleware;
 use Aws\S3\Exception\S3Exception;
-use Aws\S3\Model\ClearBucket;
-use Aws\S3\Model\MultipartUpload\AbstractTransfer as AbstractMulti;
-use Aws\S3\Model\MultipartUpload\UploadBuilder;
-use Aws\S3\Sync\DownloadSyncBuilder;
-use Aws\S3\Sync\UploadSyncBuilder;
-use Guzzle\Common\Collection;
-use Guzzle\Http\EntityBody;
-use Guzzle\Http\Message\RequestInterface;
-use Guzzle\Iterator\FilterIterator;
-use Guzzle\Plugin\Backoff\BackoffPlugin;
-use Guzzle\Plugin\Backoff\CurlBackoffStrategy;
-use Guzzle\Plugin\Backoff\ExponentialBackoffStrategy;
-use Guzzle\Plugin\Backoff\HttpBackoffStrategy;
-use Guzzle\Plugin\Backoff\TruncatedBackoffStrategy;
-use Guzzle\Service\Command\CommandInterface;
-use Guzzle\Service\Command\Factory\AliasFactory;
-use Guzzle\Service\Command\Factory\CompositeFactory;
-use Guzzle\Service\Resource\Model;
-use Guzzle\Service\Resource\ResourceIteratorInterface;
+use Aws\ResultInterface;
+use Aws\CommandInterface;
+use GuzzleHttp\Psr7;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
- * Client to interact with Amazon Simple Storage Service
- *
- * @method S3SignatureInterface getSignature() Returns the signature implementation used with the client
- * @method Model abortMultipartUpload(array $args = array()) {@command S3 AbortMultipartUpload}
- * @method Model completeMultipartUpload(array $args = array()) {@command S3 CompleteMultipartUpload}
- * @method Model copyObject(array $args = array()) {@command S3 CopyObject}
- * @method Model createBucket(array $args = array()) {@command S3 CreateBucket}
- * @method Model createMultipartUpload(array $args = array()) {@command S3 CreateMultipartUpload}
- * @method Model deleteBucket(array $args = array()) {@command S3 DeleteBucket}
- * @method Model deleteBucketCors(array $args = array()) {@command S3 DeleteBucketCors}
- * @method Model deleteBucketLifecycle(array $args = array()) {@command S3 DeleteBucketLifecycle}
- * @method Model deleteBucketPolicy(array $args = array()) {@command S3 DeleteBucketPolicy}
- * @method Model deleteBucketReplication(array $args = array()) {@command S3 DeleteBucketReplication}
- * @method Model deleteBucketTagging(array $args = array()) {@command S3 DeleteBucketTagging}
- * @method Model deleteBucketWebsite(array $args = array()) {@command S3 DeleteBucketWebsite}
- * @method Model deleteObject(array $args = array()) {@command S3 DeleteObject}
- * @method Model deleteObjects(array $args = array()) {@command S3 DeleteObjects}
- * @method Model getBucketAcl(array $args = array()) {@command S3 GetBucketAcl}
- * @method Model getBucketCors(array $args = array()) {@command S3 GetBucketCors}
- * @method Model getBucketLifecycle(array $args = array()) {@command S3 GetBucketLifecycle}
- * @method Model getBucketLocation(array $args = array()) {@command S3 GetBucketLocation}
- * @method Model getBucketLogging(array $args = array()) {@command S3 GetBucketLogging}
- * @method Model getBucketNotification(array $args = array()) {@command S3 GetBucketNotification}
- * @method Model getBucketNotificationConfiguration(array $args = array()) {@command S3 GetBucketNotificationConfiguration}
- * @method Model getBucketPolicy(array $args = array()) {@command S3 GetBucketPolicy}
- * @method Model getBucketReplication(array $args = array()) {@command S3 GetBucketReplication}
- * @method Model getBucketRequestPayment(array $args = array()) {@command S3 GetBucketRequestPayment}
- * @method Model getBucketTagging(array $args = array()) {@command S3 GetBucketTagging}
- * @method Model getBucketVersioning(array $args = array()) {@command S3 GetBucketVersioning}
- * @method Model getBucketWebsite(array $args = array()) {@command S3 GetBucketWebsite}
- * @method Model getObject(array $args = array()) {@command S3 GetObject}
- * @method Model getObjectAcl(array $args = array()) {@command S3 GetObjectAcl}
- * @method Model getObjectTorrent(array $args = array()) {@command S3 GetObjectTorrent}
- * @method Model headBucket(array $args = array()) {@command S3 HeadBucket}
- * @method Model headObject(array $args = array()) {@command S3 HeadObject}
- * @method Model listBuckets(array $args = array()) {@command S3 ListBuckets}
- * @method Model listMultipartUploads(array $args = array()) {@command S3 ListMultipartUploads}
- * @method Model listObjectVersions(array $args = array()) {@command S3 ListObjectVersions}
- * @method Model listObjects(array $args = array()) {@command S3 ListObjects}
- * @method Model listParts(array $args = array()) {@command S3 ListParts}
- * @method Model putBucketAcl(array $args = array()) {@command S3 PutBucketAcl}
- * @method Model putBucketCors(array $args = array()) {@command S3 PutBucketCors}
- * @method Model putBucketLifecycle(array $args = array()) {@command S3 PutBucketLifecycle}
- * @method Model putBucketLogging(array $args = array()) {@command S3 PutBucketLogging}
- * @method Model putBucketNotification(array $args = array()) {@command S3 PutBucketNotification}
- * @method Model putBucketNotificationConfiguration(array $args = array()) {@command S3 PutBucketNotificationConfiguration}
- * @method Model putBucketPolicy(array $args = array()) {@command S3 PutBucketPolicy}
- * @method Model putBucketReplication(array $args = array()) {@command S3 PutBucketReplication}
- * @method Model putBucketRequestPayment(array $args = array()) {@command S3 PutBucketRequestPayment}
- * @method Model putBucketTagging(array $args = array()) {@command S3 PutBucketTagging}
- * @method Model putBucketVersioning(array $args = array()) {@command S3 PutBucketVersioning}
- * @method Model putBucketWebsite(array $args = array()) {@command S3 PutBucketWebsite}
- * @method Model putObject(array $args = array()) {@command S3 PutObject}
- * @method Model putObjectAcl(array $args = array()) {@command S3 PutObjectAcl}
- * @method Model restoreObject(array $args = array()) {@command S3 RestoreObject}
- * @method Model uploadPart(array $args = array()) {@command S3 UploadPart}
- * @method Model uploadPartCopy(array $args = array()) {@command S3 UploadPartCopy}
- * @method waitUntilBucketExists(array $input) The input array uses the parameters of the HeadBucket operation and waiter specific settings
- * @method waitUntilBucketNotExists(array $input) The input array uses the parameters of the HeadBucket operation and waiter specific settings
- * @method waitUntilObjectExists(array $input) The input array uses the parameters of the HeadObject operation and waiter specific settings
- * @method ResourceIteratorInterface getListBucketsIterator(array $args = array()) The input array uses the parameters of the ListBuckets operation
- * @method ResourceIteratorInterface getListMultipartUploadsIterator(array $args = array()) The input array uses the parameters of the ListMultipartUploads operation
- * @method ResourceIteratorInterface getListObjectVersionsIterator(array $args = array()) The input array uses the parameters of the ListObjectVersions operation
- * @method ResourceIteratorInterface getListObjectsIterator(array $args = array()) The input array uses the parameters of the ListObjects operation
- * @method ResourceIteratorInterface getListPartsIterator(array $args = array()) The input array uses the parameters of the ListParts operation
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-s3.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.S3.S3Client.html API docs
+ * Client used to interact with **Amazon Simple Storage Service (Amazon S3)**.
  */
-class S3Client extends AbstractClient
+class S3Client extends AwsClient
 {
-    const LATEST_API_VERSION = '2006-03-01';
-
-    /**
-     * @var array Aliases for S3 operations
-     */
-    protected static $commandAliases = array(
-        // REST API Docs Aliases
-        'GetService' => 'ListBuckets',
-        'GetBucket'  => 'ListObjects',
-        'PutBucket'  => 'CreateBucket',
-
-        // SDK 1.x Aliases
-        'GetBucketHeaders'              => 'HeadBucket',
-        'GetObjectHeaders'              => 'HeadObject',
-        'SetBucketAcl'                  => 'PutBucketAcl',
-        'CreateObject'                  => 'PutObject',
-        'DeleteObjects'                 => 'DeleteMultipleObjects',
-        'PutObjectCopy'                 => 'CopyObject',
-        'SetObjectAcl'                  => 'PutObjectAcl',
-        'GetLogs'                       => 'GetBucketLogging',
-        'GetVersioningStatus'           => 'GetBucketVersioning',
-        'SetBucketPolicy'               => 'PutBucketPolicy',
-        'CreateBucketNotification'      => 'PutBucketNotification',
-        'GetBucketNotifications'        => 'GetBucketNotification',
-        'CopyPart'                      => 'UploadPartCopy',
-        'CreateWebsiteConfig'           => 'PutBucketWebsite',
-        'GetWebsiteConfig'              => 'GetBucketWebsite',
-        'DeleteWebsiteConfig'           => 'DeleteBucketWebsite',
-        'CreateObjectExpirationConfig'  => 'PutBucketLifecycle',
-        'GetObjectExpirationConfig'     => 'GetBucketLifecycle',
-        'DeleteObjectExpirationConfig'  => 'DeleteBucketLifecycle',
-    );
-
-    protected $directory = __DIR__;
-
-    /**
-     * Factory method to create a new Amazon S3 client using an array of configuration options.
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return S3Client
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     */
-    public static function factory($config = array())
+    public static function getArguments()
     {
-        $exceptionParser = new S3ExceptionParser();
+        $args = parent::getArguments();
+        $args['retries']['fn'] = [__CLASS__, '_applyRetryConfig'];
+        $args['api_provider']['fn'] = [__CLASS__, '_applyApiProvider'];
 
-        // Configure the custom exponential backoff plugin for retrying S3 specific errors
-        if (!isset($config[Options::BACKOFF])) {
-            $config[Options::BACKOFF] = static::createBackoffPlugin($exceptionParser);
-        }
-
-        $config[Options::SIGNATURE] = $signature = static::createSignature($config);
-
-        $client = ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/s3-%s.php'
-            ))
-            ->setExceptionParser($exceptionParser)
-            ->setIteratorsConfig(array(
-                'more_key' => 'IsTruncated',
-                'operations' => array(
-                    'ListBuckets',
-                    'ListMultipartUploads' => array(
-                        'limit_param' => 'MaxUploads',
-                        'token_param' => array('KeyMarker', 'UploadIdMarker'),
-                        'token_key'   => array('NextKeyMarker', 'NextUploadIdMarker'),
-                    ),
-                    'ListObjects' => array(
-                        'limit_param' => 'MaxKeys',
-                        'token_param' => 'Marker',
-                        'token_key'   => 'NextMarker',
-                    ),
-                    'ListObjectVersions' => array(
-                        'limit_param' => 'MaxKeys',
-                        'token_param' => array('KeyMarker', 'VersionIdMarker'),
-                        'token_key'   => array('nextKeyMarker', 'nextVersionIdMarker'),
-                    ),
-                    'ListParts' => array(
-                        'limit_param' => 'MaxParts',
-                        'result_key'  => 'Parts',
-                        'token_param' => 'PartNumberMarker',
-                        'token_key'   => 'NextPartNumberMarker',
-                    ),
-                )
-            ))
-            ->build();
-
-        // Use virtual hosted buckets when possible
-        $client->addSubscriber(new BucketStyleListener());
-        // Ensure that ACP headers are applied when needed
-        $client->addSubscriber(new AcpListener());
-        // Validate and add required Content-MD5 hashes (e.g. DeleteObjects)
-        $client->addSubscriber(new S3Md5Listener($signature));
-
-        // Allow for specifying bodies with file paths and file handles
-        $client->addSubscriber(new UploadBodyListener(array('PutObject', 'UploadPart')));
-
-        // Ensures that if a SSE-CPK key is provided, the key and md5 are formatted correctly
-        $client->addSubscriber(new SseCpkListener);
-
-        // Add aliases for some S3 operations
-        $default = CompositeFactory::getDefaultChain($client);
-        $default->add(
-            new AliasFactory($client, static::$commandAliases),
-            'Guzzle\Service\Command\Factory\ServiceDescriptionFactory'
-        );
-        $client->setCommandFactory($default);
-
-        return $client;
+        return $args + [
+            'bucket_endpoint' => [
+                'type'    => 'config',
+                'valid'   => ['bool'],
+                'doc'     => 'Set to true to send requests to a hardcoded '
+                    . 'bucket endpoint rather than create an endpoint as a '
+                    . 'result of injecting the bucket into the URL. This '
+                    . 'option is useful for interacting with CNAME endpoints.',
+            ],
+        ];
     }
 
     /**
-     * Create an Amazon S3 specific backoff plugin
+     * {@inheritdoc}
      *
-     * @param S3ExceptionParser $exceptionParser
+     * In addition to the options available to
+     * {@see Aws\AwsClient::__construct}, S3Client accepts the following
+     * options:
      *
-     * @return BackoffPlugin
+     * - bucket_endpoint: (bool) Set to true to send requests to a
+     *   hardcoded bucket endpoint rather than create an endpoint as a result
+     *   of injecting the bucket into the URL. This option is useful for
+     *   interacting with CNAME endpoints.
+     * - calculate_md5: (bool) Set to false to disable calculating an MD5
+     *   for all Amazon S3 signed uploads.
+     *
+     * @param array $args
      */
-    private static function createBackoffPlugin(S3ExceptionParser $exceptionParser)
+    public function __construct(array $args)
     {
-        return new BackoffPlugin(
-            new TruncatedBackoffStrategy(3,
-                new IncompleteMultipartUploadChecker(
-                    new CurlBackoffStrategy(null,
-                        new HttpBackoffStrategy(null,
-                            new SocketTimeoutChecker(
-                                new ExpiredCredentialsChecker($exceptionParser,
-                                    new ExponentialBackoffStrategy()
-                                )
-                            )
-                        )
-                    )
-                )
-            )
+        parent::__construct($args);
+        $stack = $this->getHandlerList();
+        $stack->appendInit(SSECMiddleware::wrap($this->getEndpoint()->getScheme()), 's3.ssec');
+        $stack->appendBuild(ApplyMd5Middleware::wrap(), 's3.md5');
+        $stack->appendBuild(
+            Middleware::contentType(['PutObject', 'UploadPart']),
+            's3.content_type'
         );
-    }
 
-    /**
-     * Create an appropriate signature based on the configuration settings
-     *
-     * @param $config
-     *
-     * @return \Aws\Common\Signature\SignatureInterface
-     * @throws InvalidArgumentException
-     */
-    private static function createSignature($config)
-    {
-        $currentValue = isset($config[Options::SIGNATURE]) ? $config[Options::SIGNATURE] : null;
-
-        // Force v4 if no value is provided, a region is in the config, and
-        // the region starts with "cn-" or "eu-central-".
-        $requiresV4 = !$currentValue
-            && isset($config['region'])
-            && (strpos($config['region'], 'eu-central-') === 0
-                || strpos($config['region'], 'cn-') === 0);
-
-        // Use the Amazon S3 signature V4 when the value is set to "v4" or when
-        // the value is not set and the region starts with "cn-".
-        if ($currentValue == 'v4' || $requiresV4) {
-            // Force SignatureV4 for specific regions or if specified in the config
-            $currentValue = new S3SignatureV4('s3');
-        } elseif (!$currentValue || $currentValue == 's3') {
-            // Use the Amazon S3 signature by default
-            $currentValue = new S3Signature();
+        // Use the bucket style middleware when using a "bucket_endpoint" (for cnames)
+        if ($this->getConfig('bucket_endpoint')) {
+            $stack->appendBuild(BucketEndpointMiddleware::wrap(), 's3.bucket_endpoint');
         }
 
-        // A region is require with v4
-        if ($currentValue instanceof SignatureV4 && !isset($config['region'])) {
-            throw new InvalidArgumentException('A region must be specified '
-                . 'when using signature version 4');
-        }
-
-        return $currentValue;
+        $stack->appendSign(PutObjectUrlMiddleware::wrap(), 's3.put_object_url');
+        $stack->appendSign(PermanentRedirectMiddleware::wrap(), 's3.permanent_redirect');
+        $stack->appendInit(Middleware::sourceFile($this->getApi()), 's3.source_file');
+        $stack->appendInit($this->getLocationConstraintMiddleware(), 's3.location');
     }
 
     /**
      * Determine if a string is a valid name for a DNS compatible Amazon S3
-     * bucket, meaning the bucket can be used as a subdomain in a URL (e.g.,
+     * bucket.
+     *
+     * DNS compatible bucket names can be used as a subdomain in a URL (e.g.,
      * "<bucket>.s3.amazonaws.com").
      *
-     * @param string $bucket The name of the bucket to check.
+     * @param string $bucket Bucket name to check.
      *
-     * @return bool TRUE if the bucket name is valid or FALSE if it is invalid.
+     * @return bool
      */
-    public static function isValidBucketName($bucket)
+    public static function isBucketDnsCompatible($bucket)
     {
         $bucketLen = strlen($bucket);
-        if ($bucketLen < 3 || $bucketLen > 63 ||
+
+        return ($bucketLen >= 3 && $bucketLen <= 63) &&
             // Cannot look like an IP address
-            preg_match('/(\d+\.){3}\d+$/', $bucket) ||
-            // Cannot include special characters, must start and end with lower alnum
-            !preg_match('/^[a-z0-9]([a-z0-9\-\.]*[a-z0-9])?$/', $bucket)
-        ) {
-            return false;
-        }
-
-        return true;
+            !filter_var($bucket, FILTER_VALIDATE_IP) &&
+            preg_match('/^[a-z0-9]([a-z0-9\-\.]*[a-z0-9])?$/', $bucket);
     }
 
     /**
-     * Create a pre-signed URL for a request
+     * Create a pre-signed URL for the given S3 command object.
      *
-     * @param RequestInterface     $request Request to generate the URL for. Use the factory methods of the client to
-     *                                      create this request object
-     * @param int|string|\DateTime $expires The time at which the URL should expire. This can be a Unix timestamp, a
-     *                                      PHP DateTime object, or a string that can be evaluated by strtotime
+     * @param CommandInterface $command     Command to create a pre-signed
+     *                                      URL for.
+     * @param int|string|\DateTime $expires The time at which the URL should
+     *                                      expire. This can be a Unix
+     *                                      timestamp, a PHP DateTime object,
+     *                                      or a string that can be evaluated
+     *                                      by strtotime().
      *
-     * @return string
-     * @throws InvalidArgumentException if the request is not associated with this client object
+     * @return RequestInterface
      */
-    public function createPresignedUrl(RequestInterface $request, $expires)
+    public function createPresignedRequest(CommandInterface $command, $expires)
     {
-        if ($request->getClient() !== $this) {
-            throw new InvalidArgumentException('The request object must be associated with the client. Use the '
-                . '$client->get(), $client->head(), $client->post(), $client->put(), etc. methods when passing in a '
-                . 'request object');
-        }
+        /** @var \Aws\Signature\SignatureInterface $signer */
+        $signer = call_user_func(
+            $this->getSignatureProvider(),
+            $this->getConfig('signature_version'),
+            $this->getApi()->getSigningName(),
+            $this->getRegion()
+        );
 
-        return $this->signature->createPresignedUrl($request, $this->credentials, $expires);
+        return $signer->presign(
+            \Aws\serialize($command),
+            $this->getCredentials()->wait(),
+            $expires
+        );
     }
 
     /**
-     * Returns the URL to an object identified by its bucket and key. If an expiration time is provided, the URL will
-     * be signed and set to expire at the provided time.
+     * Returns the URL to an object identified by its bucket and key.
      *
-     * Note: This method does not ensure that the generated URL is valid. For example, the bucket referenced may not
-     * exist, the key referenced may not exist, and the URL might include parameters that require it to be signed.
-     * If you need to use parameters that require a signed URL (e.g., ResponseCacheControl), then you must sign the
-     * URL either by providing an $expires argument or by signing the URL returned by this method in some other
-     * manner.
+     * The URL returned by this method is not signed nor does it ensure the the
+     * bucket and key given to the method exist. If you need a signed URL, then
+     * use the {@see \Aws\S3\S3Client::createPresignedRequest} method and get
+     * the URI of the signed request.
      *
      * @param string $bucket  The name of the bucket where the object is located
      * @param string $key     The key of the object
-     * @param mixed  $expires The time at which the URL should expire
-     * @param array  $args    Arguments to the GetObject command. Additionally you can specify a "Scheme" if you would
-     *                        like the URL to use a different scheme than what the client is configured to use
      *
      * @return string The URL to the object
      */
-    public function getObjectUrl($bucket, $key, $expires = null, array $args = array())
+    public function getObjectUrl($bucket, $key)
     {
-        $command = $this->getCommand('GetObject', $args + array('Bucket' => $bucket, 'Key' => $key));
+        $command = $this->getCommand('GetObject', [
+            'Bucket' => $bucket,
+            'Key'    => $key
+        ]);
 
-        if ($command->hasKey('Scheme')) {
-            $scheme = $command['Scheme'];
-            $request = $command->remove('Scheme')->prepare()->setScheme($scheme)->setPort(null);
-        } else {
-            $request = $command->prepare();
-        }
-
-        return $expires ? $this->createPresignedUrl($request, $expires) : $request->getUrl();
+        return (string) \Aws\serialize($command)->getUri();
     }
 
     /**
-     * Helper used to clear the contents of a bucket. Use the {@see ClearBucket} object directly
-     * for more advanced options and control.
+     * Determines whether or not a bucket exists by name.
      *
-     * @param string $bucket Name of the bucket to clear.
-     *
-     * @return int Returns the number of deleted keys
-     */
-    public function clearBucket($bucket)
-    {
-        $clear = new ClearBucket($this, $bucket);
-
-        return $clear->clear();
-    }
-
-    /**
-     * Determines whether or not a bucket exists by name
-     *
-     * @param string $bucket    The name of the bucket
-     * @param bool   $accept403 Set to true if 403s are acceptable
-     * @param array  $options   Additional options to add to the executed command
+     * @param string $bucket  The name of the bucket
      *
      * @return bool
      */
-    public function doesBucketExist($bucket, $accept403 = true, array $options = array())
+    public function doesBucketExist($bucket)
     {
         return $this->checkExistenceWithCommand(
-            $this->getCommand('HeadBucket', array_merge($options, array(
-                'Bucket' => $bucket
-            ))), $accept403
+            $this->getCommand('HeadBucket', ['Bucket' => $bucket])
         );
     }
 
     /**
-     * Determines whether or not an object exists by name
+     * Determines whether or not an object exists by name.
      *
      * @param string $bucket  The name of the bucket
      * @param string $key     The key of the object
-     * @param array  $options Additional options to add to the executed command
+     * @param array  $options Additional options available in the HeadObject
+     *                        operation (e.g., VersionId).
      *
      * @return bool
      */
-    public function doesObjectExist($bucket, $key, array $options = array())
+    public function doesObjectExist($bucket, $key, array $options = [])
     {
         return $this->checkExistenceWithCommand(
-            $this->getCommand('HeadObject', array_merge($options, array(
+            $this->getCommand('HeadObject', [
                 'Bucket' => $bucket,
                 'Key'    => $key
-            )))
-        );
-    }
-
-    /**
-     * Determines whether or not a bucket policy exists for a bucket
-     *
-     * @param string $bucket  The name of the bucket
-     * @param array  $options Additional options to add to the executed command
-     *
-     * @return bool
-     */
-    public function doesBucketPolicyExist($bucket, array $options = array())
-    {
-        return $this->checkExistenceWithCommand(
-            $this->getCommand('GetBucketPolicy', array_merge($options, array(
-                'Bucket' => $bucket
-            )))
+            ] + $options)
         );
     }
 
@@ -458,90 +199,119 @@ class S3Client extends AbstractClient
     }
 
     /**
-     * Explode a prefixed key into an array of values
-     *
-     * @param string $key Key to explode
-     *
-     * @return array Returns the exploded
-     */
-    public static function explodeKey($key)
-    {
-        // Remove a leading slash if one is found
-        return explode('/', $key && $key[0] == '/' ? substr($key, 1) : $key);
-    }
-
-    /**
-     * Register the Amazon S3 stream wrapper and associates it with this client object
-     *
-     * @return $this
+     * Register the Amazon S3 stream wrapper with this client instance.
      */
     public function registerStreamWrapper()
     {
         StreamWrapper::register($this);
-
-        return $this;
     }
 
     /**
-     * Upload a file, stream, or string to a bucket. If the upload size exceeds the specified threshold, the upload
-     * will be performed using parallel multipart uploads.
+     * Deletes objects from Amazon S3 that match the result of a ListObjects
+     * operation. For example, this allows you to do things like delete all
+     * objects that match a specific key prefix.
      *
-     * @param string $bucket  Bucket to upload the object
-     * @param string $key     Key of the object
-     * @param mixed  $body    Object data to upload. Can be a Guzzle\Http\EntityBodyInterface, stream resource, or
-     *                        string of data to upload.
-     * @param string $acl     ACL to apply to the object
-     * @param array  $options Custom options used when executing commands:
-     *     - params: Custom parameters to use with the upload. The parameters must map to a PutObject
-     *       or InitiateMultipartUpload operation parameters.
-     *     - min_part_size: Minimum size to allow for each uploaded part when performing a multipart upload.
-     *     - concurrency: Maximum number of concurrent multipart uploads.
-     *     - before_upload: Callback to invoke before each multipart upload. The callback will receive a
-     *       Guzzle\Common\Event object with context.
+     * @param string $bucket  Bucket that contains the object keys
+     * @param string $prefix  Optionally delete only objects under this key prefix
+     * @param string $regex   Delete only objects that match this regex
+     * @param array  $options Aws\S3\BatchDelete options array.
      *
-     * @see Aws\S3\Model\MultipartUpload\UploadBuilder for more options and customization
-     * @return \Guzzle\Service\Resource\Model Returns the modeled result of the performed operation
+     * @see Aws\S3\S3Client::listObjects
+     * @throws \RuntimeException if no prefix and no regex is given
      */
-    public function upload($bucket, $key, $body, $acl = 'private', array $options = array())
-    {
-        $body = EntityBody::factory($body);
-        $options = Collection::fromConfig(array_change_key_case($options), array(
-            'min_part_size' => AbstractMulti::MIN_PART_SIZE,
-            'params'        => array(),
-            'concurrency'   => $body->getWrapper() == 'plainfile' ? 3 : 1
-        ));
+    public function deleteMatchingObjects(
+        $bucket,
+        $prefix = '',
+        $regex = '',
+        array $options = []
+    ) {
+        if (!$prefix && !$regex) {
+            throw new \RuntimeException('A prefix or regex is required.');
+        }
 
-        if ($body->getSize() < $options['min_part_size']) {
-            // Perform a simple PutObject operation
-            return $this->putObject(array(
+        $params = ['Bucket' => $bucket, 'Prefix' => $prefix];
+        $iter = $this->getIterator('ListObjects', $params);
+
+        if ($regex) {
+            $iter = \Aws\filter($iter, function ($c) use ($regex) {
+                return preg_match($regex, $c['Key']);
+            });
+        }
+
+        BatchDelete::fromIterator($this, $bucket, $iter, $options)->delete();
+    }
+
+    /**
+     * Upload a file, stream, or string to a bucket.
+     *
+     * If the upload size exceeds the specified threshold, the upload will be
+     * performed using concurrent multipart uploads.
+     *
+     * The options array accepts the following options:
+     *
+     * - before_upload: (callable) Callback to invoke before any upload
+     *   operations during the upload process. The callback should have a
+     *   function signature like `function (Aws\Command $command) {...}`.
+     * - concurrency: (int, default=int(3)) Maximum number of concurrent
+     *   `UploadPart` operations allowed during a multipart upload.
+     * - mup_threshold: (int, default=int(16777216)) The size, in bytes, allowed
+     *   before the upload must be sent via a multipart upload. Default: 16 MB.
+     * - params: (array, default=array([])) Custom parameters to use with the
+     *   upload. For single uploads, they must correspond to those used for the
+     *   `PutObject` operation. For multipart uploads, they correspond to the
+     *   parameters of the `CreateMultipartUpload` operation.
+     * - part_size: (int) Part size to use when doing a multipart upload.
+     *
+     * @param string $bucket  Bucket to upload the object.
+     * @param string $key     Key of the object.
+     * @param mixed  $body    Object data to upload. Can be a
+     *                        StreamInterface, PHP stream resource, or a
+     *                        string of data to upload.
+     * @param string $acl     ACL to apply to the object (default: private).
+     * @param array  $options Options used to configure the upload process.
+     *
+     * @see Aws\S3\MultipartUploader for more info about multipart uploads.
+     * @return ResultInterface Returns the result of the upload.
+     */
+    public function upload($bucket, $key, $body, $acl = 'private', array $options = [])
+    {
+        // Prepare the options.
+        static $defaults = [
+            'before_upload' => null,
+            'concurrency'   => 3,
+            'mup_threshold' => 16777216,
+            'params'        => [],
+            'part_size'     => null,
+        ];
+        $options = array_intersect_key($options + $defaults, $defaults);
+
+        // Perform the required operations to upload the S3 Object.
+        $body = Psr7\stream_for($body);
+        if ($this->requiresMultipart($body, $options['mup_threshold'])) {
+            // Perform a multipart upload.
+            $options['before_initiate'] = function ($command) use ($options) {
+                foreach ($options['params'] as $k => $v) {
+                    $command[$k] = $v;
+                }
+            };
+            return (new MultipartUploader($this, $body, [
+                'bucket' => $bucket,
+                'key'    => $key,
+                'acl'    => $acl
+            ] + $options))->upload();
+        } else {
+            // Perform a regular PutObject operation.
+            $command = $this->getCommand('PutObject', [
                 'Bucket' => $bucket,
                 'Key'    => $key,
                 'Body'   => $body,
-                'ACL'    => $acl
-            ) + $options['params']);
+                'ACL'    => $acl,
+            ] + $options['params']);
+            if (is_callable($options['before_upload'])) {
+                $options['before_upload']($command);
+            }
+            return $this->execute($command);
         }
-
-        // Perform a multipart upload if the file is large enough
-        $transfer = UploadBuilder::newInstance()
-            ->setBucket($bucket)
-            ->setKey($key)
-            ->setMinPartSize($options['min_part_size'])
-            ->setConcurrency($options['concurrency'])
-            ->setClient($this)
-            ->setSource($body)
-            ->setTransferOptions($options->toArray())
-            ->addOptions($options['params'])
-            ->setOption('ACL', $acl)
-            ->build();
-
-        if ($options['before_upload']) {
-            $transfer->getEventDispatcher()->addListener(
-                AbstractTransfer::BEFORE_PART_UPLOAD,
-                $options['before_upload']
-            );
-        }
-
-        return $transfer->upload();
     }
 
     /**
@@ -550,42 +320,18 @@ class S3Client extends AbstractClient
      * @param string $directory Full path to a directory to upload
      * @param string $bucket    Name of the bucket
      * @param string $keyPrefix Virtual directory key prefix to add to each upload
-     * @param array  $options   Associative array of upload options
-     *     - params: Array of parameters to use with each PutObject operation performed during the transfer
-     *     - base_dir: Base directory to remove from each object key
-     *     - force: Set to true to upload every file, even if the file is already in Amazon S3 and has not changed
-     *     - concurrency: Maximum number of parallel uploads (defaults to 10)
-     *     - debug: Set to true or an fopen resource to enable debug mode to print information about each upload
-     *     - multipart_upload_size: When the size of a file exceeds this value, the file will be uploaded using a
-     *       multipart upload.
+     * @param array  $options   Options available in Aws\S3\Transfer::__construct
      *
-     * @see Aws\S3\S3Sync\S3Sync for more options and customization
+     * @see Aws\S3\Transfer for more options and customization
      */
-    public function uploadDirectory($directory, $bucket, $keyPrefix = null, array $options = array())
-    {
-        $options = Collection::fromConfig(
-            $options,
-            array(
-                'base_dir' => realpath($directory) ?: $directory
-            )
-        );
-
-        $builder = $options['builder'] ?: UploadSyncBuilder::getInstance();
-        $builder->uploadFromDirectory($directory)
-            ->setClient($this)
-            ->setBucket($bucket)
-            ->setKeyPrefix($keyPrefix)
-            ->setConcurrency($options['concurrency'] ?: 5)
-            ->setBaseDir($options['base_dir'])
-            ->force($options['force'])
-            ->setOperationParams($options['params'] ?: array())
-            ->enableDebugOutput($options['debug']);
-
-        if ($options->hasKey('multipart_upload_size')) {
-            $builder->setMultipartUploadSize($options['multipart_upload_size']);
-        }
-
-        $builder->build()->transfer();
+    public function uploadDirectory(
+        $directory,
+        $bucket,
+        $keyPrefix = null,
+        array $options = []
+    ) {
+        $d = "s3://$bucket" . ($keyPrefix ? '/' . ltrim($keyPrefix, '/') : '');
+        (new Transfer($this, $directory, $d, $options))->transfer();
     }
 
     /**
@@ -594,100 +340,193 @@ class S3Client extends AbstractClient
      * @param string $directory Directory to download to
      * @param string $bucket    Bucket to download from
      * @param string $keyPrefix Only download objects that use this key prefix
-     * @param array  $options   Associative array of download options
-     *     - params: Array of parameters to use with each GetObject operation performed during the transfer
-     *     - base_dir: Base directory to remove from each object key when storing in the local filesystem
-     *     - force: Set to true to download every file, even if the file is already on the local filesystem and has not
-     *       changed
-     *     - concurrency: Maximum number of parallel downloads (defaults to 10)
-     *     - debug: Set to true or a fopen resource to enable debug mode to print information about each download
-     *     - allow_resumable: Set to true to allow previously interrupted downloads to be resumed using a Range GET
+     * @param array  $options   Options available in Aws\S3\Transfer::__construct
      */
-    public function downloadBucket($directory, $bucket, $keyPrefix = '', array $options = array())
-    {
-        $options = new Collection($options);
-        $builder = $options['builder'] ?: DownloadSyncBuilder::getInstance();
-        $builder->setDirectory($directory)
-            ->setClient($this)
-            ->setBucket($bucket)
-            ->setKeyPrefix($keyPrefix)
-            ->setConcurrency($options['concurrency'] ?: 10)
-            ->setBaseDir($options['base_dir'])
-            ->force($options['force'])
-            ->setOperationParams($options['params'] ?: array())
-            ->enableDebugOutput($options['debug']);
-
-        if ($options['allow_resumable']) {
-            $builder->allowResumableDownloads();
-        }
-
-        $builder->build()->transfer();
+    public function downloadBucket(
+        $directory,
+        $bucket,
+        $keyPrefix = '',
+        array $options = []
+    ) {
+        $s = "s3://$bucket" . ($keyPrefix ? '/' . ltrim($keyPrefix, '/') : '');
+        (new Transfer($this, $s, $directory, $options))->transfer();
     }
 
     /**
-     * Deletes objects from Amazon S3 that match the result of a ListObjects operation. For example, this allows you
-     * to do things like delete all objects that match a specific key prefix.
+     * Determines if the body should be uploaded using PutObject or the
+     * Multipart Upload System. It also modifies the passed-in $body as needed
+     * to support the upload.
      *
-     * @param string $bucket  Bucket that contains the object keys
-     * @param string $prefix  Optionally delete only objects under this key prefix
-     * @param string $regex   Delete only objects that match this regex
-     * @param array  $options Options used when deleting the object:
-     *     - before_delete: Callback to invoke before each delete. The callback will receive a
-     *       Guzzle\Common\Event object with context.
+     * @param StreamInterface $body      Stream representing the body.
+     * @param integer             $threshold Minimum bytes before using Multipart.
      *
-     * @see Aws\S3\S3Client::listObjects
-     * @see Aws\S3\Model\ClearBucket For more options or customization
-     * @return int Returns the number of deleted keys
-     * @throws RuntimeException if no prefix and no regex is given
+     * @return bool
      */
-    public function deleteMatchingObjects($bucket, $prefix = '', $regex = '', array $options = array())
+    private function requiresMultipart(StreamInterface &$body, $threshold)
     {
-        if (!$prefix && !$regex) {
-            throw new RuntimeException('A prefix or regex is required, or use S3Client::clearBucket().');
+        // If body size known, compare to threshold to determine if Multipart.
+        if ($body->getSize() !== null) {
+            return $body->getSize() >= $threshold;
         }
 
-        $clear = new ClearBucket($this, $bucket);
-        $iterator = $this->getIterator('ListObjects', array('Bucket' => $bucket, 'Prefix' => $prefix));
+        // Handle the situation where the body size is unknown.
+        // Read up to 5MB into a buffer to determine how to upload the body.
+        $buffer = Psr7\stream_for();
+        Psr7\copy_to_stream($body, $buffer, MultipartUploader::PART_MIN_SIZE);
 
-        if ($regex) {
-            $iterator = new FilterIterator($iterator, function ($current) use ($regex) {
-                return preg_match($regex, $current['Key']);
-            });
+        // If body < 5MB, use PutObject with the buffer.
+        if ($buffer->getSize() < MultipartUploader::PART_MIN_SIZE) {
+            $buffer->seek(0);
+            $body = $buffer;
+            return false;
         }
 
-        $clear->setIterator($iterator);
-        if (isset($options['before_delete'])) {
-            $clear->getEventDispatcher()->addListener(ClearBucket::BEFORE_CLEAR, $options['before_delete']);
+        // If body >= 5 MB, then use multipart. [YES]
+        if ($body->isSeekable()) {
+            // If the body is seekable, just rewind the body.
+            $body->seek(0);
+        } else {
+            // If the body is non-seekable, stitch the rewind the buffer and
+            // the partially read body together into one stream. This avoids
+            // unnecessary disc usage and does not require seeking on the
+            // original stream.
+            $buffer->seek(0);
+            $body = new Psr7\AppendStream([$buffer, $body]);
         }
 
-        return $clear->clear();
+        return true;
     }
 
     /**
      * Determines whether or not a resource exists using a command
      *
-     * @param CommandInterface $command   Command used to poll for the resource
-     * @param bool             $accept403 Set to true if 403s are acceptable
+     * @param CommandInterface $command Command used to poll for the resource
      *
      * @return bool
      * @throws S3Exception|\Exception if there is an unhandled exception
      */
-    protected function checkExistenceWithCommand(CommandInterface $command, $accept403 = false)
+    private function checkExistenceWithCommand(CommandInterface $command)
     {
         try {
-            $command->execute();
-            $exists = true;
-        } catch (AccessDeniedException $e) {
-            $exists = (bool) $accept403;
+            $this->execute($command);
+            return true;
         } catch (S3Exception $e) {
-            $exists = false;
-            if ($e->getResponse()->getStatusCode() >= 500) {
-                // @codeCoverageIgnoreStart
-                throw $e;
-                // @codeCoverageIgnoreEnd
+            if ($e->getAwsErrorCode() == 'AccessDenied') {
+                return true;
             }
+            if ($e->getStatusCode() >= 500) {
+                throw $e;
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Provides a middleware that removes the need to specify LocationConstraint on CreateBucket.
+     *
+     * @return \Closure
+     */
+    private function getLocationConstraintMiddleware()
+    {
+        return function (callable $handler) {
+            return function ($command, $request = null) use ($handler) {
+                if ($command->getName() === 'CreateBucket') {
+                    $region = $this->getRegion();
+                    if ($region === 'us-east-1') {
+                        unset($command['CreateBucketConfiguration']);
+                    } else {
+                        $command['CreateBucketConfiguration'] = ['LocationConstraint' => $region];
+                    }
+                }
+
+                return $handler($command, $request);
+            };
+        };
+    }
+
+    /** @internal */
+    public static function _applyRetryConfig($value, $_, HandlerList $list)
+    {
+        if (!$value) {
+            return;
         }
 
-        return $exists;
+        $decider = RetryMiddleware::createDefaultDecider($value);
+        $decider = function ($retries, $request, $result, $error) use ($decider) {
+            if ($decider($retries, $request, $result, $error)) {
+                return true;
+            } elseif ($error instanceof AwsException) {
+                return $error->getResponse()
+                    && strpos(
+                        $error->getResponse()->getBody(),
+                        'Your socket connection to the server'
+                    ) !== false;
+            }
+            return false;
+        };
+
+        $delay = [RetryMiddleware::class, 'exponentialDelay'];
+        $list->appendSign(Middleware::retry($decider, $delay), 'retry');
+    }
+
+    /** @internal */
+    public static function _applyApiProvider($value, array &$args, HandlerList $list)
+    {
+        ClientResolver::_apply_api_provider($value, $args, $list);
+        $args['parser'] = new GetBucketLocationParser($args['parser']);
+    }
+
+    /**
+     * @internal
+     * @codeCoverageIgnore
+     */
+    public static function applyDocFilters(array $api, array $docs)
+    {
+        $b64 = '<div class="alert alert-info">This value will be base64 '
+            . 'encoded on your behalf.</div>';
+
+        // Add the SourceFile parameter.
+        $docs['shapes']['SourceFile']['base'] = 'The path to a file on disk to use instead of the Body parameter.';
+        $api['shapes']['SourceFile'] = ['type' => 'string'];
+        $api['shapes']['PutObjectRequest']['members']['SourceFile'] = ['shape' => 'SourceFile'];
+        $api['shapes']['UploadPartRequest']['members']['SourceFile'] = ['shape' => 'SourceFile'];
+
+        // Several SSECustomerKey documentation updates.
+        $docs['shapes']['SSECustomerKey']['append'] = $b64;
+        $docs['shapes']['CopySourceSSECustomerKey']['append'] = $b64;
+        $docs['shapes']['SSECustomerKeyMd5']['append'] = '<div class="alert alert-info">The value will be computed on '
+            . 'your behalf if it is not supplied.</div>';
+
+        // Add the ObjectURL to various output shapes and documentation.
+        $objectUrl = 'The URI of the created object.';
+        $api['shapes']['ObjectURL'] = ['type' => 'string'];
+        $api['shapes']['PutObjectOutput']['members']['ObjectURL'] = ['shape' => 'ObjectURL'];
+        $api['shapes']['CopyObjectOutput']['members']['ObjectURL'] = ['shape' => 'ObjectURL'];
+        $api['shapes']['CompleteMultipartUploadOutput']['members']['ObjectURL'] = ['shape' => 'ObjectURL'];
+        $docs['shapes']['ObjectURL']['base'] = $objectUrl;
+
+        // Fix references to Location Constraint.
+        unset($api['shapes']['CreateBucketRequest']['payload']);
+        $api['shapes']['BucketLocationConstraint']['enum'] = [
+            "ap-northeast-1",
+            "ap-southeast-2",
+            "ap-southeast-1",
+            "cn-north-1",
+            "eu-central-1",
+            "eu-west-1",
+            "us-east-1",
+            "us-west-1",
+            "us-west-2",
+            "sa-east-1",
+        ];
+
+        // Add a note that the ContentMD5 is optional.
+        $docs['shapes']['ContentMD5']['append'] = '<div class="alert alert-info">The value will be computed on '
+            . 'your behalf.</div>';
+
+        return [
+            new Service($api, ApiProvider::defaultProvider()),
+            new DocModel($docs)
+        ];
     }
 }
