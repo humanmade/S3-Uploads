@@ -21,6 +21,11 @@ function s3_uploads_init() {
 		return;
 	}
 
+	// Make sure the plugin is enabled
+	if ( ( defined( 'S3_UPLOADS_AUTOENABLE' ) && false === S3_UPLOADS_AUTOENABLE ) && 'enabled' !== get_option( 's3_uploads_enabled' ) ) {
+		return;
+	}
+
 	$instance = S3_Uploads::get_instance();
 	$instance->register_stream_wrapper();
 
