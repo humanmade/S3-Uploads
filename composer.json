@@ -1,0 +1,24 @@
+{
+	"name": "humanmade/s3-uploads",
+	"description": "WordPress plugin to store uploads on S3",
+	"homepage": "https://github.com/humanmade/S3-Uploads",
+	"keywords": [
+		"wordpress"
+	],
+	"license": "GPL-2.0+",
+	"authors": [
+		{
+			"name":"Human Made Limited",
+			"email":"support@humanmade.co.uk",
+			"homepage":"http://hmn.md/"
+		}
+	],
+	"support"    : {
+			"issues": "https://github.com/humanmade/s3-uploads/issues",
+			"source": "https://github.com/humanmade/s3-uploads"
+	},
+	"type": "wordpress-plugin",
+	"require": {
+		"composer/installers": "~1.0"
+	 }
+}

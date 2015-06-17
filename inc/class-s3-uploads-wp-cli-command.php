@@ -3,6 +3,53 @@
 class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 	/**
+	 * Verifies the API keys entered will work for writing and deleting from S3.
+	 *
+	 * @subcommand verify
+	 */
+	public function verify_api_keys() {
+
+		S3_Uploads::get_instance(); // Boot
+
+		$upload_dir = wp_upload_dir();
+
+		// The upload file location on the local filesystem
+		$s3_path = $upload_dir['basedir'] . '/' . mt_rand() . '.jpg';
+
+		// Attempt to copy the file to S3
+		WP_CLI::print_value( 'Attempting to upload file '. $s3_path );
+		
+		// Copy canola from the test dir, upto S3
+		$copy = copy(
+			dirname( dirname(__FILE__) ) . '/tests/data/canola.jpg',
+			$s3_path
+		);
+        
+		// Check that copy worked
+		if ( ! $copy ) {
+			WP_CLI::error( 'Failed to copy / write to S3 - check your policy?' );
+			return;
+		}
+
+		WP_CLI::print_value( 'File uploaded to S3 successfully' );
+
+		// Delete off S3
+		WP_CLI::print_value( 'Attempting to delete file '. $s3_path );
+		$delete = unlink( $s3_path );
+
+		// Check that delete worked
+		if ( ! $delete ) {
+			WP_CLI::error( 'Failed to delete '. $s3_path );
+			return;
+		}
+
+		WP_CLI::print_value( 'File deleted from S3 successfully' );
+
+		WP_CLI::success( 'Looks like your configuration is correct.' );
+
+	}
+
+	/**
 	 * @subcommand migrate-attachments
 	 * @synopsis [--delete-local]
 	 */
@@ -32,7 +79,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 	/**
 	 * Migrate a single attachment's files to S3
-	 * 
+	 *
 	 * @subcommand migrate-attachment
 	 * @synopsis <attachment-id> [--delete-local]
 	 */
@@ -231,7 +278,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 	/**
 	 * Upload a directory to S3
-	 * 
+	 *
 	 * @subcommand upload-directory
 	 * @synopsis <from> [<to>] [--sync] [--dry-run] [--concurrency=<concurrency>]
 	 */
@@ -255,19 +302,19 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		require_once dirname( __FILE__ ) . '/class-s3-uploads-changed-files-iterator.php';
 
 		try {
-			$s3->uploadDirectory( 
-				$from, 
-				$bucket, 
-				$prefix . $to, 
+			$s3->uploadDirectory(
+				$from,
+				$bucket,
+				$prefix . $to,
 				array(
-					'debug' => true, 
+					'debug' => true,
 					'params' => array( 'ACL' => 'public-read' ),
 					'builder' => new S3_Uploads_UploadSyncBuilder( ! empty( $args_assoc['dry-run'] ) ),
 					'force' => empty( $args_assoc['sync'] ),
 					'concurrency' => ! empty( $args_assoc['concurrency'] ) ? $args_assoc['concurrency'] : 5
-					) 
-				); 
-		} catch( Exception $e ) { 
+					)
+				);
+		} catch( Exception $e ) {
 			WP_CLI::error( $e->getMessage() );
 		}
 	}
