@@ -114,4 +114,23 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 
 		$this->assertEquals( 0, $result );
 	}
+
+	public function test_wp_handle_upload() {
+
+		$path = tempnam( sys_get_temp_dir(), 'canola' ) . '.jpg';
+		copy( dirname( __FILE__ ) . '/data/canola.jpg', $path );
+		$contents = file_get_contents( $path );
+		$file = array(
+			'error'    => null,
+			'tmp_name' => $path,
+			'name'     => 'can.jpg',
+			'size'     => filesize( $path ),
+ 		);
+
+		$result = wp_handle_upload( $file, array( 'test_form' => false, 'test_size' => false, 'action' => 'wp_handle_sideload' ) );
+
+		$this->assertTrue( empty( $result['error'] ) );
+		$this->assertTrue( file_exists( $result['file'] ) );
+		$this->assertEquals( $contents, file_get_contents( $result['file'] ) );
+	}
 }

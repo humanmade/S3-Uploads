@@ -58,7 +58,9 @@ class S3_Uploads_Stream_Wrapper extends Aws\S3\StreamWrapper {
 			return $result;
 		}
 
-		if ( $mode === 'r' || $mode === 'a' ) {
+		$mode_short = substr( $mode, 0, 1 );
+
+		if ( $mode_short === 'r' || $mode_short === 'a' ) {
 			return $result;
 		}
 
