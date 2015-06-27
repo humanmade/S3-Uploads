@@ -21,7 +21,7 @@ function s3_uploads_init() {
 		return;
 	}
 
-	if ( ( ! defined( 'S3_UPLOADS_KEY' ) || ! defined( 'S3_UPLOADS_SECRET' ) ) || ! defined( 'S3_UPLOADS_USE_INSTANCE_PROFILE' ) ) {
+	if ( ( ! defined( 'S3_UPLOADS_KEY' ) || ! defined( 'S3_UPLOADS_SECRET' ) ) && ! defined( 'S3_UPLOADS_USE_INSTANCE_PROFILE' ) ) {
 		return;
 	}
 
