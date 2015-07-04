@@ -71,7 +71,11 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		WP_CLI::success( 'Moved all attachment to S3. If you wish to update references in your database run: ' );
 		WP_CLI::line( '' );
 
-		$old_upload_dir = S3_Uploads::get_instance()->get_original_upload_dir();
+		// Esnure things are active
+		$instance = S3_Uploads::get_instance();
+		$instance->register_stream_wrapper();
+
+		$old_upload_dir = $instance->get_original_upload_dir();
 		$upload_dir = wp_upload_dir();
 
 		WP_CLI::Line( sprintf( 'wp search-replace "%s" "%s"', $old_upload_dir['baseurl'], $upload_dir['baseurl'] ) );
@@ -85,7 +89,11 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 */
 	public function migrate_attachment_to_s3( $args, $args_assoc ) {
 
-		$old_upload_dir = S3_Uploads::get_instance()->get_original_upload_dir();
+		// Ensure things are active
+		$instance = S3_Uploads::get_instance();
+		$instance->register_stream_wrapper();
+
+		$old_upload_dir = $instance->get_original_upload_dir();
 		$upload_dir = wp_upload_dir();
 
 		$files = array( get_post_meta( $args[0], '_wp_attached_file', true ) );
