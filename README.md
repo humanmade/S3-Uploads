@@ -2,7 +2,7 @@ S3-Uploads
 ==========
 
 [![Build Status](https://travis-ci.org/humanmade/S3-Uploads.svg?branch=master)](https://travis-ci.org/humanmade/S3-Uploads)
-[![codecov.io](http://codecov.io/github/humanmade/S3-Uploads/coverage.svg?branch=master)](http://codecov.io/github/humanmade/S3-Uploads?branch=master)
+[![Coverage Status](https://coveralls.io/repos/humanmade/S3-Uploads/badge.svg)](https://coveralls.io/r/humanmade/S3-Uploads)
 
 WordPress plugin to store uploads on S3. S3-Uploads aims to be a lightweight "drop-in" for storing uploads on Amazon S3 instead of the local filesystem.
 
