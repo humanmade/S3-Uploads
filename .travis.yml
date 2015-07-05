@@ -27,4 +27,5 @@ script:
   - phpunit --coverage-clover clover.xml
 
 after_script:
-  # Push coverage off to Codecov
+  # Push coverage off to Coveralls
+  - php vendor/bin/coveralls -v
