@@ -96,3 +96,19 @@ set the Expires header way off in the future.  For example:
 define( 'S3_UPLOADS_HTTP_EXPIRES', gmdate( 'D, d M Y H:i:s', time() + (10 * 365 * 24 * 60 * 60) ) .' GMT' );
 	// will expire in 10 years time
 ```
+
+Default Behaviour
+==========
+
+As S3 Uploads is a plug and play plugin, activating it will start rewriting image URLs to S3, and also put
+new uploads on S3. Sometimes this isn't required behaviour as a site owner may want to upload a large
+amount of media to S3 using the `wp-cli` commands before enabling S3 Uploads to direct all uploads requests
+to S3. In this case one can define the `S3_UPLOADS_AUTOENABLE` to `false`. For example, place the following
+in your `wp-config.php`:
+
+```PHP
+define( 'S3_UPLOADS_AUTOENABLE', false );
+```
+
+To then enabled S3 Uploads rewriting, use the wp-cli command: `wp s3-uploads enable` / `wp s3-uploads disable`
+to toggle the behaviour.
