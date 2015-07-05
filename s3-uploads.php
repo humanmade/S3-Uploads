@@ -25,12 +25,29 @@ function s3_uploads_init() {
 		return;
 	}
 
+	if ( ! s3_uploads_enabled() ) {
+		return;
+	}
+
 	$instance = S3_Uploads::get_instance();
-	$instance->register_stream_wrapper();
+	$instance->setup();
+}
 
-	add_filter( 'upload_dir', array( $instance, 'filter_upload_dir' ) );
-	add_filter( 'wp_image_editors', array( $instance, 'filter_editors' ), 9 );
-	remove_filter( 'admin_notices', 'wpthumb_errors' );
+/**
+ * Check if URL rewriting is enabled.
+ *
+ * Define S3_UPLOADS_AUTOENABLE to false in your wp-config to disable, or use the
+ * s3_uploads_enabled option.
+ *
+ * @return bool
+ */
+function s3_uploads_enabled() {
+	// Make sure the plugin is enabled when autoenable is on
+	$constant_autoenable_off = ( defined( 'S3_UPLOADS_AUTOENABLE' ) && false === S3_UPLOADS_AUTOENABLE );
 
-	add_action( 'wp_handle_sideload_prefilter', array( $instance, 'filter_sideload_move_temp_file_to_s3' ) );
+	if ( $constant_autoenable_off && 'enabled' !== get_option( 's3_uploads_enabled' ) ) {                         // If the plugin is not enabled, skip
+		return false;
+	}
+
+	return true;
 }

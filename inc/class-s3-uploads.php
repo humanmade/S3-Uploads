@@ -39,6 +39,30 @@ class S3_Uploads {
 	}
 
 	/**
+	 * Setup the hooks, urls filtering etc for S3 Uploads
+	 */
+	public function setup() {
+		$this->register_stream_wrapper();
+
+		add_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
+		add_filter( 'wp_image_editors', array( $this, 'filter_editors' ), 9 );
+		remove_filter( 'admin_notices', 'wpthumb_errors' );
+
+		add_action( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
+	}
+
+	/**
+	 * Tear down the hooks, url filtering etc for S3 Uploads
+	 */
+	public function tear_down() {
+
+		stream_wrapper_unregister( 's3' );
+		remove_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
+		remove_filter( 'wp_image_editors', array( $this, 'filter_editors' ), 9 );
+		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
+	}
+
+	/**
 	 * Register the stream wrapper for s3
 	 */
 	public function register_stream_wrapper() {
