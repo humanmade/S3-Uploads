@@ -84,7 +84,7 @@ You can define the default HTTP `Cache-Control` header for uploaded media using 
 following constant:
 
 ```PHP
-define( 'S3_UPLOADS_CACHE_CONTROL', 30 * 24 * 60 * 60 );
+define( 'S3_UPLOADS_HTTP_CACHE_CONTROL', 30 * 24 * 60 * 60 );
 	// will expire in 30 days time
 ```
 
