@@ -17,7 +17,11 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 add_action( 'plugins_loaded', 's3_uploads_init' );
 
 function s3_uploads_init() {
-	if ( ! defined( 'S3_UPLOADS_BUCKET' ) || ! defined( 'S3_UPLOADS_KEY' ) || ! defined( 'S3_UPLOADS_SECRET' ) ) {
+	if ( ! defined( 'S3_UPLOADS_BUCKET' ) ) {
+		return;
+	}
+
+	if ( ( ! defined( 'S3_UPLOADS_KEY' ) || ! defined( 'S3_UPLOADS_SECRET' ) ) && ! defined( 'S3_UPLOADS_USE_INSTANCE_PROFILE' ) ) {
 		return;
 	}
 

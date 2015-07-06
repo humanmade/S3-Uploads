@@ -17,7 +17,13 @@ class S3_Uploads {
 	public static function get_instance() {
 
 		if ( ! self::$instance ) {
-			self::$instance = new S3_Uploads( S3_UPLOADS_BUCKET, S3_UPLOADS_KEY, S3_UPLOADS_SECRET, defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null, defined( 'S3_UPLOADS_REGION' ) ? S3_UPLOADS_REGION : null );
+
+			$key    = defined( 'S3_UPLOADS_KEY' ) ? S3_UPLOADS_KEY : null;
+			$secret = defined( 'S3_UPLOADS_SECRET' ) ? S3_UPLOADS_SECRET : null;
+			$url    = defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null;
+			$region = defined( 'S3_UPLOADS_REGION' ) ? S3_UPLOADS_REGION : null;
+
+			self::$instance = new S3_Uploads( S3_UPLOADS_BUCKET, $key, $secret, $url, $region );
 		}
 
 		return self::$instance;
@@ -124,12 +130,19 @@ class S3_Uploads {
 		if ( ! empty( $this->s3 ) )
 			return $this->s3;
 
-		$params = array( 'key' => $this->key, 'secret' => $this->secret );
+		$params = array();
+
+		if ( $this->key && $this->secret ) {
+			$params['key'] = $this->key;
+			$params['secret'] = $this->secret;
+		}
 
 		if ( $this->region ) {
 			$params['signature'] = 'v4';
 			$params['region'] = $this->region;
 		}
+
+		$params = apply_filters( 's3_uploads_s3_client_params', $params );
 
 		$this->s3 = Aws\Common\Aws::factory( $params )->get( 's3' );
 
