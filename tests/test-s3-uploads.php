@@ -45,19 +45,26 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		$this->assertFalse( in_array( 's3', stream_get_wrappers() ) );
 	}
 
-	public function s3_uploads_enabled() {
+	public function test_s3_uploads_enabled() {
 
-		$this->assertTrue( s3_uploads_is_enabled() );
+		$this->assertTrue( s3_uploads_enabled() );
 
 		update_option( 's3_uploads_enabled', 'enabled' );
-		$this->assertTrue( s3_uploads_is_enabled() );
+		$this->assertTrue( s3_uploads_enabled() );
 
 		delete_option( 's3_uploads_enabled' );
 		define( 'S3_UPLOADS_AUTOENABLE', false );
 
-		$this->assertFalse( s3_uploads_is_enabled() );
+		$this->assertFalse( s3_uploads_enabled() );
 
-		delete_option( 's3_uploads_enabled', 'enabled' );
-		$this->assertTrue( s3_uploads_is_enabled() );
+		update_option( 's3_uploads_enabled', 'enabled' );
+		$this->assertTrue( s3_uploads_enabled() );
+	}
+
+	public function test_get_s3_client() {
+
+		$s3 = S3_Uploads::get_instance()->s3();
+
+		$this->assertInstanceOf( 'Aws\\S3\\S3Client', $s3 );
 	}
 }
