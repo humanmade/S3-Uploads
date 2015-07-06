@@ -142,6 +142,8 @@ class S3_Uploads {
 			$params['region'] = $this->region;
 		}
 
+		$params = apply_filters( 's3_uploads_s3_client_params', $params );
+
 		$this->s3 = Aws\Common\Aws::factory( $params )->get( 's3' );
 
 		return $this->s3;
