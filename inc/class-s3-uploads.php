@@ -142,6 +142,10 @@ class S3_Uploads {
 			$params['region'] = $this->region;
 		}
 
+		if ( defined('WP_PROXY_HOST') && defined('WP_PROXY_PORT') ) {
+			$params['request.options']['proxy'] = WP_PROXY_HOST . ':' . WP_PROXY_PORT;
+		}
+
 		$params = apply_filters( 's3_uploads_s3_client_params', $params );
 
 		$this->s3 = Aws\Common\Aws::factory( $params )->get( 's3' );
