@@ -143,7 +143,14 @@ class S3_Uploads {
 		}
 
 		if ( defined('WP_PROXY_HOST') && defined('WP_PROXY_PORT') ) {
-			$params['request.options']['proxy'] = WP_PROXY_HOST . ':' . WP_PROXY_PORT;
+			$proxy_auth = '';
+			$proxy_address = WP_PROXY_HOST . ':' . WP_PROXY_PORT;
+
+			if ( defined('WP_PROXY_USERNAME') && defined('WP_PROXY_PASSWORD') ) {
+				$proxy_auth = WP_PROXY_USERNAME . ':' . WP_PROXY_USERNAME . '@';
+			}
+
+			$params['request.options']['proxy'] = $proxy_auth . $proxy_address;
 		}
 
 		$params = apply_filters( 's3_uploads_s3_client_params', $params );
