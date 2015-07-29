@@ -1,10 +1,29 @@
-S3-Uploads
-==========
+<table width="100%">
+	<tr>
+		<td align="left" width="70">
+			<strong>S3 Uploads</strong><br />
+			Lightweight "drop-in" for storing WordPress uploads on Amazon S3 instead of the local filesystem.
+		</td>
+		<td align="right" width="20%">
+			<a href="https://travis-ci.org/humanmade/S3-Uploads">
+				<img src="https://travis-ci.org/humanmade/S3-Uploads.svg?branch=master" alt="Build status">
+			</a>
+			<a href="http://codecov.io/github/humanmade/S3-Uploads?branch=master">
+				<img src="http://codecov.io/github/humanmade/S3-Uploads/coverage.svg?branch=master" alt="Coverage via codecov.io" />
+			</a>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			A <strong><a href="https://hmn.md/">Human Made</a></strong> project. Maintained by @joehoyle.
+		</td>
+		<td align="center">
+			<img src="https://hmn.md/content/themes/hmnmd/assets/images/hm-logo.svg" width="100" />
+		</td>
+	</tr>
+</table>
 
-[![Build Status](https://travis-ci.org/humanmade/S3-Uploads.svg?branch=master)](https://travis-ci.org/humanmade/S3-Uploads)
-[![codecov.io](http://codecov.io/github/humanmade/S3-Uploads/coverage.svg?branch=master)](http://codecov.io/github/humanmade/S3-Uploads?branch=master)
-
-WordPress plugin to store uploads on S3. S3-Uploads aims to be a lightweight "drop-in" for storing uploads on Amazon S3 instead of the local filesystem.
+S3 is a WordPress plugin to store uploads on S3. S3-Uploads aims to be a lightweight "drop-in" for storing uploads on Amazon S3 instead of the local filesystem.
 
 It's focused on providing a highly robust S3 interface with no "bells and whistles", WP-Admin UI or much otherwise. It comes with some helpful WP-CLI commands for generating IAM users, listing files on S3 and Migrating your existing library to S3.
 
@@ -112,3 +131,11 @@ define( 'S3_UPLOADS_AUTOENABLE', false );
 
 To then enabled S3 Uploads rewriting, use the wp-cli command: `wp s3-uploads enable` / `wp s3-uploads disable`
 to toggle the behaviour.
+
+Credits
+=======
+Created by Human Made for high volume and large-scale sites. We run S3 Uploads on sites with millions of monthly page views, and thousands of sites.
+
+Written and maintained by [Joe Hoyle](https://github.com/joehoyle). Thanks to all our [contributors](https://github.com/humanmade/S3-Uploads/graphs/contributors).
+
+Interested in joining in on the fun? [Join us, and become human!](https://hmn.md/is/hiring/)
