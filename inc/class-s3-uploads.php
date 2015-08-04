@@ -147,7 +147,7 @@ class S3_Uploads {
 			$proxy_address = WP_PROXY_HOST . ':' . WP_PROXY_PORT;
 
 			if ( defined('WP_PROXY_USERNAME') && defined('WP_PROXY_PASSWORD') ) {
-				$proxy_auth = WP_PROXY_USERNAME . ':' . WP_PROXY_USERNAME . '@';
+				$proxy_auth = WP_PROXY_USERNAME . ':' . WP_PROXY_PASSWORD . '@';
 			}
 
 			$params['request.options']['proxy'] = $proxy_auth . $proxy_address;
