@@ -142,11 +142,11 @@ class S3_Uploads {
 			$params['region'] = $this->region;
 		}
 
-		if ( defined('WP_PROXY_HOST') && defined('WP_PROXY_PORT') ) {
+		if ( defined( 'WP_PROXY_HOST' ) && defined( 'WP_PROXY_PORT' ) ) {
 			$proxy_auth = '';
 			$proxy_address = WP_PROXY_HOST . ':' . WP_PROXY_PORT;
 
-			if ( defined('WP_PROXY_USERNAME') && defined('WP_PROXY_PASSWORD') ) {
+			if ( defined( 'WP_PROXY_USERNAME' ) && defined( 'WP_PROXY_PASSWORD' ) ) {
 				$proxy_auth = WP_PROXY_USERNAME . ':' . WP_PROXY_PASSWORD . '@';
 			}
 
