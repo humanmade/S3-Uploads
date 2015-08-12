@@ -142,6 +142,17 @@ class S3_Uploads {
 			$params['region'] = $this->region;
 		}
 
+		if ( defined( 'WP_PROXY_HOST' ) && defined( 'WP_PROXY_PORT' ) ) {
+			$proxy_auth = '';
+			$proxy_address = WP_PROXY_HOST . ':' . WP_PROXY_PORT;
+
+			if ( defined( 'WP_PROXY_USERNAME' ) && defined( 'WP_PROXY_PASSWORD' ) ) {
+				$proxy_auth = WP_PROXY_USERNAME . ':' . WP_PROXY_PASSWORD . '@';
+			}
+
+			$params['request.options']['proxy'] = $proxy_auth . $proxy_address;
+		}
+
 		$params = apply_filters( 's3_uploads_s3_client_params', $params );
 
 		$this->s3 = Aws\Common\Aws::factory( $params )->get( 's3' );
