@@ -22,7 +22,7 @@ class S3_Uploads_Stream_Wrapper extends Aws\S3\StreamWrapper {
 
 		stream_wrapper_register( 's3', __CLASS__, STREAM_IS_URL );
 	}
-		
+
 	// Override
 	public function stream_flush() {
 
