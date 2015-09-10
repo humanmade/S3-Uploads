@@ -67,6 +67,10 @@ class S3_Uploads {
 	 */
 	public function register_stream_wrapper() {
 		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
+			if ( in_array( 's3', stream_get_wrappers() ) ) {
+                		stream_wrapper_unregister( 's3' );
+          		}
+
 			require_once dirname( __FILE__ ) . '/class-s3-uploads-local-stream-wrapper.php';
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
