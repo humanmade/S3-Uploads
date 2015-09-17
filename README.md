@@ -94,7 +94,7 @@ There is also an all purpose `cp` command for arbitrary copying to and from S3.
 wp s3-uploads cp <from> <to>
 ```
 
-Note: as either `<from>` or `<to>` can be S3 or local locations, you must speficy the full S3 location via `s3://mybucket/mydirectory` for example `cp ./test.txt s3://mybucket/test.txt`.
+Note: as either `<from>` or `<to>` can be S3 or local locations, you must specify the full S3 location via `s3://mybucket/mydirectory` for example `cp ./test.txt s3://mybucket/test.txt`.
 
 Cache Control
 ==========
