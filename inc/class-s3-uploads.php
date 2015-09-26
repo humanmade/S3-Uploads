@@ -110,7 +110,7 @@ class S3_Uploads {
 		$bucket = strtok( $this->bucket, '/' );
 		$path   = substr( $this->bucket, strlen( $bucket ) );
 
-		return apply_filters( 's3_url', 'https://' . $bucket . '.s3.amazonaws.com' . $path );
+		return apply_filters( 's3_uploads_bucket_url', 'https://' . $bucket . '.s3.amazonaws.com' . $path );
 	}
 
 	public function get_original_upload_dir() {
