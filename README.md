@@ -132,6 +132,18 @@ define( 'S3_UPLOADS_AUTOENABLE', false );
 To then enabled S3 Uploads rewriting, use the wp-cli command: `wp s3-uploads enable` / `wp s3-uploads disable`
 to toggle the behaviour.
 
+Offline Development
+=======
+
+While it's possible to use S3 Uploads for local development (this is actually a nice way to not have to sync all uploads from production to development),
+if you want to develop offline you have a couple of options.
+
+1. Just disable the S3 Uploads plugin in your development environment.
+2. Define the `S3_UPLOADS_USE_LOCAL` constant with the plugin active.
+
+Option 2 will allow you to run the S3 Uploads plugin for production parity purposes, it will essentially mock
+Amazon S3 with a local stream wrapper and actually store the uploads in your WP Upload Dir `/s3/`.
+
 Credits
 =======
 Created by Human Made for high volume and large-scale sites. We run S3 Uploads on sites with millions of monthly page views, and thousands of sites.
