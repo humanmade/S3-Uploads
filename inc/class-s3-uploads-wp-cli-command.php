@@ -8,45 +8,49 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * @subcommand verify
 	 */
 	public function verify_api_keys() {
+		// Verify first that we have the necessary access keys to connect to S3.
+		if ( ! $this->verify_s3_access_constants() ) {
+			return;
+		}
 
-		S3_Uploads::get_instance(); // Boot
+		// Get S3 Upload instance.
+		$instance = S3_Uploads::get_instance();
 
+		// Create a path in the base directory, with a random file name to avoid potentially overwriting existing data.
 		$upload_dir = wp_upload_dir();
+		$s3_path    = $upload_dir['basedir'] . '/' . mt_rand() . '.jpg';
 
-		// The upload file location on the local filesystem
-		$s3_path = $upload_dir['basedir'] . '/' . mt_rand() . '.jpg';
+		// Attempt to copy the local Canola test file to the generated path on S3.
+		WP_CLI::print_value( 'Attempting to upload file ' . $s3_path );
 
-		// Attempt to copy the file to S3
-		WP_CLI::print_value( 'Attempting to upload file '. $s3_path );
-		
-		// Copy canola from the test dir, upto S3
 		$copy = copy(
-			dirname( dirname(__FILE__) ) . '/tests/data/canola.jpg',
+			dirname( dirname( __FILE__ ) ) . '/tests/data/canola.jpg',
 			$s3_path
 		);
-        
-		// Check that copy worked
+
+		// Check that the copy worked.
 		if ( ! $copy ) {
 			WP_CLI::error( 'Failed to copy / write to S3 - check your policy?' );
+
 			return;
 		}
 
-		WP_CLI::print_value( 'File uploaded to S3 successfully' );
+		WP_CLI::print_value( 'File uploaded to S3 successfully.' );
 
-		// Delete off S3
-		WP_CLI::print_value( 'Attempting to delete file '. $s3_path );
+		// Delete the file off S3.
+		WP_CLI::print_value( 'Attempting to delete file. ' . $s3_path );
 		$delete = unlink( $s3_path );
 
-		// Check that delete worked
+		// Check that the delete worked.
 		if ( ! $delete ) {
-			WP_CLI::error( 'Failed to delete '. $s3_path );
+			WP_CLI::error( 'Failed to delete ' . $s3_path );
+
 			return;
 		}
 
-		WP_CLI::print_value( 'File deleted from S3 successfully' );
+		WP_CLI::print_value( 'File deleted from S3 successfully.' );
 
 		WP_CLI::success( 'Looks like your configuration is correct.' );
-
 	}
 
 	/**
@@ -402,6 +406,29 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 			}
 		}
 		closedir($dir);
+	}
+
+	/**
+	 * Verify that the required constants for the S3 connections are set.
+	 *
+	 * @return bool true if all constants are set, else false.
+	 */
+	private function verify_s3_access_constants() {
+		$required_constants = [
+			'S3_UPLOADS_BUCKET',
+			'S3_UPLOADS_KEY',
+			'S3_UPLOADS_SECRET',
+		];
+
+		$all_set = true;
+		foreach( $required_constants as $constant ) {
+			if ( ! defined( $constant ) ) {
+				WP_CLI::error( sprintf( 'The required constant %s is not defined.', $constant ), false );
+				$all_set = false;
+			}
+		}
+
+		return $all_set;
 	}
 }
 
