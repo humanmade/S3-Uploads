@@ -51,3 +51,26 @@ function s3_uploads_enabled() {
 
 	return true;
 }
+
+/**
+ * Autoload callback.
+ *
+ * @param $class_name Name of the class to load.
+ */
+function s3_uploads_autoload( $class_name ) {
+	/*
+	 * Load plugin classes:
+	 * - Class name: S3_Uploads_Image_Editor_Imagick.
+	 * - File name: class-s3-uploads-image-editor-imagick.php.
+	 */
+	$class_file = 'class-' . strtolower( str_replace( '_', '-', $class_name ) ) . '.php';
+	$class_path = dirname( __FILE__ ) . '/inc/' . $class_file;
+
+	if ( file_exists( $class_path ) ) {
+		require $class_path;
+
+		return;
+	}
+}
+
+spl_autoload_register( 's3_uploads_autoload');
