@@ -67,11 +67,9 @@ class S3_Uploads {
 	 */
 	public function register_stream_wrapper() {
 		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
-			require_once dirname( __FILE__ ) . '/class-s3-uploads-local-stream-wrapper.php';
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
 			require_once dirname( dirname( __FILE__ ) ) . '/lib/aws-sdk/aws-autoloader.php';
-			require_once dirname( __FILE__ ) . '/class-s3-uploads-stream-wrapper.php';
 
 			S3_Uploads_Stream_Wrapper::register_streamwrapper( $this );
 			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', 'public-read' );
@@ -165,7 +163,6 @@ class S3_Uploads {
 			unset($editors[$position]);
 		}
 
-		require_once dirname( __FILE__ ) . '/class-s3-uploads-image-editor-imagick.php';
 		array_unshift( $editors, 'S3_Uploads_Image_Editor_Imagick' );
 
 		return $editors;

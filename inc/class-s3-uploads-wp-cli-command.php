@@ -311,9 +311,6 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 			$prefix = trailingslashit( str_replace( strtok( S3_UPLOADS_BUCKET, '/' ) . '/', '', S3_UPLOADS_BUCKET ) );
 		}
 
-		require_once dirname( __FILE__ ) . '/class-s3-uploads-uploadsyncbuilder.php';
-		require_once dirname( __FILE__ ) . '/class-s3-uploads-changed-files-iterator.php';
-
 		try {
 			$s3->uploadDirectory(
 				$from,
