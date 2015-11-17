@@ -69,8 +69,6 @@ class S3_Uploads {
 		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
-			require_once dirname( dirname( __FILE__ ) ) . '/lib/aws-sdk/aws-autoloader.php';
-
 			S3_Uploads_Stream_Wrapper::register_streamwrapper( $this );
 			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', 'public-read' );
 		}

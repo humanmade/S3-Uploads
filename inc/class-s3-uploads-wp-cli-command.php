@@ -139,8 +139,6 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 */
 	public function create_iam_user( $args, $args_assoc ) {
 
-		require_once dirname( __FILE__ ) . '/aws-sdk/aws-autoloader.php';
-
 		if ( empty( $args_assoc['username'] ) ) {
 			$username = 's3-uploads-' . sanitize_title( home_url() );
 		} else {
