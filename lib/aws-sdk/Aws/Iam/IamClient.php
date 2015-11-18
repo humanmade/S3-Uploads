@@ -1,177 +1,236 @@
 <?php
-/**
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- * http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 namespace Aws\Iam;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Enum\ClientOptions as Options;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
-use Guzzle\Service\Resource\ResourceIteratorInterface;
+use Aws\AwsClient;
 
 /**
- * Client to interact with AWS Identity and Access Management
+ * This client is used to interact with the **AWS Identity and Access Management (AWS IAM)** service.
  *
- * @method Model addClientIDToOpenIDConnectProvider(array $args = array()) {@command Iam AddClientIDToOpenIDConnectProvider}
- * @method Model addRoleToInstanceProfile(array $args = array()) {@command Iam AddRoleToInstanceProfile}
- * @method Model addUserToGroup(array $args = array()) {@command Iam AddUserToGroup}
- * @method Model attachGroupPolicy(array $args = array()) {@command Iam AttachGroupPolicy}
- * @method Model attachRolePolicy(array $args = array()) {@command Iam AttachRolePolicy}
- * @method Model attachUserPolicy(array $args = array()) {@command Iam AttachUserPolicy}
- * @method Model changePassword(array $args = array()) {@command Iam ChangePassword}
- * @method Model createAccessKey(array $args = array()) {@command Iam CreateAccessKey}
- * @method Model createAccountAlias(array $args = array()) {@command Iam CreateAccountAlias}
- * @method Model createGroup(array $args = array()) {@command Iam CreateGroup}
- * @method Model createInstanceProfile(array $args = array()) {@command Iam CreateInstanceProfile}
- * @method Model createLoginProfile(array $args = array()) {@command Iam CreateLoginProfile}
- * @method Model createOpenIDConnectProvider(array $args = array()) {@command Iam CreateOpenIDConnectProvider}
- * @method Model createPolicy(array $args = array()) {@command Iam CreatePolicy}
- * @method Model createPolicyVersion(array $args = array()) {@command Iam CreatePolicyVersion}
- * @method Model createRole(array $args = array()) {@command Iam CreateRole}
- * @method Model createSAMLProvider(array $args = array()) {@command Iam CreateSAMLProvider}
- * @method Model createUser(array $args = array()) {@command Iam CreateUser}
- * @method Model createVirtualMFADevice(array $args = array()) {@command Iam CreateVirtualMFADevice}
- * @method Model deactivateMFADevice(array $args = array()) {@command Iam DeactivateMFADevice}
- * @method Model deleteAccessKey(array $args = array()) {@command Iam DeleteAccessKey}
- * @method Model deleteAccountAlias(array $args = array()) {@command Iam DeleteAccountAlias}
- * @method Model deleteAccountPasswordPolicy(array $args = array()) {@command Iam DeleteAccountPasswordPolicy}
- * @method Model deleteGroup(array $args = array()) {@command Iam DeleteGroup}
- * @method Model deleteGroupPolicy(array $args = array()) {@command Iam DeleteGroupPolicy}
- * @method Model deleteInstanceProfile(array $args = array()) {@command Iam DeleteInstanceProfile}
- * @method Model deleteLoginProfile(array $args = array()) {@command Iam DeleteLoginProfile}
- * @method Model deleteOpenIDConnectProvider(array $args = array()) {@command Iam DeleteOpenIDConnectProvider}
- * @method Model deletePolicy(array $args = array()) {@command Iam DeletePolicy}
- * @method Model deletePolicyVersion(array $args = array()) {@command Iam DeletePolicyVersion}
- * @method Model deleteRole(array $args = array()) {@command Iam DeleteRole}
- * @method Model deleteRolePolicy(array $args = array()) {@command Iam DeleteRolePolicy}
- * @method Model deleteSAMLProvider(array $args = array()) {@command Iam DeleteSAMLProvider}
- * @method Model deleteServerCertificate(array $args = array()) {@command Iam DeleteServerCertificate}
- * @method Model deleteSigningCertificate(array $args = array()) {@command Iam DeleteSigningCertificate}
- * @method Model deleteUser(array $args = array()) {@command Iam DeleteUser}
- * @method Model deleteUserPolicy(array $args = array()) {@command Iam DeleteUserPolicy}
- * @method Model deleteVirtualMFADevice(array $args = array()) {@command Iam DeleteVirtualMFADevice}
- * @method Model detachGroupPolicy(array $args = array()) {@command Iam DetachGroupPolicy}
- * @method Model detachRolePolicy(array $args = array()) {@command Iam DetachRolePolicy}
- * @method Model detachUserPolicy(array $args = array()) {@command Iam DetachUserPolicy}
- * @method Model enableMFADevice(array $args = array()) {@command Iam EnableMFADevice}
- * @method Model generateCredentialReport(array $args = array()) {@command Iam GenerateCredentialReport}
- * @method Model getAccessKeyLastUsed(array $args = array()) {@command Iam GetAccessKeyLastUsed}
- * @method Model getAccountAuthorizationDetails(array $args = array()) {@command Iam GetAccountAuthorizationDetails}
- * @method Model getAccountPasswordPolicy(array $args = array()) {@command Iam GetAccountPasswordPolicy}
- * @method Model getAccountSummary(array $args = array()) {@command Iam GetAccountSummary}
- * @method Model getCredentialReport(array $args = array()) {@command Iam GetCredentialReport}
- * @method Model getGroup(array $args = array()) {@command Iam GetGroup}
- * @method Model getGroupPolicy(array $args = array()) {@command Iam GetGroupPolicy}
- * @method Model getInstanceProfile(array $args = array()) {@command Iam GetInstanceProfile}
- * @method Model getLoginProfile(array $args = array()) {@command Iam GetLoginProfile}
- * @method Model getOpenIDConnectProvider(array $args = array()) {@command Iam GetOpenIDConnectProvider}
- * @method Model getPolicy(array $args = array()) {@command Iam GetPolicy}
- * @method Model getPolicyVersion(array $args = array()) {@command Iam GetPolicyVersion}
- * @method Model getRole(array $args = array()) {@command Iam GetRole}
- * @method Model getRolePolicy(array $args = array()) {@command Iam GetRolePolicy}
- * @method Model getSAMLProvider(array $args = array()) {@command Iam GetSAMLProvider}
- * @method Model getServerCertificate(array $args = array()) {@command Iam GetServerCertificate}
- * @method Model getUser(array $args = array()) {@command Iam GetUser}
- * @method Model getUserPolicy(array $args = array()) {@command Iam GetUserPolicy}
- * @method Model listAccessKeys(array $args = array()) {@command Iam ListAccessKeys}
- * @method Model listAccountAliases(array $args = array()) {@command Iam ListAccountAliases}
- * @method Model listAttachedGroupPolicies(array $args = array()) {@command Iam ListAttachedGroupPolicies}
- * @method Model listAttachedRolePolicies(array $args = array()) {@command Iam ListAttachedRolePolicies}
- * @method Model listAttachedUserPolicies(array $args = array()) {@command Iam ListAttachedUserPolicies}
- * @method Model listEntitiesForPolicy(array $args = array()) {@command Iam ListEntitiesForPolicy}
- * @method Model listGroupPolicies(array $args = array()) {@command Iam ListGroupPolicies}
- * @method Model listGroups(array $args = array()) {@command Iam ListGroups}
- * @method Model listGroupsForUser(array $args = array()) {@command Iam ListGroupsForUser}
- * @method Model listInstanceProfiles(array $args = array()) {@command Iam ListInstanceProfiles}
- * @method Model listInstanceProfilesForRole(array $args = array()) {@command Iam ListInstanceProfilesForRole}
- * @method Model listMFADevices(array $args = array()) {@command Iam ListMFADevices}
- * @method Model listOpenIDConnectProviders(array $args = array()) {@command Iam ListOpenIDConnectProviders}
- * @method Model listPolicies(array $args = array()) {@command Iam ListPolicies}
- * @method Model listPolicyVersions(array $args = array()) {@command Iam ListPolicyVersions}
- * @method Model listRolePolicies(array $args = array()) {@command Iam ListRolePolicies}
- * @method Model listRoles(array $args = array()) {@command Iam ListRoles}
- * @method Model listSAMLProviders(array $args = array()) {@command Iam ListSAMLProviders}
- * @method Model listServerCertificates(array $args = array()) {@command Iam ListServerCertificates}
- * @method Model listSigningCertificates(array $args = array()) {@command Iam ListSigningCertificates}
- * @method Model listUserPolicies(array $args = array()) {@command Iam ListUserPolicies}
- * @method Model listUsers(array $args = array()) {@command Iam ListUsers}
- * @method Model listVirtualMFADevices(array $args = array()) {@command Iam ListVirtualMFADevices}
- * @method Model putGroupPolicy(array $args = array()) {@command Iam PutGroupPolicy}
- * @method Model putRolePolicy(array $args = array()) {@command Iam PutRolePolicy}
- * @method Model putUserPolicy(array $args = array()) {@command Iam PutUserPolicy}
- * @method Model removeClientIDFromOpenIDConnectProvider(array $args = array()) {@command Iam RemoveClientIDFromOpenIDConnectProvider}
- * @method Model removeRoleFromInstanceProfile(array $args = array()) {@command Iam RemoveRoleFromInstanceProfile}
- * @method Model removeUserFromGroup(array $args = array()) {@command Iam RemoveUserFromGroup}
- * @method Model resyncMFADevice(array $args = array()) {@command Iam ResyncMFADevice}
- * @method Model setDefaultPolicyVersion(array $args = array()) {@command Iam SetDefaultPolicyVersion}
- * @method Model updateAccessKey(array $args = array()) {@command Iam UpdateAccessKey}
- * @method Model updateAccountPasswordPolicy(array $args = array()) {@command Iam UpdateAccountPasswordPolicy}
- * @method Model updateAssumeRolePolicy(array $args = array()) {@command Iam UpdateAssumeRolePolicy}
- * @method Model updateGroup(array $args = array()) {@command Iam UpdateGroup}
- * @method Model updateLoginProfile(array $args = array()) {@command Iam UpdateLoginProfile}
- * @method Model updateOpenIDConnectProviderThumbprint(array $args = array()) {@command Iam UpdateOpenIDConnectProviderThumbprint}
- * @method Model updateSAMLProvider(array $args = array()) {@command Iam UpdateSAMLProvider}
- * @method Model updateServerCertificate(array $args = array()) {@command Iam UpdateServerCertificate}
- * @method Model updateSigningCertificate(array $args = array()) {@command Iam UpdateSigningCertificate}
- * @method Model updateUser(array $args = array()) {@command Iam UpdateUser}
- * @method Model uploadServerCertificate(array $args = array()) {@command Iam UploadServerCertificate}
- * @method Model uploadSigningCertificate(array $args = array()) {@command Iam UploadSigningCertificate}
- * @method ResourceIteratorInterface getGetAccountAuthorizationDetailsIterator(array $args = array()) The input array uses the parameters of the GetAccountAuthorizationDetails operation
- * @method ResourceIteratorInterface getGetGroupIterator(array $args = array()) The input array uses the parameters of the GetGroup operation
- * @method ResourceIteratorInterface getListAccessKeysIterator(array $args = array()) The input array uses the parameters of the ListAccessKeys operation
- * @method ResourceIteratorInterface getListAccountAliasesIterator(array $args = array()) The input array uses the parameters of the ListAccountAliases operation
- * @method ResourceIteratorInterface getListGroupPoliciesIterator(array $args = array()) The input array uses the parameters of the ListGroupPolicies operation
- * @method ResourceIteratorInterface getListGroupsIterator(array $args = array()) The input array uses the parameters of the ListGroups operation
- * @method ResourceIteratorInterface getListGroupsForUserIterator(array $args = array()) The input array uses the parameters of the ListGroupsForUser operation
- * @method ResourceIteratorInterface getListInstanceProfilesIterator(array $args = array()) The input array uses the parameters of the ListInstanceProfiles operation
- * @method ResourceIteratorInterface getListInstanceProfilesForRoleIterator(array $args = array()) The input array uses the parameters of the ListInstanceProfilesForRole operation
- * @method ResourceIteratorInterface getListMFADevicesIterator(array $args = array()) The input array uses the parameters of the ListMFADevices operation
- * @method ResourceIteratorInterface getListRolePoliciesIterator(array $args = array()) The input array uses the parameters of the ListRolePolicies operation
- * @method ResourceIteratorInterface getListRolesIterator(array $args = array()) The input array uses the parameters of the ListRoles operation
- * @method ResourceIteratorInterface getListSAMLProvidersIterator(array $args = array()) The input array uses the parameters of the ListSAMLProviders operation
- * @method ResourceIteratorInterface getListServerCertificatesIterator(array $args = array()) The input array uses the parameters of the ListServerCertificates operation
- * @method ResourceIteratorInterface getListSigningCertificatesIterator(array $args = array()) The input array uses the parameters of the ListSigningCertificates operation
- * @method ResourceIteratorInterface getListUserPoliciesIterator(array $args = array()) The input array uses the parameters of the ListUserPolicies operation
- * @method ResourceIteratorInterface getListUsersIterator(array $args = array()) The input array uses the parameters of the ListUsers operation
- * @method ResourceIteratorInterface getListVirtualMFADevicesIterator(array $args = array()) The input array uses the parameters of the ListVirtualMFADevices operation
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-iam.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.Iam.IamClient.html API docs
+ * @method \Aws\Result addClientIDToOpenIDConnectProvider(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise addClientIDToOpenIDConnectProviderAsync(array $args = [])
+ * @method \Aws\Result addRoleToInstanceProfile(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise addRoleToInstanceProfileAsync(array $args = [])
+ * @method \Aws\Result addUserToGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise addUserToGroupAsync(array $args = [])
+ * @method \Aws\Result attachGroupPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise attachGroupPolicyAsync(array $args = [])
+ * @method \Aws\Result attachRolePolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise attachRolePolicyAsync(array $args = [])
+ * @method \Aws\Result attachUserPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise attachUserPolicyAsync(array $args = [])
+ * @method \Aws\Result changePassword(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise changePasswordAsync(array $args = [])
+ * @method \Aws\Result createAccessKey(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createAccessKeyAsync(array $args = [])
+ * @method \Aws\Result createAccountAlias(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createAccountAliasAsync(array $args = [])
+ * @method \Aws\Result createGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createGroupAsync(array $args = [])
+ * @method \Aws\Result createInstanceProfile(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createInstanceProfileAsync(array $args = [])
+ * @method \Aws\Result createLoginProfile(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createLoginProfileAsync(array $args = [])
+ * @method \Aws\Result createOpenIDConnectProvider(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createOpenIDConnectProviderAsync(array $args = [])
+ * @method \Aws\Result createPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createPolicyAsync(array $args = [])
+ * @method \Aws\Result createPolicyVersion(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createPolicyVersionAsync(array $args = [])
+ * @method \Aws\Result createRole(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createRoleAsync(array $args = [])
+ * @method \Aws\Result createSAMLProvider(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createSAMLProviderAsync(array $args = [])
+ * @method \Aws\Result createUser(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createUserAsync(array $args = [])
+ * @method \Aws\Result createVirtualMFADevice(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createVirtualMFADeviceAsync(array $args = [])
+ * @method \Aws\Result deactivateMFADevice(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deactivateMFADeviceAsync(array $args = [])
+ * @method \Aws\Result deleteAccessKey(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteAccessKeyAsync(array $args = [])
+ * @method \Aws\Result deleteAccountAlias(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteAccountAliasAsync(array $args = [])
+ * @method \Aws\Result deleteAccountPasswordPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteAccountPasswordPolicyAsync(array $args = [])
+ * @method \Aws\Result deleteGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteGroupAsync(array $args = [])
+ * @method \Aws\Result deleteGroupPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteGroupPolicyAsync(array $args = [])
+ * @method \Aws\Result deleteInstanceProfile(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteInstanceProfileAsync(array $args = [])
+ * @method \Aws\Result deleteLoginProfile(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteLoginProfileAsync(array $args = [])
+ * @method \Aws\Result deleteOpenIDConnectProvider(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteOpenIDConnectProviderAsync(array $args = [])
+ * @method \Aws\Result deletePolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deletePolicyAsync(array $args = [])
+ * @method \Aws\Result deletePolicyVersion(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deletePolicyVersionAsync(array $args = [])
+ * @method \Aws\Result deleteRole(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteRoleAsync(array $args = [])
+ * @method \Aws\Result deleteRolePolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteRolePolicyAsync(array $args = [])
+ * @method \Aws\Result deleteSAMLProvider(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteSAMLProviderAsync(array $args = [])
+ * @method \Aws\Result deleteSSHPublicKey(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteSSHPublicKeyAsync(array $args = [])
+ * @method \Aws\Result deleteServerCertificate(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteServerCertificateAsync(array $args = [])
+ * @method \Aws\Result deleteSigningCertificate(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteSigningCertificateAsync(array $args = [])
+ * @method \Aws\Result deleteUser(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteUserAsync(array $args = [])
+ * @method \Aws\Result deleteUserPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteUserPolicyAsync(array $args = [])
+ * @method \Aws\Result deleteVirtualMFADevice(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteVirtualMFADeviceAsync(array $args = [])
+ * @method \Aws\Result detachGroupPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise detachGroupPolicyAsync(array $args = [])
+ * @method \Aws\Result detachRolePolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise detachRolePolicyAsync(array $args = [])
+ * @method \Aws\Result detachUserPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise detachUserPolicyAsync(array $args = [])
+ * @method \Aws\Result enableMFADevice(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise enableMFADeviceAsync(array $args = [])
+ * @method \Aws\Result generateCredentialReport(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise generateCredentialReportAsync(array $args = [])
+ * @method \Aws\Result getAccessKeyLastUsed(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getAccessKeyLastUsedAsync(array $args = [])
+ * @method \Aws\Result getAccountAuthorizationDetails(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getAccountAuthorizationDetailsAsync(array $args = [])
+ * @method \Aws\Result getAccountPasswordPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getAccountPasswordPolicyAsync(array $args = [])
+ * @method \Aws\Result getAccountSummary(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getAccountSummaryAsync(array $args = [])
+ * @method \Aws\Result getContextKeysForCustomPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getContextKeysForCustomPolicyAsync(array $args = [])
+ * @method \Aws\Result getContextKeysForPrincipalPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getContextKeysForPrincipalPolicyAsync(array $args = [])
+ * @method \Aws\Result getCredentialReport(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getCredentialReportAsync(array $args = [])
+ * @method \Aws\Result getGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getGroupAsync(array $args = [])
+ * @method \Aws\Result getGroupPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getGroupPolicyAsync(array $args = [])
+ * @method \Aws\Result getInstanceProfile(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getInstanceProfileAsync(array $args = [])
+ * @method \Aws\Result getLoginProfile(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getLoginProfileAsync(array $args = [])
+ * @method \Aws\Result getOpenIDConnectProvider(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getOpenIDConnectProviderAsync(array $args = [])
+ * @method \Aws\Result getPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getPolicyAsync(array $args = [])
+ * @method \Aws\Result getPolicyVersion(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getPolicyVersionAsync(array $args = [])
+ * @method \Aws\Result getRole(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getRoleAsync(array $args = [])
+ * @method \Aws\Result getRolePolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getRolePolicyAsync(array $args = [])
+ * @method \Aws\Result getSAMLProvider(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getSAMLProviderAsync(array $args = [])
+ * @method \Aws\Result getSSHPublicKey(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getSSHPublicKeyAsync(array $args = [])
+ * @method \Aws\Result getServerCertificate(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getServerCertificateAsync(array $args = [])
+ * @method \Aws\Result getUser(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getUserAsync(array $args = [])
+ * @method \Aws\Result getUserPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getUserPolicyAsync(array $args = [])
+ * @method \Aws\Result listAccessKeys(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listAccessKeysAsync(array $args = [])
+ * @method \Aws\Result listAccountAliases(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listAccountAliasesAsync(array $args = [])
+ * @method \Aws\Result listAttachedGroupPolicies(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listAttachedGroupPoliciesAsync(array $args = [])
+ * @method \Aws\Result listAttachedRolePolicies(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listAttachedRolePoliciesAsync(array $args = [])
+ * @method \Aws\Result listAttachedUserPolicies(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listAttachedUserPoliciesAsync(array $args = [])
+ * @method \Aws\Result listEntitiesForPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listEntitiesForPolicyAsync(array $args = [])
+ * @method \Aws\Result listGroupPolicies(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listGroupPoliciesAsync(array $args = [])
+ * @method \Aws\Result listGroups(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listGroupsAsync(array $args = [])
+ * @method \Aws\Result listGroupsForUser(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listGroupsForUserAsync(array $args = [])
+ * @method \Aws\Result listInstanceProfiles(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listInstanceProfilesAsync(array $args = [])
+ * @method \Aws\Result listInstanceProfilesForRole(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listInstanceProfilesForRoleAsync(array $args = [])
+ * @method \Aws\Result listMFADevices(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listMFADevicesAsync(array $args = [])
+ * @method \Aws\Result listOpenIDConnectProviders(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listOpenIDConnectProvidersAsync(array $args = [])
+ * @method \Aws\Result listPolicies(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listPoliciesAsync(array $args = [])
+ * @method \Aws\Result listPolicyVersions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listPolicyVersionsAsync(array $args = [])
+ * @method \Aws\Result listRolePolicies(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listRolePoliciesAsync(array $args = [])
+ * @method \Aws\Result listRoles(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listRolesAsync(array $args = [])
+ * @method \Aws\Result listSAMLProviders(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listSAMLProvidersAsync(array $args = [])
+ * @method \Aws\Result listSSHPublicKeys(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listSSHPublicKeysAsync(array $args = [])
+ * @method \Aws\Result listServerCertificates(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listServerCertificatesAsync(array $args = [])
+ * @method \Aws\Result listSigningCertificates(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listSigningCertificatesAsync(array $args = [])
+ * @method \Aws\Result listUserPolicies(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listUserPoliciesAsync(array $args = [])
+ * @method \Aws\Result listUsers(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listUsersAsync(array $args = [])
+ * @method \Aws\Result listVirtualMFADevices(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listVirtualMFADevicesAsync(array $args = [])
+ * @method \Aws\Result putGroupPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putGroupPolicyAsync(array $args = [])
+ * @method \Aws\Result putRolePolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putRolePolicyAsync(array $args = [])
+ * @method \Aws\Result putUserPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putUserPolicyAsync(array $args = [])
+ * @method \Aws\Result removeClientIDFromOpenIDConnectProvider(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise removeClientIDFromOpenIDConnectProviderAsync(array $args = [])
+ * @method \Aws\Result removeRoleFromInstanceProfile(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise removeRoleFromInstanceProfileAsync(array $args = [])
+ * @method \Aws\Result removeUserFromGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise removeUserFromGroupAsync(array $args = [])
+ * @method \Aws\Result resyncMFADevice(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise resyncMFADeviceAsync(array $args = [])
+ * @method \Aws\Result setDefaultPolicyVersion(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise setDefaultPolicyVersionAsync(array $args = [])
+ * @method \Aws\Result simulateCustomPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise simulateCustomPolicyAsync(array $args = [])
+ * @method \Aws\Result simulatePrincipalPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise simulatePrincipalPolicyAsync(array $args = [])
+ * @method \Aws\Result updateAccessKey(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateAccessKeyAsync(array $args = [])
+ * @method \Aws\Result updateAccountPasswordPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateAccountPasswordPolicyAsync(array $args = [])
+ * @method \Aws\Result updateAssumeRolePolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateAssumeRolePolicyAsync(array $args = [])
+ * @method \Aws\Result updateGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateGroupAsync(array $args = [])
+ * @method \Aws\Result updateLoginProfile(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateLoginProfileAsync(array $args = [])
+ * @method \Aws\Result updateOpenIDConnectProviderThumbprint(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateOpenIDConnectProviderThumbprintAsync(array $args = [])
+ * @method \Aws\Result updateSAMLProvider(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateSAMLProviderAsync(array $args = [])
+ * @method \Aws\Result updateSSHPublicKey(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateSSHPublicKeyAsync(array $args = [])
+ * @method \Aws\Result updateServerCertificate(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateServerCertificateAsync(array $args = [])
+ * @method \Aws\Result updateSigningCertificate(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateSigningCertificateAsync(array $args = [])
+ * @method \Aws\Result updateUser(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateUserAsync(array $args = [])
+ * @method \Aws\Result uploadSSHPublicKey(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise uploadSSHPublicKeyAsync(array $args = [])
+ * @method \Aws\Result uploadServerCertificate(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise uploadServerCertificateAsync(array $args = [])
+ * @method \Aws\Result uploadSigningCertificate(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise uploadSigningCertificateAsync(array $args = [])
  */
-class IamClient extends AbstractClient
-{
-    const LATEST_API_VERSION = '2010-05-08';
-
-    /**
-     * Factory method to create a new AWS Identity and Access Management client using an array of configuration options.
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     */
-    public static function factory($config = array())
-    {
-        return ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION             => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/iam-%s.php'
-            ))
-            ->build();
-    }
-}
+class IamClient extends AwsClient {}

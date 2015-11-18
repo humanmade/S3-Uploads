@@ -1,66 +1,60 @@
 <?php
-
 namespace Aws\CloudWatchLogs;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Enum\ClientOptions as Options;
-use Aws\Common\Exception\Parser\JsonQueryExceptionParser;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
+use Aws\AwsClient;
 
 /**
- * Client to interact with Amazon CloudWatch Logs
+ * This client is used to interact with the **Amazon CloudWatch Logs** service.
  *
- * @method Model createLogGroup(array $args = array()) {@command CloudWatchLogs CreateLogGroup}
- * @method Model createLogStream(array $args = array()) {@command CloudWatchLogs CreateLogStream}
- * @method Model deleteLogGroup(array $args = array()) {@command CloudWatchLogs DeleteLogGroup}
- * @method Model deleteLogStream(array $args = array()) {@command CloudWatchLogs DeleteLogStream}
- * @method Model deleteMetricFilter(array $args = array()) {@command CloudWatchLogs DeleteMetricFilter}
- * @method Model deleteRetentionPolicy(array $args = array()) {@command CloudWatchLogs DeleteRetentionPolicy}
- * @method Model deleteSubscriptionFilter(array $args = array()) {@command CloudWatchLogs DeleteSubscriptionFilter}
- * @method Model describeLogGroups(array $args = array()) {@command CloudWatchLogs DescribeLogGroups}
- * @method Model describeLogStreams(array $args = array()) {@command CloudWatchLogs DescribeLogStreams}
- * @method Model describeMetricFilters(array $args = array()) {@command CloudWatchLogs DescribeMetricFilters}
- * @method Model describeSubscriptionFilters(array $args = array()) {@command CloudWatchLogs DescribeSubscriptionFilters}
- * @method Model filterLogEvents(array $args = array()) {@command CloudWatchLogs FilterLogEvents}
- * @method Model getLogEvents(array $args = array()) {@command CloudWatchLogs GetLogEvents}
- * @method Model putLogEvents(array $args = array()) {@command CloudWatchLogs PutLogEvents}
- * @method Model putMetricFilter(array $args = array()) {@command CloudWatchLogs PutMetricFilter}
- * @method Model putRetentionPolicy(array $args = array()) {@command CloudWatchLogs PutRetentionPolicy}
- * @method Model putSubscriptionFilter(array $args = array()) {@command CloudWatchLogs PutSubscriptionFilter}
- * @method Model testMetricFilter(array $args = array()) {@command CloudWatchLogs TestMetricFilter}
- * @method ResourceIteratorInterface getDescribeLogGroupsIterator(array $args = array()) The input array uses the parameters of the DescribeLogGroups operation
- * @method ResourceIteratorInterface getDescribeLogStreamsIterator(array $args = array()) The input array uses the parameters of the DescribeLogStreams operation
- * @method ResourceIteratorInterface getDescribeMetricFiltersIterator(array $args = array()) The input array uses the parameters of the DescribeMetricFilters operation
- * @method ResourceIteratorInterface getGetLogEventsIterator(array $args = array()) The input array uses the parameters of the GetLogEvents operation
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-cloudwatchlogs.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.CloudWatchLogs.CloudWatchLogsClient.html API docs
+ * @method \Aws\Result cancelExportTask(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise cancelExportTaskAsync(array $args = [])
+ * @method \Aws\Result createExportTask(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createExportTaskAsync(array $args = [])
+ * @method \Aws\Result createLogGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createLogGroupAsync(array $args = [])
+ * @method \Aws\Result createLogStream(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createLogStreamAsync(array $args = [])
+ * @method \Aws\Result deleteDestination(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteDestinationAsync(array $args = [])
+ * @method \Aws\Result deleteLogGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteLogGroupAsync(array $args = [])
+ * @method \Aws\Result deleteLogStream(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteLogStreamAsync(array $args = [])
+ * @method \Aws\Result deleteMetricFilter(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteMetricFilterAsync(array $args = [])
+ * @method \Aws\Result deleteRetentionPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteRetentionPolicyAsync(array $args = [])
+ * @method \Aws\Result deleteSubscriptionFilter(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteSubscriptionFilterAsync(array $args = [])
+ * @method \Aws\Result describeDestinations(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeDestinationsAsync(array $args = [])
+ * @method \Aws\Result describeExportTasks(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeExportTasksAsync(array $args = [])
+ * @method \Aws\Result describeLogGroups(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeLogGroupsAsync(array $args = [])
+ * @method \Aws\Result describeLogStreams(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeLogStreamsAsync(array $args = [])
+ * @method \Aws\Result describeMetricFilters(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeMetricFiltersAsync(array $args = [])
+ * @method \Aws\Result describeSubscriptionFilters(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSubscriptionFiltersAsync(array $args = [])
+ * @method \Aws\Result filterLogEvents(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise filterLogEventsAsync(array $args = [])
+ * @method \Aws\Result getLogEvents(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getLogEventsAsync(array $args = [])
+ * @method \Aws\Result putDestination(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putDestinationAsync(array $args = [])
+ * @method \Aws\Result putDestinationPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putDestinationPolicyAsync(array $args = [])
+ * @method \Aws\Result putLogEvents(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putLogEventsAsync(array $args = [])
+ * @method \Aws\Result putMetricFilter(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putMetricFilterAsync(array $args = [])
+ * @method \Aws\Result putRetentionPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putRetentionPolicyAsync(array $args = [])
+ * @method \Aws\Result putSubscriptionFilter(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putSubscriptionFilterAsync(array $args = [])
+ * @method \Aws\Result testMetricFilter(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise testMetricFilterAsync(array $args = [])
  */
-class CloudWatchLogsClient extends AbstractClient
-{
-    const LATEST_API_VERSION = '2014-03-28';
-
-    /**
-     * Factory method to create a new Amazon CloudWatch Logs client using an array of configuration options.
-     *
-     * See http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     */
-    public static function factory($config = array())
-    {
-        return ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION             => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/cloudwatchlogs-%s.php'
-            ))
-            ->setExceptionParser(new JsonQueryExceptionParser())
-            ->build();
-    }
-}
+class CloudWatchLogsClient extends AwsClient {}

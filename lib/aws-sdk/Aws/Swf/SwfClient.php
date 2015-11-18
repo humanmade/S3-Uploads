@@ -1,95 +1,72 @@
 <?php
-/**
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- * http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 namespace Aws\Swf;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Enum\ClientOptions as Options;
-use Aws\Common\Exception\Parser\JsonQueryExceptionParser;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
-use Guzzle\Service\Resource\ResourceIteratorInterface;
+use Aws\AwsClient;
 
 /**
- * Client to interact with Amazon Simple Workflow Service
+ * Amazon Simple Workflow Service (Amazon SWF) client.
  *
- * @method Model countClosedWorkflowExecutions(array $args = array()) {@command Swf CountClosedWorkflowExecutions}
- * @method Model countOpenWorkflowExecutions(array $args = array()) {@command Swf CountOpenWorkflowExecutions}
- * @method Model countPendingActivityTasks(array $args = array()) {@command Swf CountPendingActivityTasks}
- * @method Model countPendingDecisionTasks(array $args = array()) {@command Swf CountPendingDecisionTasks}
- * @method Model deprecateActivityType(array $args = array()) {@command Swf DeprecateActivityType}
- * @method Model deprecateDomain(array $args = array()) {@command Swf DeprecateDomain}
- * @method Model deprecateWorkflowType(array $args = array()) {@command Swf DeprecateWorkflowType}
- * @method Model describeActivityType(array $args = array()) {@command Swf DescribeActivityType}
- * @method Model describeDomain(array $args = array()) {@command Swf DescribeDomain}
- * @method Model describeWorkflowExecution(array $args = array()) {@command Swf DescribeWorkflowExecution}
- * @method Model describeWorkflowType(array $args = array()) {@command Swf DescribeWorkflowType}
- * @method Model getWorkflowExecutionHistory(array $args = array()) {@command Swf GetWorkflowExecutionHistory}
- * @method Model listActivityTypes(array $args = array()) {@command Swf ListActivityTypes}
- * @method Model listClosedWorkflowExecutions(array $args = array()) {@command Swf ListClosedWorkflowExecutions}
- * @method Model listDomains(array $args = array()) {@command Swf ListDomains}
- * @method Model listOpenWorkflowExecutions(array $args = array()) {@command Swf ListOpenWorkflowExecutions}
- * @method Model listWorkflowTypes(array $args = array()) {@command Swf ListWorkflowTypes}
- * @method Model pollForActivityTask(array $args = array()) {@command Swf PollForActivityTask}
- * @method Model pollForDecisionTask(array $args = array()) {@command Swf PollForDecisionTask}
- * @method Model recordActivityTaskHeartbeat(array $args = array()) {@command Swf RecordActivityTaskHeartbeat}
- * @method Model registerActivityType(array $args = array()) {@command Swf RegisterActivityType}
- * @method Model registerDomain(array $args = array()) {@command Swf RegisterDomain}
- * @method Model registerWorkflowType(array $args = array()) {@command Swf RegisterWorkflowType}
- * @method Model requestCancelWorkflowExecution(array $args = array()) {@command Swf RequestCancelWorkflowExecution}
- * @method Model respondActivityTaskCanceled(array $args = array()) {@command Swf RespondActivityTaskCanceled}
- * @method Model respondActivityTaskCompleted(array $args = array()) {@command Swf RespondActivityTaskCompleted}
- * @method Model respondActivityTaskFailed(array $args = array()) {@command Swf RespondActivityTaskFailed}
- * @method Model respondDecisionTaskCompleted(array $args = array()) {@command Swf RespondDecisionTaskCompleted}
- * @method Model signalWorkflowExecution(array $args = array()) {@command Swf SignalWorkflowExecution}
- * @method Model startWorkflowExecution(array $args = array()) {@command Swf StartWorkflowExecution}
- * @method Model terminateWorkflowExecution(array $args = array()) {@command Swf TerminateWorkflowExecution}
- * @method ResourceIteratorInterface getGetWorkflowExecutionHistoryIterator(array $args = array()) The input array uses the parameters of the GetWorkflowExecutionHistory operation
- * @method ResourceIteratorInterface getListActivityTypesIterator(array $args = array()) The input array uses the parameters of the ListActivityTypes operation
- * @method ResourceIteratorInterface getListClosedWorkflowExecutionsIterator(array $args = array()) The input array uses the parameters of the ListClosedWorkflowExecutions operation
- * @method ResourceIteratorInterface getListDomainsIterator(array $args = array()) The input array uses the parameters of the ListDomains operation
- * @method ResourceIteratorInterface getListOpenWorkflowExecutionsIterator(array $args = array()) The input array uses the parameters of the ListOpenWorkflowExecutions operation
- * @method ResourceIteratorInterface getListWorkflowTypesIterator(array $args = array()) The input array uses the parameters of the ListWorkflowTypes operation
- * @method ResourceIteratorInterface getPollForDecisionTaskIterator(array $args = array()) The input array uses the parameters of the PollForDecisionTask operation
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-swf.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.Swf.SwfClient.html API docs
+ * @method \Aws\Result countClosedWorkflowExecutions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise countClosedWorkflowExecutionsAsync(array $args = [])
+ * @method \Aws\Result countOpenWorkflowExecutions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise countOpenWorkflowExecutionsAsync(array $args = [])
+ * @method \Aws\Result countPendingActivityTasks(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise countPendingActivityTasksAsync(array $args = [])
+ * @method \Aws\Result countPendingDecisionTasks(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise countPendingDecisionTasksAsync(array $args = [])
+ * @method \Aws\Result deprecateActivityType(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deprecateActivityTypeAsync(array $args = [])
+ * @method \Aws\Result deprecateDomain(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deprecateDomainAsync(array $args = [])
+ * @method \Aws\Result deprecateWorkflowType(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deprecateWorkflowTypeAsync(array $args = [])
+ * @method \Aws\Result describeActivityType(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeActivityTypeAsync(array $args = [])
+ * @method \Aws\Result describeDomain(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeDomainAsync(array $args = [])
+ * @method \Aws\Result describeWorkflowExecution(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeWorkflowExecutionAsync(array $args = [])
+ * @method \Aws\Result describeWorkflowType(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeWorkflowTypeAsync(array $args = [])
+ * @method \Aws\Result getWorkflowExecutionHistory(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getWorkflowExecutionHistoryAsync(array $args = [])
+ * @method \Aws\Result listActivityTypes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listActivityTypesAsync(array $args = [])
+ * @method \Aws\Result listClosedWorkflowExecutions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listClosedWorkflowExecutionsAsync(array $args = [])
+ * @method \Aws\Result listDomains(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listDomainsAsync(array $args = [])
+ * @method \Aws\Result listOpenWorkflowExecutions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listOpenWorkflowExecutionsAsync(array $args = [])
+ * @method \Aws\Result listWorkflowTypes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listWorkflowTypesAsync(array $args = [])
+ * @method \Aws\Result pollForActivityTask(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise pollForActivityTaskAsync(array $args = [])
+ * @method \Aws\Result pollForDecisionTask(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise pollForDecisionTaskAsync(array $args = [])
+ * @method \Aws\Result recordActivityTaskHeartbeat(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise recordActivityTaskHeartbeatAsync(array $args = [])
+ * @method \Aws\Result registerActivityType(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise registerActivityTypeAsync(array $args = [])
+ * @method \Aws\Result registerDomain(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise registerDomainAsync(array $args = [])
+ * @method \Aws\Result registerWorkflowType(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise registerWorkflowTypeAsync(array $args = [])
+ * @method \Aws\Result requestCancelWorkflowExecution(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise requestCancelWorkflowExecutionAsync(array $args = [])
+ * @method \Aws\Result respondActivityTaskCanceled(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise respondActivityTaskCanceledAsync(array $args = [])
+ * @method \Aws\Result respondActivityTaskCompleted(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise respondActivityTaskCompletedAsync(array $args = [])
+ * @method \Aws\Result respondActivityTaskFailed(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise respondActivityTaskFailedAsync(array $args = [])
+ * @method \Aws\Result respondDecisionTaskCompleted(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise respondDecisionTaskCompletedAsync(array $args = [])
+ * @method \Aws\Result signalWorkflowExecution(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise signalWorkflowExecutionAsync(array $args = [])
+ * @method \Aws\Result startWorkflowExecution(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise startWorkflowExecutionAsync(array $args = [])
+ * @method \Aws\Result terminateWorkflowExecution(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise terminateWorkflowExecutionAsync(array $args = [])
  */
-class SwfClient extends AbstractClient
-{
-    const LATEST_API_VERSION = '2012-01-25';
-
-    /**
-     * Factory method to create a new Amazon Simple Workflow Service client using an array of configuration options.
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     */
-    public static function factory($config = array())
-    {
-        return ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION             => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/swf-%s.php'
-            ))
-            ->setExceptionParser(new JsonQueryExceptionParser())
-            ->build();
-    }
-}
+class SwfClient extends AwsClient {}

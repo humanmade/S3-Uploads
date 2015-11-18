@@ -1,9 +1,9 @@
 <?php
 namespace Aws\Efs\Exception;
 
-use Aws\Common\Exception\ServiceResponseException;
+use Aws\Exception\AwsException;
 
 /**
- * Exception thrown by the Amazon Elastic File System client.
+ * Amazon EFS exception.
  */
-class EfsException extends ServiceResponseException {}
+class EfsException extends AwsException {}

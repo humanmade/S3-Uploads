@@ -1,10 +1,9 @@
 <?php
-
 namespace Aws\Kms\Exception;
 
-use Aws\Common\Exception\ServiceResponseException;
+use Aws\Exception\AwsException;
 
 /**
- * Exception thrown by the KMS service client.
+ * Represents an error interacting with the AWS Key Management Service.
  */
-class KmsException extends ServiceResponseException {}
+class KmsException extends AwsException {}
