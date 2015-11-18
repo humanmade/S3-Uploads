@@ -106,7 +106,7 @@ class S3_Uploads {
 		$bucket = strtok( $this->bucket, '/' );
 		$path   = substr( $this->bucket, strlen( $bucket ) );
 
-		return 'https://' . $bucket . '.s3.amazonaws.com' . $path;
+		return apply_filters( 's3_uploads_bucket_url', 'https://' . $bucket . '.s3.amazonaws.com' . $path );
 	}
 
 	public function get_original_upload_dir() {
@@ -167,7 +167,7 @@ class S3_Uploads {
 	}
 
 	/**
-	 * Copy the file from /tmp to an s3 dir so handle_sideload doesn't fail due to 
+	 * Copy the file from /tmp to an s3 dir so handle_sideload doesn't fail due to
 	 * trying to do a rename() on the file cross streams. This is somewhat of a hack
 	 * to work around the core issue https://core.trac.wordpress.org/ticket/29257
 	 *
