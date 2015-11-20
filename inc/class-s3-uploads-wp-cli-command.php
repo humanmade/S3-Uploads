@@ -416,12 +416,15 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	private function verify_s3_access_constants() {
 		$required_constants = [
 			'S3_UPLOADS_BUCKET',
-			'S3_UPLOADS_KEY',
-			'S3_UPLOADS_SECRET',
 		];
 
+		// Credentials do not need to be set when using AWS Instance Profiles.
+		if ( ! defined( 'S3_UPLOADS_USE_INSTANCE_PROFILE' ) || ! S3_UPLOADS_USE_INSTANCE_PROFILE ) {
+			array_push( $required_constants, 'S3_UPLOADS_KEY', 'S3_UPLOADS_SECRET' );
+		}
+
 		$all_set = true;
-		foreach( $required_constants as $constant ) {
+		foreach ( $required_constants as $constant ) {
 			if ( ! defined( $constant ) ) {
 				WP_CLI::error( sprintf( 'The required constant %s is not defined.', $constant ), false );
 				$all_set = false;
