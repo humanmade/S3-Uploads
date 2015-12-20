@@ -36,6 +36,13 @@ function s3_uploads_init() {
 }
 
 /**
+ * Disable self
+ */
+function _s3_deactivate_self() {
+	deactivate_plugins( plugin_basename( __FILE__ ) );
+}
+
+/**
  * Check whether the environment meets the plugin's requirements, like the minimum PHP version.
  *
  * @return bool True if the requirements are met, else false.
@@ -44,6 +51,7 @@ function s3_uploads_check_requirements() {
 	if ( version_compare( '5.3.3', PHP_VERSION, '>' ) ) {
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
 			add_action( 'admin_notices', 's3_uploads_outdated_php_version_notice' );
+			add_action( 'admin_init', '_s3_deactivate_self' );
 		}
 
 		return false;
@@ -103,7 +111,7 @@ function s3_uploads_autoload( $class_name ) {
 	}
 }
 
-spl_autoload_register( 's3_uploads_autoload');
+spl_autoload_register( 's3_uploads_autoload' );
 
 // Require AWS Autoloader file.
 require_once dirname( __FILE__ ) . '/lib/aws-sdk/aws-autoloader.php';
