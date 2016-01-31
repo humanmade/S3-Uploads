@@ -39,6 +39,12 @@ define( 'S3_UPLOADS_KEY', '' );
 define( 'S3_UPLOADS_SECRET', '' );
 ```
 
+You must then enable the plugin. To do this via WP-CLI use command:
+
+```
+wp plugin activate S3-Uploads
+```
+
 The next thing that you should do is to verify your setup. You can do this using the `verify` command
 like so:
 
