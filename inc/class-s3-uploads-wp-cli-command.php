@@ -139,7 +139,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * Create an AWS IAM user for S3 Uploads to user
 	 *
 	 * @subcommand create-iam-user
-	 * @synopsis --admin-key=<key> --admin-secret=<secret> [--username=<username>] [--automatic]
+	 * @synopsis --admin-key=<key> --admin-secret=<secret> [--username=<username>] [--format=<format>]
 	 */
 	public function create_iam_user( $args, $args_assoc ) {
 
@@ -172,9 +172,10 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 			WP_CLI::error( $e->getMessage() );
 		}
 
-        if(!empty($args_assoc['automatic']))
+        if(!empty($args_assoc['format']))
         {
-            WP_CLI\Utils\format_items('json', array((object) $credentials), array('AccessKeyId', 'SecretAccessKey'));
+            $format = $args_assoc['format']
+            WP_CLI\Utils\format_items($format, array((object) $credentials), array('AccessKeyId', 'SecretAccessKey'));
         } 
 
         else
