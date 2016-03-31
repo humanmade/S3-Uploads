@@ -92,7 +92,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * Migrate a single attachment's files to S3
 	 *
 	 * @subcommand migrate-attachment
-	 * @synopsis <attachment-id> [--delete-local]
+	 * @synopsis <attachment-id> [--delete-local] [--automatic]
 	 */
 	public function migrate_attachment_to_s3( $args, $args_assoc ) {
 
@@ -172,9 +172,17 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 			WP_CLI::error( $e->getMessage() );
 		}
 
-		WP_CLI::success( sprintf( 'Created new IAM user %s. The Access Credentials are displayed below', $username ) );
+        if(!empty($args_assoc['automatic']))
+        {
+            //WP_CLI::success(sprintf('%s'), json_encode($credentials));
+            WP_CLI\Utils\format_items('json', array((object) $credentials), array('AccessKeyId', 'SecretAccessKey'));
+        } 
 
-		WP_CLI\Utils\format_items( 'table', array( (object) $credentials ), array( 'AccessKeyId', 'SecretAccessKey' ) );
+        else
+        {
+		    WP_CLI::success( sprintf( 'Created new IAM user %s. The Access Credentials are displayed below', $username ) );
+		    WP_CLI\Utils\format_items( 'table', array( (object) $credentials ), array( 'AccessKeyId', 'SecretAccessKey' ) );
+        }
 
 	}
 
