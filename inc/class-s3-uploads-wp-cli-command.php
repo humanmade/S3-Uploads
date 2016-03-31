@@ -172,17 +172,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 			WP_CLI::error( $e->getMessage() );
 		}
 
-        if(!empty($args_assoc['format']))
-        {
-            $format = $args_assoc['format']
-            WP_CLI\Utils\format_items($format, array((object) $credentials), array('AccessKeyId', 'SecretAccessKey'));
-        } 
-
-        else
-        {
-		    WP_CLI::success( sprintf( 'Created new IAM user %s. The Access Credentials are displayed below', $username ) );
-		    WP_CLI\Utils\format_items( 'table', array( (object) $credentials ), array( 'AccessKeyId', 'SecretAccessKey' ) );
-        }
+		WP_CLI\Utils\format_items( $args_assoc['format'], array( (object) $credentials ), array( 'AccessKeyId', 'SecretAccessKey' ) );
 
 	}
 
