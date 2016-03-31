@@ -8,14 +8,16 @@ notifications:
 
 php:
   - 5.5
-
-env:
-  - WP_VERSION=latest WP_MULTISITE=0
+  - 7.0
 
 matrix:
   include:
     - php: 5.5
+      env: WP_VERSION=latest WP_MULTISITE=0
+    - php: 5.5
       env: WP_VERSION=latest WP_MULTISITE=1
+    - php: 7.0
+      env: WP_VERSION=latest WP_MULTISITE=0
 
 # Clones WordPress and configures our testing environment.
 before_script:
