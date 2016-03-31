@@ -92,7 +92,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * Migrate a single attachment's files to S3
 	 *
 	 * @subcommand migrate-attachment
-	 * @synopsis <attachment-id> [--delete-local] [--automatic]
+	 * @synopsis <attachment-id> [--delete-local] 
 	 */
 	public function migrate_attachment_to_s3( $args, $args_assoc ) {
 
@@ -139,7 +139,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * Create an AWS IAM user for S3 Uploads to user
 	 *
 	 * @subcommand create-iam-user
-	 * @synopsis --admin-key=<key> --admin-secret=<secret> [--username=<username>]
+	 * @synopsis --admin-key=<key> --admin-secret=<secret> [--username=<username>] [--automatic]
 	 */
 	public function create_iam_user( $args, $args_assoc ) {
 
@@ -174,7 +174,6 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
         if(!empty($args_assoc['automatic']))
         {
-            //WP_CLI::success(sprintf('%s'), json_encode($credentials));
             WP_CLI\Utils\format_items('json', array((object) $credentials), array('AccessKeyId', 'SecretAccessKey'));
         } 
 
