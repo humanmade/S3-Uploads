@@ -92,7 +92,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * Migrate a single attachment's files to S3
 	 *
 	 * @subcommand migrate-attachment
-	 * @synopsis <attachment-id> [--delete-local] 
+	 * @synopsis <attachment-id> [--delete-local]
 	 */
 	public function migrate_attachment_to_s3( $args, $args_assoc ) {
 
@@ -143,6 +143,9 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 */
 	public function create_iam_user( $args, $args_assoc ) {
 
+		$args_assoc = wp_parse_args( $args_assoc, array(
+			'format' => 'table',
+		) );
 		if ( empty( $args_assoc['username'] ) ) {
 			$username = 's3-uploads-' . sanitize_title( home_url() );
 		} else {
