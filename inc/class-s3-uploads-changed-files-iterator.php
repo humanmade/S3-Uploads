@@ -11,11 +11,11 @@ class S3_Uploads_ChangedFilesIterator extends Aws\S3\Sync\ChangedFilesIterator {
 			if ( $current->getMTime() > $data[1] ) {
 				WP_CLI::line( "(dry-run) Uploading {$current->getPathname()}" );
 			}
-			return false;			
+			return false;
 		}
 
-		$key = $this->sourceConverter->convert((string) $current);
-		if (!($data = $this->getTargetData($key))) {
+		$key = $this->sourceConverter->convert( (string) $current );
+		if ( ! ( $data = $this->getTargetData( $key ) ) ) {
 			return true;
 		}
 

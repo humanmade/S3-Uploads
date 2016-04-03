@@ -28,15 +28,15 @@ class S3_Uploads_Stream_Wrapper extends Aws\S3\StreamWrapper {
 
 		/// Expires:
 		if ( defined( 'S3_UPLOADS_HTTP_EXPIRES' ) ) {
-			$this->params[ 'Expires' ] = S3_UPLOADS_HTTP_EXPIRES;
+			$this->params['Expires'] = S3_UPLOADS_HTTP_EXPIRES;
 		}
 
 		// Cache-Control:
 		if ( defined( 'S3_UPLOADS_HTTP_CACHE_CONTROL' ) ) {
 			if ( is_numeric( S3_UPLOADS_HTTP_CACHE_CONTROL ) ) {
-				$this->params[ 'CacheControl' ] = 'max-age='. S3_UPLOADS_HTTP_CACHE_CONTROL;
+				$this->params['CacheControl'] = 'max-age=' . S3_UPLOADS_HTTP_CACHE_CONTROL;
 			} else {
-				$this->params[ 'CacheControl' ] = S3_UPLOADS_HTTP_CACHE_CONTROL;
+				$this->params['CacheControl'] = S3_UPLOADS_HTTP_CACHE_CONTROL;
 			}
 		}
 
@@ -71,7 +71,7 @@ class S3_Uploads_Stream_Wrapper extends Aws\S3\StreamWrapper {
 
 		$mode_short = substr( $mode, 0, 1 );
 
-		if ( $mode_short === 'r' || $mode_short === 'a' ) {
+		if ( 'r' === $mode_short || 'a' === $mode_short ) {
 			return $result;
 		}
 
@@ -86,9 +86,9 @@ class S3_Uploads_Stream_Wrapper extends Aws\S3\StreamWrapper {
 		try {
 			$p = $this->params;
 			$p['Body'] = '';
-			static::$client->putObject($p);
-		} catch (\Exception $e) {
-			return $this->triggerError($e->getMessage());
+			static::$client->putObject( $p );
+		} catch ( \Exception $e ) {
+			return $this->triggerError( $e->getMessage() );
 		}
 
 		return $result;
@@ -107,7 +107,7 @@ class S3_Uploads_Stream_Wrapper extends Aws\S3\StreamWrapper {
 	 * @link http://www.php.net/manual/en/streamwrapper.url-stat.php
 	 */
 	public function url_stat( $path, $flags ) {
-		$extension = pathinfo($path, PATHINFO_EXTENSION);
+		$extension = pathinfo( $path, PATHINFO_EXTENSION );
 
 		/**
 		 * If the file is actually just a path to a directory

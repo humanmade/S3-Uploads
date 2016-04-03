@@ -103,7 +103,7 @@ function s3_uploads_autoload( $class_name ) {
 	}
 }
 
-spl_autoload_register( 's3_uploads_autoload');
+spl_autoload_register( 's3_uploads_autoload' );
 
 // Require AWS Autoloader file.
 require_once dirname( __FILE__ ) . '/lib/aws-sdk/aws-autoloader.php';

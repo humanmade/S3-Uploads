@@ -129,8 +129,9 @@ class S3_Uploads {
 
 	public function get_original_upload_dir() {
 
-		if ( empty( $this->original_upload_dir ) )
+		if ( empty( $this->original_upload_dir ) ) {
 			wp_upload_dir();
+		}
 
 		return $this->original_upload_dir;
 	}
@@ -140,8 +141,9 @@ class S3_Uploads {
 	 */
 	public function s3() {
 
-		if ( ! empty( $this->s3 ) )
+		if ( ! empty( $this->s3 ) ) {
 			return $this->s3;
+		}
 
 		$params = array();
 
@@ -176,7 +178,7 @@ class S3_Uploads {
 	public function filter_editors( $editors ) {
 
 		if ( ( $position = array_search( 'WP_Image_Editor_Imagick', $editors ) ) !== false ) {
-			unset($editors[$position]);
+			unset( $editors[ $position ] );
 		}
 
 		array_unshift( $editors, 'S3_Uploads_Image_Editor_Imagick' );
