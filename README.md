@@ -37,6 +37,7 @@ Once you have `git clone`d the repo, or added it as a Git Submodule, add the fol
 define( 'S3_UPLOADS_BUCKET', 'my-bucket' );
 define( 'S3_UPLOADS_KEY', '' );
 define( 'S3_UPLOADS_SECRET', '' );
+define( 'S3_UPLOADS_REGION', '' ); // the s3 bucket region, required for Frankfurt and Beijing.
 ```
 
 You must then enable the plugin. To do this via WP-CLI use command:
