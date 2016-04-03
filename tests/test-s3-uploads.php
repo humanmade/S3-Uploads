@@ -102,6 +102,7 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		) );
 
 		$meta_data = wp_generate_attachment_metadata( $attachment_id, $test_file );
+		wp_update_attachment_metadata( $attachment_id, $meta_data );
 		foreach ( $meta_data['sizes'] as $size ) {
 			$this->assertTrue( file_exists( $upload_dir['path'] . '/' . $size['file'] ) );
 		}
