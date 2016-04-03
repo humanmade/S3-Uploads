@@ -93,13 +93,13 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 		$image = getimagesize( $file );
 
 		$this->assertEquals( array(
-			160,
-			120,
+			640,
+			480,
 			2,
-			'width="160" height="120"',
+			'width="640" height="480"',
 			'bits' => 8,
 			'channels' => 3,
-			'mime' => 'image/jpeg'
+			'mime' => 'image/jpeg',
 		), $image );
 	}
 

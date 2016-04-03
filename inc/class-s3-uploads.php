@@ -46,6 +46,7 @@ class S3_Uploads {
 
 		add_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
 		add_filter( 'wp_image_editors', array( $this, 'filter_editors' ), 9 );
+		add_filter( 'wp_delete_file', array( $this, 'wp_filter_delete_file' ) );
 		remove_filter( 'admin_notices', 'wpthumb_errors' );
 
 		add_action( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
@@ -60,6 +61,7 @@ class S3_Uploads {
 		remove_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
 		remove_filter( 'wp_image_editors', array( $this, 'filter_editors' ), 9 );
 		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
+		remove_filter( 'wp_delete_file', array( $this, 'wp_filter_delete_file' ) );
 	}
 
 	/**
@@ -96,6 +98,22 @@ class S3_Uploads {
 		}
 
 		return $dirs;
+	}
+
+	/**
+	 * When WordPress removes files, it's expecting to do so on
+	 * absolute file paths, as such it breaks when using uris for
+	 * file paths (such as s3://...). We have to filter the file_path
+	 * to only return the relative section, to play nice with WordPress
+	 * handling.
+	 *
+	 * @param  string $file_path
+	 * @return string
+	 */
+	public function wp_filter_delete_file( $file_path ) {
+		$dir = wp_upload_dir();
+
+		return str_replace( trailingslashit( $dir['basedir'] ), '', $file_path );
 	}
 
 	public function get_s3_url() {
