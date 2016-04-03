@@ -108,7 +108,7 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 
 		wp_delete_attachment( $attachment_id, true );
 		foreach ( $meta_data['sizes'] as $size ) {
-			$this->assertFalse( file_exists( $upload_dir['path'] . '/' . $size['file'] ) );
+			$this->assertFalse( file_exists( $upload_dir['path'] . '/' . $size['file'] ), sprintf( 'File %s was not deleted.', $upload_dir['path'] . '/' . $size['file'] ) );
 		}
 	}
 }
