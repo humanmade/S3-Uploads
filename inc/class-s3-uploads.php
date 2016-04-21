@@ -148,7 +148,8 @@ class S3_Uploads {
 		$bucket = strtok( $this->bucket, '/' );
 		$path   = $this->remote_path_prefix . substr( $this->bucket, strlen( $bucket ) );
 
-		return apply_filters( 's3_uploads_bucket_url', 'https://' . $bucket . '.s3.amazonaws.com' . $path );
+		$public = "https://s3.{$this->region}.amazonaws.com/{$this->bucket}{$path}";
+		return apply_filters( 's3_uploads_bucket_url', $public );
 	}
 
 	/**
