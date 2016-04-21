@@ -7,6 +7,7 @@ class S3_Uploads {
 	private        $bucket_url;
 	private        $key;
 	private        $secret;
+	private        $remote_path_prefix; // with leading slash, without trailing slash
 
 	public $original_upload_dir;
 	public $original_file;
@@ -18,25 +19,27 @@ class S3_Uploads {
 	public static function get_instance() {
 
 		if ( ! self::$instance ) {
-			self::$instance = new S3_Uploads(
-				S3_UPLOADS_BUCKET,
-				defined( 'S3_UPLOADS_KEY' ) ? S3_UPLOADS_KEY : null,
-				defined( 'S3_UPLOADS_SECRET' ) ? S3_UPLOADS_SECRET : null,
-				defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null,
-				S3_UPLOADS_REGION
-			);
+
+			$key                = defined( 'S3_UPLOADS_KEY' ) ? S3_UPLOADS_KEY : null;
+			$secret             = defined( 'S3_UPLOADS_SECRET' ) ? S3_UPLOADS_SECRET : null;
+			$url                = defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null;
+			$region             = defined( 'S3_UPLOADS_REGION' ) ? S3_UPLOADS_REGION : null;
+			$remote_path_prefix = defined( 'S3_UPLOADS_PATH_PREFIX' ) ? S3_UPLOADS_PATH_PREFIX : null;
+
+			self::$instance = new S3_Uploads( S3_UPLOADS_BUCKET, $key, $secret, $url, $region, $remote_path_prefix );
 		}
 
 		return self::$instance;
 	}
 
-	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null ) {
+	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null, $remote_path_prefix = null ) {
 
-		$this->bucket     = $bucket;
-		$this->key        = $key;
-		$this->secret     = $secret;
-		$this->bucket_url = $bucket_url;
-		$this->region     = $region;
+		$this->bucket             = $bucket;
+		$this->key                = $key;
+		$this->secret             = $secret;
+		$this->bucket_url         = $bucket_url;
+		$this->region             = $region;
+		$this->remote_path_prefix = $remote_path_prefix;
 	}
 
 	/**
@@ -87,18 +90,18 @@ class S3_Uploads {
 
 		$this->original_upload_dir = $dirs;
 
-		$dirs['path']    = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['path'] );
-		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['basedir'] );
+		$dirs['path']    = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket . $this->remote_path_prefix, $dirs['path'] );
+		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket . $this->remote_path_prefix, $dirs['basedir'] );
 
 		if ( ! defined( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) || ! S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL ) {
 
 			if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
-				$dirs['url']     = str_replace( 's3://' . $this->bucket, $dirs['baseurl'] . '/s3/' . $this->bucket, $dirs['path'] );
-				$dirs['baseurl'] = str_replace( 's3://' . $this->bucket, $dirs['baseurl'] . '/s3/' . $this->bucket, $dirs['basedir'] );
+				$dirs['url']     = str_replace( 's3://' . $this->bucket, $dirs['baseurl'] . '/s3/' . $this->bucket . $this->remote_path_prefix, $dirs['path'] );
+				$dirs['baseurl'] = str_replace( 's3://' . $this->bucket, $dirs['baseurl'] . '/s3/' . $this->bucket . $this->remote_path_prefix, $dirs['basedir'] );
 
 			} else {
-				$dirs['url']     = str_replace( 's3://' . $this->bucket, $this->get_s3_url(), $dirs['path'] );
-				$dirs['baseurl'] = str_replace( 's3://' . $this->bucket, $this->get_s3_url(), $dirs['basedir'] );
+				$dirs['url']     = str_replace( 's3://' . $this->bucket . $this->remote_path_prefix, $this->get_s3_url(), $dirs['path'] );
+				$dirs['baseurl'] = str_replace( 's3://' . $this->bucket . $this->remote_path_prefix, $this->get_s3_url(), $dirs['basedir'] );
 			}
 		}
 
@@ -143,7 +146,7 @@ class S3_Uploads {
 		}
 
 		$bucket = strtok( $this->bucket, '/' );
-		$path   = substr( $this->bucket, strlen( $bucket ) );
+		$path   = $this->remote_path_prefix . substr( $this->bucket, strlen( $bucket ) );
 
 		return apply_filters( 's3_uploads_bucket_url', 'https://' . $bucket . '.s3.amazonaws.com' . $path );
 	}
