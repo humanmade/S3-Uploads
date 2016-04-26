@@ -90,10 +90,10 @@ class S3_Uploads {
 
 		$this->original_upload_dir = $dirs;
 
-		$dirs['path']    = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket . $this->remote_path_prefix, $dirs['path'] );
-		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket . $this->remote_path_prefix, $dirs['basedir'] );
+		if ( !defined( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) || !S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL) {
 
-		if ( ! defined( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) || ! S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL ) {
+			$dirs['path']    = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket . $this->remote_path_prefix, $dirs['path'] );
+			$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket . $this->remote_path_prefix, $dirs['basedir'] );
 
 			if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
 				$dirs['url']     = str_replace( 's3://' . $this->bucket, $dirs['baseurl'] . '/s3/' . $this->bucket . $this->remote_path_prefix, $dirs['path'] );
