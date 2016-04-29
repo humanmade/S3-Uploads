@@ -1,90 +1,80 @@
 <?php
-/**
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- * http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 namespace Aws\CodeDeploy;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Enum\ClientOptions as Options;
-use Aws\Common\Exception\Parser\JsonQueryExceptionParser;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
+use Aws\AwsClient;
 
 /**
- * Client to interact with AWS CodeDeploy
+ * This client is used to interact with AWS CodeDeploy
  *
- * @method Model addTagsToOnPremisesInstances(array $args = array()) {@command CodeDeploy AddTagsToOnPremisesInstances}
- * @method Model batchGetApplications(array $args = array()) {@command CodeDeploy BatchGetApplications}
- * @method Model batchGetDeployments(array $args = array()) {@command CodeDeploy BatchGetDeployments}
- * @method Model batchGetOnPremisesInstances(array $args = array()) {@command CodeDeploy BatchGetOnPremisesInstances}
- * @method Model createApplication(array $args = array()) {@command CodeDeploy CreateApplication}
- * @method Model createDeployment(array $args = array()) {@command CodeDeploy CreateDeployment}
- * @method Model createDeploymentConfig(array $args = array()) {@command CodeDeploy CreateDeploymentConfig}
- * @method Model createDeploymentGroup(array $args = array()) {@command CodeDeploy CreateDeploymentGroup}
- * @method Model deleteApplication(array $args = array()) {@command CodeDeploy DeleteApplication}
- * @method Model deleteDeploymentConfig(array $args = array()) {@command CodeDeploy DeleteDeploymentConfig}
- * @method Model deleteDeploymentGroup(array $args = array()) {@command CodeDeploy DeleteDeploymentGroup}
- * @method Model deregisterOnPremisesInstance(array $args = array()) {@command CodeDeploy DeregisterOnPremisesInstance}
- * @method Model getApplication(array $args = array()) {@command CodeDeploy GetApplication}
- * @method Model getApplicationRevision(array $args = array()) {@command CodeDeploy GetApplicationRevision}
- * @method Model getDeployment(array $args = array()) {@command CodeDeploy GetDeployment}
- * @method Model getDeploymentConfig(array $args = array()) {@command CodeDeploy GetDeploymentConfig}
- * @method Model getDeploymentGroup(array $args = array()) {@command CodeDeploy GetDeploymentGroup}
- * @method Model getDeploymentInstance(array $args = array()) {@command CodeDeploy GetDeploymentInstance}
- * @method Model getOnPremisesInstance(array $args = array()) {@command CodeDeploy GetOnPremisesInstance}
- * @method Model listApplicationRevisions(array $args = array()) {@command CodeDeploy ListApplicationRevisions}
- * @method Model listApplications(array $args = array()) {@command CodeDeploy ListApplications}
- * @method Model listDeploymentConfigs(array $args = array()) {@command CodeDeploy ListDeploymentConfigs}
- * @method Model listDeploymentGroups(array $args = array()) {@command CodeDeploy ListDeploymentGroups}
- * @method Model listDeploymentInstances(array $args = array()) {@command CodeDeploy ListDeploymentInstances}
- * @method Model listDeployments(array $args = array()) {@command CodeDeploy ListDeployments}
- * @method Model listOnPremisesInstances(array $args = array()) {@command CodeDeploy ListOnPremisesInstances}
- * @method Model registerApplicationRevision(array $args = array()) {@command CodeDeploy RegisterApplicationRevision}
- * @method Model registerOnPremisesInstance(array $args = array()) {@command CodeDeploy RegisterOnPremisesInstance}
- * @method Model removeTagsFromOnPremisesInstances(array $args = array()) {@command CodeDeploy RemoveTagsFromOnPremisesInstances}
- * @method Model stopDeployment(array $args = array()) {@command CodeDeploy StopDeployment}
- * @method Model updateApplication(array $args = array()) {@command CodeDeploy UpdateApplication}
- * @method Model updateDeploymentGroup(array $args = array()) {@command CodeDeploy UpdateDeploymentGroup}
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-codedeploy.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.CodeDeploy.CodeDeployClient.html API docs
+ * @method \Aws\Result addTagsToOnPremisesInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise addTagsToOnPremisesInstancesAsync(array $args = [])
+ * @method \Aws\Result batchGetApplicationRevisions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise batchGetApplicationRevisionsAsync(array $args = [])
+ * @method \Aws\Result batchGetApplications(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise batchGetApplicationsAsync(array $args = [])
+ * @method \Aws\Result batchGetDeploymentGroups(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise batchGetDeploymentGroupsAsync(array $args = [])
+ * @method \Aws\Result batchGetDeploymentInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise batchGetDeploymentInstancesAsync(array $args = [])
+ * @method \Aws\Result batchGetDeployments(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise batchGetDeploymentsAsync(array $args = [])
+ * @method \Aws\Result batchGetOnPremisesInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise batchGetOnPremisesInstancesAsync(array $args = [])
+ * @method \Aws\Result createApplication(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createApplicationAsync(array $args = [])
+ * @method \Aws\Result createDeployment(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createDeploymentAsync(array $args = [])
+ * @method \Aws\Result createDeploymentConfig(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createDeploymentConfigAsync(array $args = [])
+ * @method \Aws\Result createDeploymentGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createDeploymentGroupAsync(array $args = [])
+ * @method \Aws\Result deleteApplication(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteApplicationAsync(array $args = [])
+ * @method \Aws\Result deleteDeploymentConfig(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteDeploymentConfigAsync(array $args = [])
+ * @method \Aws\Result deleteDeploymentGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteDeploymentGroupAsync(array $args = [])
+ * @method \Aws\Result deregisterOnPremisesInstance(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deregisterOnPremisesInstanceAsync(array $args = [])
+ * @method \Aws\Result getApplication(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getApplicationAsync(array $args = [])
+ * @method \Aws\Result getApplicationRevision(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getApplicationRevisionAsync(array $args = [])
+ * @method \Aws\Result getDeployment(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getDeploymentAsync(array $args = [])
+ * @method \Aws\Result getDeploymentConfig(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getDeploymentConfigAsync(array $args = [])
+ * @method \Aws\Result getDeploymentGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getDeploymentGroupAsync(array $args = [])
+ * @method \Aws\Result getDeploymentInstance(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getDeploymentInstanceAsync(array $args = [])
+ * @method \Aws\Result getOnPremisesInstance(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getOnPremisesInstanceAsync(array $args = [])
+ * @method \Aws\Result listApplicationRevisions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listApplicationRevisionsAsync(array $args = [])
+ * @method \Aws\Result listApplications(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listApplicationsAsync(array $args = [])
+ * @method \Aws\Result listDeploymentConfigs(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listDeploymentConfigsAsync(array $args = [])
+ * @method \Aws\Result listDeploymentGroups(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listDeploymentGroupsAsync(array $args = [])
+ * @method \Aws\Result listDeploymentInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listDeploymentInstancesAsync(array $args = [])
+ * @method \Aws\Result listDeployments(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listDeploymentsAsync(array $args = [])
+ * @method \Aws\Result listOnPremisesInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listOnPremisesInstancesAsync(array $args = [])
+ * @method \Aws\Result registerApplicationRevision(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise registerApplicationRevisionAsync(array $args = [])
+ * @method \Aws\Result registerOnPremisesInstance(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise registerOnPremisesInstanceAsync(array $args = [])
+ * @method \Aws\Result removeTagsFromOnPremisesInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise removeTagsFromOnPremisesInstancesAsync(array $args = [])
+ * @method \Aws\Result stopDeployment(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise stopDeploymentAsync(array $args = [])
+ * @method \Aws\Result updateApplication(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateApplicationAsync(array $args = [])
+ * @method \Aws\Result updateDeploymentGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateDeploymentGroupAsync(array $args = [])
  */
-class CodeDeployClient extends AbstractClient
-{
-    const LATEST_API_VERSION = '2014-10-06';
-
-    /**
-     * Factory method to create a new AWS CodeDeploy client using an array of configuration options.
-     *
-     * See http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     */
-    public static function factory($config = array())
-    {
-        return ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION             => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/codedeploy-%s.php'
-            ))
-            ->setExceptionParser(new JsonQueryExceptionParser)
-            ->build();
-    }
-}
+class CodeDeployClient extends AwsClient {}

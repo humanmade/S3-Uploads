@@ -1,10 +1,9 @@
 <?php
-
 namespace Aws\DirectoryService\Exception;
 
-use Aws\Common\Exception\ServiceResponseException;
+use Aws\Exception\AwsException;
 
 /**
- * Exception thrown by the DirectoryService client.
+ * AWS Directory Service Exception
  */
-class DirectoryServiceException extends ServiceResponseException {}
+class DirectoryServiceException extends AwsException {}

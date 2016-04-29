@@ -1,77 +1,114 @@
 <?php
-/**
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- * http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 namespace Aws\Ses;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Enum\ClientOptions as Options;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
-use Guzzle\Service\Resource\ResourceIteratorInterface;
+use Aws\Credentials\CredentialsInterface;
 
 /**
- * Client to interact with Amazon Simple Email Service
+ * This client is used to interact with the **Amazon Simple Email Service (Amazon SES)**.
  *
- * @method Model deleteIdentity(array $args = array()) {@command Ses DeleteIdentity}
- * @method Model deleteVerifiedEmailAddress(array $args = array()) {@command Ses DeleteVerifiedEmailAddress}
- * @method Model getIdentityDkimAttributes(array $args = array()) {@command Ses GetIdentityDkimAttributes}
- * @method Model getIdentityNotificationAttributes(array $args = array()) {@command Ses GetIdentityNotificationAttributes}
- * @method Model getIdentityVerificationAttributes(array $args = array()) {@command Ses GetIdentityVerificationAttributes}
- * @method Model getSendQuota(array $args = array()) {@command Ses GetSendQuota}
- * @method Model getSendStatistics(array $args = array()) {@command Ses GetSendStatistics}
- * @method Model listIdentities(array $args = array()) {@command Ses ListIdentities}
- * @method Model listVerifiedEmailAddresses(array $args = array()) {@command Ses ListVerifiedEmailAddresses}
- * @method Model sendEmail(array $args = array()) {@command Ses SendEmail}
- * @method Model sendRawEmail(array $args = array()) {@command Ses SendRawEmail}
- * @method Model setIdentityDkimEnabled(array $args = array()) {@command Ses SetIdentityDkimEnabled}
- * @method Model setIdentityFeedbackForwardingEnabled(array $args = array()) {@command Ses SetIdentityFeedbackForwardingEnabled}
- * @method Model setIdentityNotificationTopic(array $args = array()) {@command Ses SetIdentityNotificationTopic}
- * @method Model verifyDomainDkim(array $args = array()) {@command Ses VerifyDomainDkim}
- * @method Model verifyDomainIdentity(array $args = array()) {@command Ses VerifyDomainIdentity}
- * @method Model verifyEmailAddress(array $args = array()) {@command Ses VerifyEmailAddress}
- * @method Model verifyEmailIdentity(array $args = array()) {@command Ses VerifyEmailIdentity}
- * @method waitUntilIdentityExists(array $input) The input array uses the parameters of the GetIdentityVerificationAttributes operation and waiter specific settings
- * @method ResourceIteratorInterface getListIdentitiesIterator(array $args = array()) The input array uses the parameters of the ListIdentities operation
- * @method ResourceIteratorInterface getListVerifiedEmailAddressesIterator(array $args = array()) The input array uses the parameters of the ListVerifiedEmailAddresses operation
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-ses.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.Ses.SesClient.html API docs
+ * @method \Aws\Result cloneReceiptRuleSet(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise cloneReceiptRuleSetAsync(array $args = [])
+ * @method \Aws\Result createReceiptFilter(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createReceiptFilterAsync(array $args = [])
+ * @method \Aws\Result createReceiptRule(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createReceiptRuleAsync(array $args = [])
+ * @method \Aws\Result createReceiptRuleSet(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createReceiptRuleSetAsync(array $args = [])
+ * @method \Aws\Result deleteIdentity(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteIdentityAsync(array $args = [])
+ * @method \Aws\Result deleteIdentityPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteIdentityPolicyAsync(array $args = [])
+ * @method \Aws\Result deleteReceiptFilter(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteReceiptFilterAsync(array $args = [])
+ * @method \Aws\Result deleteReceiptRule(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteReceiptRuleAsync(array $args = [])
+ * @method \Aws\Result deleteReceiptRuleSet(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteReceiptRuleSetAsync(array $args = [])
+ * @method \Aws\Result deleteVerifiedEmailAddress(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteVerifiedEmailAddressAsync(array $args = [])
+ * @method \Aws\Result describeActiveReceiptRuleSet(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeActiveReceiptRuleSetAsync(array $args = [])
+ * @method \Aws\Result describeReceiptRule(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeReceiptRuleAsync(array $args = [])
+ * @method \Aws\Result describeReceiptRuleSet(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeReceiptRuleSetAsync(array $args = [])
+ * @method \Aws\Result getIdentityDkimAttributes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getIdentityDkimAttributesAsync(array $args = [])
+ * @method \Aws\Result getIdentityMailFromDomainAttributes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getIdentityMailFromDomainAttributesAsync(array $args = [])
+ * @method \Aws\Result getIdentityNotificationAttributes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getIdentityNotificationAttributesAsync(array $args = [])
+ * @method \Aws\Result getIdentityPolicies(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getIdentityPoliciesAsync(array $args = [])
+ * @method \Aws\Result getIdentityVerificationAttributes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getIdentityVerificationAttributesAsync(array $args = [])
+ * @method \Aws\Result getSendQuota(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getSendQuotaAsync(array $args = [])
+ * @method \Aws\Result getSendStatistics(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getSendStatisticsAsync(array $args = [])
+ * @method \Aws\Result listIdentities(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listIdentitiesAsync(array $args = [])
+ * @method \Aws\Result listIdentityPolicies(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listIdentityPoliciesAsync(array $args = [])
+ * @method \Aws\Result listReceiptFilters(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listReceiptFiltersAsync(array $args = [])
+ * @method \Aws\Result listReceiptRuleSets(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listReceiptRuleSetsAsync(array $args = [])
+ * @method \Aws\Result listVerifiedEmailAddresses(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listVerifiedEmailAddressesAsync(array $args = [])
+ * @method \Aws\Result putIdentityPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putIdentityPolicyAsync(array $args = [])
+ * @method \Aws\Result reorderReceiptRuleSet(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise reorderReceiptRuleSetAsync(array $args = [])
+ * @method \Aws\Result sendBounce(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise sendBounceAsync(array $args = [])
+ * @method \Aws\Result sendEmail(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise sendEmailAsync(array $args = [])
+ * @method \Aws\Result sendRawEmail(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise sendRawEmailAsync(array $args = [])
+ * @method \Aws\Result setActiveReceiptRuleSet(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise setActiveReceiptRuleSetAsync(array $args = [])
+ * @method \Aws\Result setIdentityDkimEnabled(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise setIdentityDkimEnabledAsync(array $args = [])
+ * @method \Aws\Result setIdentityFeedbackForwardingEnabled(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise setIdentityFeedbackForwardingEnabledAsync(array $args = [])
+ * @method \Aws\Result setIdentityMailFromDomain(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise setIdentityMailFromDomainAsync(array $args = [])
+ * @method \Aws\Result setIdentityNotificationTopic(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise setIdentityNotificationTopicAsync(array $args = [])
+ * @method \Aws\Result setReceiptRulePosition(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise setReceiptRulePositionAsync(array $args = [])
+ * @method \Aws\Result updateReceiptRule(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateReceiptRuleAsync(array $args = [])
+ * @method \Aws\Result verifyDomainDkim(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise verifyDomainDkimAsync(array $args = [])
+ * @method \Aws\Result verifyDomainIdentity(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise verifyDomainIdentityAsync(array $args = [])
+ * @method \Aws\Result verifyEmailAddress(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise verifyEmailAddressAsync(array $args = [])
+ * @method \Aws\Result verifyEmailIdentity(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise verifyEmailIdentityAsync(array $args = [])
  */
-class SesClient extends AbstractClient
+class SesClient extends \Aws\AwsClient
 {
-    const LATEST_API_VERSION = '2010-12-01';
-
     /**
-     * Factory method to create a new Amazon Simple Email Service client using an array of configuration options.
+     * Create an SMTP password for a given IAM user's credentials.
      *
-     * @param array|Collection $config Client configuration data
+     * The SMTP username is the Access Key ID for the provided credentials.
      *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
+     * @link http://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-credentials.html#smtp-credentials-convert
+     *
+     * @param CredentialsInterface $creds
+     *
+     * @return string
      */
-    public static function factory($config = array())
+    public static function generateSmtpPassword(CredentialsInterface $creds)
     {
-        return ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION             => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/ses-%s.php',
-                Options::SIGNATURE_SERVICE   => 'ses',
-            ))
-            ->build();
+        static $version = "\x02";
+        static $algo = 'sha256';
+        static $message = 'SendRawEmail';
+        $signature = hash_hmac($algo, $message, $creds->getSecretKey(), true);
+
+        return base64_encode($version . $signature);
     }
 }

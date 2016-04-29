@@ -1,87 +1,66 @@
 <?php
-/**
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- * http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 namespace Aws\ElasticLoadBalancing;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Enum\ClientOptions as Options;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
-use Guzzle\Service\Resource\ResourceIteratorInterface;
+use Aws\AwsClient;
 
 /**
- * Client to interact with Elastic Load Balancing
+ * This client is used to interact with the **Elastic Load Balancing** service.
  *
- * @method Model addTags(array $args = array()) {@command ElasticLoadBalancing AddTags}
- * @method Model applySecurityGroupsToLoadBalancer(array $args = array()) {@command ElasticLoadBalancing ApplySecurityGroupsToLoadBalancer}
- * @method Model attachLoadBalancerToSubnets(array $args = array()) {@command ElasticLoadBalancing AttachLoadBalancerToSubnets}
- * @method Model configureHealthCheck(array $args = array()) {@command ElasticLoadBalancing ConfigureHealthCheck}
- * @method Model createAppCookieStickinessPolicy(array $args = array()) {@command ElasticLoadBalancing CreateAppCookieStickinessPolicy}
- * @method Model createLBCookieStickinessPolicy(array $args = array()) {@command ElasticLoadBalancing CreateLBCookieStickinessPolicy}
- * @method Model createLoadBalancer(array $args = array()) {@command ElasticLoadBalancing CreateLoadBalancer}
- * @method Model createLoadBalancerListeners(array $args = array()) {@command ElasticLoadBalancing CreateLoadBalancerListeners}
- * @method Model createLoadBalancerPolicy(array $args = array()) {@command ElasticLoadBalancing CreateLoadBalancerPolicy}
- * @method Model deleteLoadBalancer(array $args = array()) {@command ElasticLoadBalancing DeleteLoadBalancer}
- * @method Model deleteLoadBalancerListeners(array $args = array()) {@command ElasticLoadBalancing DeleteLoadBalancerListeners}
- * @method Model deleteLoadBalancerPolicy(array $args = array()) {@command ElasticLoadBalancing DeleteLoadBalancerPolicy}
- * @method Model deregisterInstancesFromLoadBalancer(array $args = array()) {@command ElasticLoadBalancing DeregisterInstancesFromLoadBalancer}
- * @method Model describeInstanceHealth(array $args = array()) {@command ElasticLoadBalancing DescribeInstanceHealth}
- * @method Model describeLoadBalancerAttributes(array $args = array()) {@command ElasticLoadBalancing DescribeLoadBalancerAttributes}
- * @method Model describeLoadBalancerPolicies(array $args = array()) {@command ElasticLoadBalancing DescribeLoadBalancerPolicies}
- * @method Model describeLoadBalancerPolicyTypes(array $args = array()) {@command ElasticLoadBalancing DescribeLoadBalancerPolicyTypes}
- * @method Model describeLoadBalancers(array $args = array()) {@command ElasticLoadBalancing DescribeLoadBalancers}
- * @method Model describeTags(array $args = array()) {@command ElasticLoadBalancing DescribeTags}
- * @method Model detachLoadBalancerFromSubnets(array $args = array()) {@command ElasticLoadBalancing DetachLoadBalancerFromSubnets}
- * @method Model disableAvailabilityZonesForLoadBalancer(array $args = array()) {@command ElasticLoadBalancing DisableAvailabilityZonesForLoadBalancer}
- * @method Model enableAvailabilityZonesForLoadBalancer(array $args = array()) {@command ElasticLoadBalancing EnableAvailabilityZonesForLoadBalancer}
- * @method Model modifyLoadBalancerAttributes(array $args = array()) {@command ElasticLoadBalancing ModifyLoadBalancerAttributes}
- * @method Model registerInstancesWithLoadBalancer(array $args = array()) {@command ElasticLoadBalancing RegisterInstancesWithLoadBalancer}
- * @method Model removeTags(array $args = array()) {@command ElasticLoadBalancing RemoveTags}
- * @method Model setLoadBalancerListenerSSLCertificate(array $args = array()) {@command ElasticLoadBalancing SetLoadBalancerListenerSSLCertificate}
- * @method Model setLoadBalancerPoliciesForBackendServer(array $args = array()) {@command ElasticLoadBalancing SetLoadBalancerPoliciesForBackendServer}
- * @method Model setLoadBalancerPoliciesOfListener(array $args = array()) {@command ElasticLoadBalancing SetLoadBalancerPoliciesOfListener}
- * @method ResourceIteratorInterface getDescribeInstanceHealthIterator(array $args = array()) The input array uses the parameters of the DescribeInstanceHealth operation
- * @method ResourceIteratorInterface getDescribeLoadBalancerPoliciesIterator(array $args = array()) The input array uses the parameters of the DescribeLoadBalancerPolicies operation
- * @method ResourceIteratorInterface getDescribeLoadBalancerPolicyTypesIterator(array $args = array()) The input array uses the parameters of the DescribeLoadBalancerPolicyTypes operation
- * @method ResourceIteratorInterface getDescribeLoadBalancersIterator(array $args = array()) The input array uses the parameters of the DescribeLoadBalancers operation
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-elasticloadbalancing.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.ElasticLoadBalancing.ElasticLoadBalancingClient.html API docs
+ * @method \Aws\Result addTags(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise addTagsAsync(array $args = [])
+ * @method \Aws\Result applySecurityGroupsToLoadBalancer(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise applySecurityGroupsToLoadBalancerAsync(array $args = [])
+ * @method \Aws\Result attachLoadBalancerToSubnets(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise attachLoadBalancerToSubnetsAsync(array $args = [])
+ * @method \Aws\Result configureHealthCheck(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise configureHealthCheckAsync(array $args = [])
+ * @method \Aws\Result createAppCookieStickinessPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createAppCookieStickinessPolicyAsync(array $args = [])
+ * @method \Aws\Result createLBCookieStickinessPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createLBCookieStickinessPolicyAsync(array $args = [])
+ * @method \Aws\Result createLoadBalancer(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createLoadBalancerAsync(array $args = [])
+ * @method \Aws\Result createLoadBalancerListeners(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createLoadBalancerListenersAsync(array $args = [])
+ * @method \Aws\Result createLoadBalancerPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createLoadBalancerPolicyAsync(array $args = [])
+ * @method \Aws\Result deleteLoadBalancer(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteLoadBalancerAsync(array $args = [])
+ * @method \Aws\Result deleteLoadBalancerListeners(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteLoadBalancerListenersAsync(array $args = [])
+ * @method \Aws\Result deleteLoadBalancerPolicy(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteLoadBalancerPolicyAsync(array $args = [])
+ * @method \Aws\Result deregisterInstancesFromLoadBalancer(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deregisterInstancesFromLoadBalancerAsync(array $args = [])
+ * @method \Aws\Result describeInstanceHealth(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeInstanceHealthAsync(array $args = [])
+ * @method \Aws\Result describeLoadBalancerAttributes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeLoadBalancerAttributesAsync(array $args = [])
+ * @method \Aws\Result describeLoadBalancerPolicies(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeLoadBalancerPoliciesAsync(array $args = [])
+ * @method \Aws\Result describeLoadBalancerPolicyTypes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeLoadBalancerPolicyTypesAsync(array $args = [])
+ * @method \Aws\Result describeLoadBalancers(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeLoadBalancersAsync(array $args = [])
+ * @method \Aws\Result describeTags(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeTagsAsync(array $args = [])
+ * @method \Aws\Result detachLoadBalancerFromSubnets(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise detachLoadBalancerFromSubnetsAsync(array $args = [])
+ * @method \Aws\Result disableAvailabilityZonesForLoadBalancer(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise disableAvailabilityZonesForLoadBalancerAsync(array $args = [])
+ * @method \Aws\Result enableAvailabilityZonesForLoadBalancer(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise enableAvailabilityZonesForLoadBalancerAsync(array $args = [])
+ * @method \Aws\Result modifyLoadBalancerAttributes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyLoadBalancerAttributesAsync(array $args = [])
+ * @method \Aws\Result registerInstancesWithLoadBalancer(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise registerInstancesWithLoadBalancerAsync(array $args = [])
+ * @method \Aws\Result removeTags(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise removeTagsAsync(array $args = [])
+ * @method \Aws\Result setLoadBalancerListenerSSLCertificate(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise setLoadBalancerListenerSSLCertificateAsync(array $args = [])
+ * @method \Aws\Result setLoadBalancerPoliciesForBackendServer(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise setLoadBalancerPoliciesForBackendServerAsync(array $args = [])
+ * @method \Aws\Result setLoadBalancerPoliciesOfListener(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise setLoadBalancerPoliciesOfListenerAsync(array $args = [])
  */
-class ElasticLoadBalancingClient extends AbstractClient
-{
-    const LATEST_API_VERSION = '2012-06-01';
-
-    /**
-     * Factory method to create a new Elastic Load Balancing client using an array of configuration options.
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     */
-    public static function factory($config = array())
-    {
-        return ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION             => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/elasticloadbalancing-%s.php'
-            ))
-            ->build();
-    }
-}
+class ElasticLoadBalancingClient extends AwsClient {}

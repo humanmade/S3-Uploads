@@ -1,66 +1,34 @@
 <?php
-/**
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- * http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 namespace Aws\CloudTrail;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Enum\ClientOptions as Options;
-use Aws\Common\Exception\Parser\JsonQueryExceptionParser;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
-use Guzzle\Service\Resource\ResourceIteratorInterface;
+use Aws\AwsClient;
 
 /**
- * Client to interact with AWS CloudTrail
+ * This client is used to interact with the **AWS CloudTrail** service.
  *
- * @method Model createTrail(array $args = array()) {@command CloudTrail CreateTrail}
- * @method Model deleteTrail(array $args = array()) {@command CloudTrail DeleteTrail}
- * @method Model describeTrails(array $args = array()) {@command CloudTrail DescribeTrails}
- * @method Model getTrailStatus(array $args = array()) {@command CloudTrail GetTrailStatus}
- * @method Model lookupEvents(array $args = array()) {@command CloudTrail LookupEvents}
- * @method Model startLogging(array $args = array()) {@command CloudTrail StartLogging}
- * @method Model stopLogging(array $args = array()) {@command CloudTrail StopLogging}
- * @method Model updateTrail(array $args = array()) {@command CloudTrail UpdateTrail}
- * @method ResourceIteratorInterface getDescribeTrailsIterator(array $args = array()) The input array uses the parameters of the DescribeTrails operation
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-cloudtrail.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.CloudTrail.CloudTrailClient.html API docs
+ * @method \Aws\Result addTags(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise addTagsAsync(array $args = [])
+ * @method \Aws\Result createTrail(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createTrailAsync(array $args = [])
+ * @method \Aws\Result deleteTrail(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteTrailAsync(array $args = [])
+ * @method \Aws\Result describeTrails(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeTrailsAsync(array $args = [])
+ * @method \Aws\Result getTrailStatus(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getTrailStatusAsync(array $args = [])
+ * @method \Aws\Result listPublicKeys(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listPublicKeysAsync(array $args = [])
+ * @method \Aws\Result listTags(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listTagsAsync(array $args = [])
+ * @method \Aws\Result lookupEvents(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise lookupEventsAsync(array $args = [])
+ * @method \Aws\Result removeTags(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise removeTagsAsync(array $args = [])
+ * @method \Aws\Result startLogging(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise startLoggingAsync(array $args = [])
+ * @method \Aws\Result stopLogging(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise stopLoggingAsync(array $args = [])
+ * @method \Aws\Result updateTrail(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateTrailAsync(array $args = [])
  */
-class CloudTrailClient extends AbstractClient
-{
-    const LATEST_API_VERSION = '2013-11-01';
-
-    /**
-     * Factory method to create a new AWS CloudTrail client using an array of configuration options.
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     */
-    public static function factory($config = array())
-    {
-        return ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION             => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/cloudtrail-%s.php'
-            ))
-            ->setExceptionParser(new JsonQueryExceptionParser())
-            ->build();
-    }
-}
+class CloudTrailClient extends AwsClient {}

@@ -1,292 +1,452 @@
 <?php
-/**
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- * http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 namespace Aws\Ec2;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Enum\ClientOptions as Options;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
-use Guzzle\Service\Resource\ResourceIteratorInterface;
+use Aws\AwsClient;
+use Aws\Api\Service;
+use Aws\Api\DocModel;
+use Aws\Api\ApiProvider;
 
 /**
- * Client to interact with Amazon Elastic Compute Cloud
+ * Client used to interact with Amazon EC2.
  *
- * @method Model acceptVpcPeeringConnection(array $args = array()) {@command Ec2 AcceptVpcPeeringConnection}
- * @method Model allocateAddress(array $args = array()) {@command Ec2 AllocateAddress}
- * @method Model assignPrivateIpAddresses(array $args = array()) {@command Ec2 AssignPrivateIpAddresses}
- * @method Model associateAddress(array $args = array()) {@command Ec2 AssociateAddress}
- * @method Model associateDhcpOptions(array $args = array()) {@command Ec2 AssociateDhcpOptions}
- * @method Model associateRouteTable(array $args = array()) {@command Ec2 AssociateRouteTable}
- * @method Model attachClassicLinkVpc(array $args = array()) {@command Ec2 AttachClassicLinkVpc}
- * @method Model attachInternetGateway(array $args = array()) {@command Ec2 AttachInternetGateway}
- * @method Model attachNetworkInterface(array $args = array()) {@command Ec2 AttachNetworkInterface}
- * @method Model attachVolume(array $args = array()) {@command Ec2 AttachVolume}
- * @method Model attachVpnGateway(array $args = array()) {@command Ec2 AttachVpnGateway}
- * @method Model authorizeSecurityGroupEgress(array $args = array()) {@command Ec2 AuthorizeSecurityGroupEgress}
- * @method Model authorizeSecurityGroupIngress(array $args = array()) {@command Ec2 AuthorizeSecurityGroupIngress}
- * @method Model bundleInstance(array $args = array()) {@command Ec2 BundleInstance}
- * @method Model cancelBundleTask(array $args = array()) {@command Ec2 CancelBundleTask}
- * @method Model cancelConversionTask(array $args = array()) {@command Ec2 CancelConversionTask}
- * @method Model cancelExportTask(array $args = array()) {@command Ec2 CancelExportTask}
- * @method Model cancelImportTask(array $args = array()) {@command Ec2 CancelImportTask}
- * @method Model cancelReservedInstancesListing(array $args = array()) {@command Ec2 CancelReservedInstancesListing}
- * @method Model cancelSpotFleetRequests(array $args = array()) {@command Ec2 CancelSpotFleetRequests}
- * @method Model cancelSpotInstanceRequests(array $args = array()) {@command Ec2 CancelSpotInstanceRequests}
- * @method Model confirmProductInstance(array $args = array()) {@command Ec2 ConfirmProductInstance}
- * @method Model copyImage(array $args = array()) {@command Ec2 CopyImage}
- * @method Model copySnapshot(array $args = array()) {@command Ec2 CopySnapshot}
- * @method Model createCustomerGateway(array $args = array()) {@command Ec2 CreateCustomerGateway}
- * @method Model createDhcpOptions(array $args = array()) {@command Ec2 CreateDhcpOptions}
- * @method Model createFlowLogs(array $args = array()) {@command Ec2 CreateFlowLogs}
- * @method Model createImage(array $args = array()) {@command Ec2 CreateImage}
- * @method Model createInstanceExportTask(array $args = array()) {@command Ec2 CreateInstanceExportTask}
- * @method Model createInternetGateway(array $args = array()) {@command Ec2 CreateInternetGateway}
- * @method Model createKeyPair(array $args = array()) {@command Ec2 CreateKeyPair}
- * @method Model createNetworkAcl(array $args = array()) {@command Ec2 CreateNetworkAcl}
- * @method Model createNetworkAclEntry(array $args = array()) {@command Ec2 CreateNetworkAclEntry}
- * @method Model createNetworkInterface(array $args = array()) {@command Ec2 CreateNetworkInterface}
- * @method Model createPlacementGroup(array $args = array()) {@command Ec2 CreatePlacementGroup}
- * @method Model createReservedInstancesListing(array $args = array()) {@command Ec2 CreateReservedInstancesListing}
- * @method Model createRoute(array $args = array()) {@command Ec2 CreateRoute}
- * @method Model createRouteTable(array $args = array()) {@command Ec2 CreateRouteTable}
- * @method Model createSecurityGroup(array $args = array()) {@command Ec2 CreateSecurityGroup}
- * @method Model createSnapshot(array $args = array()) {@command Ec2 CreateSnapshot}
- * @method Model createSpotDatafeedSubscription(array $args = array()) {@command Ec2 CreateSpotDatafeedSubscription}
- * @method Model createSubnet(array $args = array()) {@command Ec2 CreateSubnet}
- * @method Model createTags(array $args = array()) {@command Ec2 CreateTags}
- * @method Model createVolume(array $args = array()) {@command Ec2 CreateVolume}
- * @method Model createVpc(array $args = array()) {@command Ec2 CreateVpc}
- * @method Model createVpcEndpoint(array $args = array()) {@command Ec2 CreateVpcEndpoint}
- * @method Model createVpcPeeringConnection(array $args = array()) {@command Ec2 CreateVpcPeeringConnection}
- * @method Model createVpnConnection(array $args = array()) {@command Ec2 CreateVpnConnection}
- * @method Model createVpnConnectionRoute(array $args = array()) {@command Ec2 CreateVpnConnectionRoute}
- * @method Model createVpnGateway(array $args = array()) {@command Ec2 CreateVpnGateway}
- * @method Model deleteCustomerGateway(array $args = array()) {@command Ec2 DeleteCustomerGateway}
- * @method Model deleteDhcpOptions(array $args = array()) {@command Ec2 DeleteDhcpOptions}
- * @method Model deleteFlowLogs(array $args = array()) {@command Ec2 DeleteFlowLogs}
- * @method Model deleteInternetGateway(array $args = array()) {@command Ec2 DeleteInternetGateway}
- * @method Model deleteKeyPair(array $args = array()) {@command Ec2 DeleteKeyPair}
- * @method Model deleteNetworkAcl(array $args = array()) {@command Ec2 DeleteNetworkAcl}
- * @method Model deleteNetworkAclEntry(array $args = array()) {@command Ec2 DeleteNetworkAclEntry}
- * @method Model deleteNetworkInterface(array $args = array()) {@command Ec2 DeleteNetworkInterface}
- * @method Model deletePlacementGroup(array $args = array()) {@command Ec2 DeletePlacementGroup}
- * @method Model deleteRoute(array $args = array()) {@command Ec2 DeleteRoute}
- * @method Model deleteRouteTable(array $args = array()) {@command Ec2 DeleteRouteTable}
- * @method Model deleteSecurityGroup(array $args = array()) {@command Ec2 DeleteSecurityGroup}
- * @method Model deleteSnapshot(array $args = array()) {@command Ec2 DeleteSnapshot}
- * @method Model deleteSpotDatafeedSubscription(array $args = array()) {@command Ec2 DeleteSpotDatafeedSubscription}
- * @method Model deleteSubnet(array $args = array()) {@command Ec2 DeleteSubnet}
- * @method Model deleteTags(array $args = array()) {@command Ec2 DeleteTags}
- * @method Model deleteVolume(array $args = array()) {@command Ec2 DeleteVolume}
- * @method Model deleteVpc(array $args = array()) {@command Ec2 DeleteVpc}
- * @method Model deleteVpcEndpoints(array $args = array()) {@command Ec2 DeleteVpcEndpoints}
- * @method Model deleteVpcPeeringConnection(array $args = array()) {@command Ec2 DeleteVpcPeeringConnection}
- * @method Model deleteVpnConnection(array $args = array()) {@command Ec2 DeleteVpnConnection}
- * @method Model deleteVpnConnectionRoute(array $args = array()) {@command Ec2 DeleteVpnConnectionRoute}
- * @method Model deleteVpnGateway(array $args = array()) {@command Ec2 DeleteVpnGateway}
- * @method Model deregisterImage(array $args = array()) {@command Ec2 DeregisterImage}
- * @method Model describeAccountAttributes(array $args = array()) {@command Ec2 DescribeAccountAttributes}
- * @method Model describeAddresses(array $args = array()) {@command Ec2 DescribeAddresses}
- * @method Model describeAvailabilityZones(array $args = array()) {@command Ec2 DescribeAvailabilityZones}
- * @method Model describeBundleTasks(array $args = array()) {@command Ec2 DescribeBundleTasks}
- * @method Model describeClassicLinkInstances(array $args = array()) {@command Ec2 DescribeClassicLinkInstances}
- * @method Model describeConversionTasks(array $args = array()) {@command Ec2 DescribeConversionTasks}
- * @method Model describeCustomerGateways(array $args = array()) {@command Ec2 DescribeCustomerGateways}
- * @method Model describeDhcpOptions(array $args = array()) {@command Ec2 DescribeDhcpOptions}
- * @method Model describeExportTasks(array $args = array()) {@command Ec2 DescribeExportTasks}
- * @method Model describeFlowLogs(array $args = array()) {@command Ec2 DescribeFlowLogs}
- * @method Model describeImageAttribute(array $args = array()) {@command Ec2 DescribeImageAttribute}
- * @method Model describeImages(array $args = array()) {@command Ec2 DescribeImages}
- * @method Model describeImportImageTasks(array $args = array()) {@command Ec2 DescribeImportImageTasks}
- * @method Model describeImportSnapshotTasks(array $args = array()) {@command Ec2 DescribeImportSnapshotTasks}
- * @method Model describeInstanceAttribute(array $args = array()) {@command Ec2 DescribeInstanceAttribute}
- * @method Model describeInstanceStatus(array $args = array()) {@command Ec2 DescribeInstanceStatus}
- * @method Model describeInstances(array $args = array()) {@command Ec2 DescribeInstances}
- * @method Model describeInternetGateways(array $args = array()) {@command Ec2 DescribeInternetGateways}
- * @method Model describeKeyPairs(array $args = array()) {@command Ec2 DescribeKeyPairs}
- * @method Model describeMovingAddresses(array $args = array()) {@command Ec2 DescribeMovingAddresses}
- * @method Model describeNetworkAcls(array $args = array()) {@command Ec2 DescribeNetworkAcls}
- * @method Model describeNetworkInterfaceAttribute(array $args = array()) {@command Ec2 DescribeNetworkInterfaceAttribute}
- * @method Model describeNetworkInterfaces(array $args = array()) {@command Ec2 DescribeNetworkInterfaces}
- * @method Model describePlacementGroups(array $args = array()) {@command Ec2 DescribePlacementGroups}
- * @method Model describePrefixLists(array $args = array()) {@command Ec2 DescribePrefixLists}
- * @method Model describeRegions(array $args = array()) {@command Ec2 DescribeRegions}
- * @method Model describeReservedInstances(array $args = array()) {@command Ec2 DescribeReservedInstances}
- * @method Model describeReservedInstancesListings(array $args = array()) {@command Ec2 DescribeReservedInstancesListings}
- * @method Model describeReservedInstancesModifications(array $args = array()) {@command Ec2 DescribeReservedInstancesModifications}
- * @method Model describeReservedInstancesOfferings(array $args = array()) {@command Ec2 DescribeReservedInstancesOfferings}
- * @method Model describeRouteTables(array $args = array()) {@command Ec2 DescribeRouteTables}
- * @method Model describeSecurityGroups(array $args = array()) {@command Ec2 DescribeSecurityGroups}
- * @method Model describeSnapshotAttribute(array $args = array()) {@command Ec2 DescribeSnapshotAttribute}
- * @method Model describeSnapshots(array $args = array()) {@command Ec2 DescribeSnapshots}
- * @method Model describeSpotDatafeedSubscription(array $args = array()) {@command Ec2 DescribeSpotDatafeedSubscription}
- * @method Model describeSpotFleetInstances(array $args = array()) {@command Ec2 DescribeSpotFleetInstances}
- * @method Model describeSpotFleetRequestHistory(array $args = array()) {@command Ec2 DescribeSpotFleetRequestHistory}
- * @method Model describeSpotFleetRequests(array $args = array()) {@command Ec2 DescribeSpotFleetRequests}
- * @method Model describeSpotInstanceRequests(array $args = array()) {@command Ec2 DescribeSpotInstanceRequests}
- * @method Model describeSpotPriceHistory(array $args = array()) {@command Ec2 DescribeSpotPriceHistory}
- * @method Model describeSubnets(array $args = array()) {@command Ec2 DescribeSubnets}
- * @method Model describeTags(array $args = array()) {@command Ec2 DescribeTags}
- * @method Model describeVolumeAttribute(array $args = array()) {@command Ec2 DescribeVolumeAttribute}
- * @method Model describeVolumeStatus(array $args = array()) {@command Ec2 DescribeVolumeStatus}
- * @method Model describeVolumes(array $args = array()) {@command Ec2 DescribeVolumes}
- * @method Model describeVpcAttribute(array $args = array()) {@command Ec2 DescribeVpcAttribute}
- * @method Model describeVpcClassicLink(array $args = array()) {@command Ec2 DescribeVpcClassicLink}
- * @method Model describeVpcEndpointServices(array $args = array()) {@command Ec2 DescribeVpcEndpointServices}
- * @method Model describeVpcEndpoints(array $args = array()) {@command Ec2 DescribeVpcEndpoints}
- * @method Model describeVpcPeeringConnections(array $args = array()) {@command Ec2 DescribeVpcPeeringConnections}
- * @method Model describeVpcs(array $args = array()) {@command Ec2 DescribeVpcs}
- * @method Model describeVpnConnections(array $args = array()) {@command Ec2 DescribeVpnConnections}
- * @method Model describeVpnGateways(array $args = array()) {@command Ec2 DescribeVpnGateways}
- * @method Model detachClassicLinkVpc(array $args = array()) {@command Ec2 DetachClassicLinkVpc}
- * @method Model detachInternetGateway(array $args = array()) {@command Ec2 DetachInternetGateway}
- * @method Model detachNetworkInterface(array $args = array()) {@command Ec2 DetachNetworkInterface}
- * @method Model detachVolume(array $args = array()) {@command Ec2 DetachVolume}
- * @method Model detachVpnGateway(array $args = array()) {@command Ec2 DetachVpnGateway}
- * @method Model disableVgwRoutePropagation(array $args = array()) {@command Ec2 DisableVgwRoutePropagation}
- * @method Model disableVpcClassicLink(array $args = array()) {@command Ec2 DisableVpcClassicLink}
- * @method Model disassociateAddress(array $args = array()) {@command Ec2 DisassociateAddress}
- * @method Model disassociateRouteTable(array $args = array()) {@command Ec2 DisassociateRouteTable}
- * @method Model enableVgwRoutePropagation(array $args = array()) {@command Ec2 EnableVgwRoutePropagation}
- * @method Model enableVolumeIO(array $args = array()) {@command Ec2 EnableVolumeIO}
- * @method Model enableVpcClassicLink(array $args = array()) {@command Ec2 EnableVpcClassicLink}
- * @method Model getConsoleOutput(array $args = array()) {@command Ec2 GetConsoleOutput}
- * @method Model getPasswordData(array $args = array()) {@command Ec2 GetPasswordData}
- * @method Model importImage(array $args = array()) {@command Ec2 ImportImage}
- * @method Model importInstance(array $args = array()) {@command Ec2 ImportInstance}
- * @method Model importKeyPair(array $args = array()) {@command Ec2 ImportKeyPair}
- * @method Model importSnapshot(array $args = array()) {@command Ec2 ImportSnapshot}
- * @method Model importVolume(array $args = array()) {@command Ec2 ImportVolume}
- * @method Model modifyImageAttribute(array $args = array()) {@command Ec2 ModifyImageAttribute}
- * @method Model modifyInstanceAttribute(array $args = array()) {@command Ec2 ModifyInstanceAttribute}
- * @method Model modifyNetworkInterfaceAttribute(array $args = array()) {@command Ec2 ModifyNetworkInterfaceAttribute}
- * @method Model modifyReservedInstances(array $args = array()) {@command Ec2 ModifyReservedInstances}
- * @method Model modifySnapshotAttribute(array $args = array()) {@command Ec2 ModifySnapshotAttribute}
- * @method Model modifySubnetAttribute(array $args = array()) {@command Ec2 ModifySubnetAttribute}
- * @method Model modifyVolumeAttribute(array $args = array()) {@command Ec2 ModifyVolumeAttribute}
- * @method Model modifyVpcAttribute(array $args = array()) {@command Ec2 ModifyVpcAttribute}
- * @method Model modifyVpcEndpoint(array $args = array()) {@command Ec2 ModifyVpcEndpoint}
- * @method Model monitorInstances(array $args = array()) {@command Ec2 MonitorInstances}
- * @method Model moveAddressToVpc(array $args = array()) {@command Ec2 MoveAddressToVpc}
- * @method Model purchaseReservedInstancesOffering(array $args = array()) {@command Ec2 PurchaseReservedInstancesOffering}
- * @method Model rebootInstances(array $args = array()) {@command Ec2 RebootInstances}
- * @method Model registerImage(array $args = array()) {@command Ec2 RegisterImage}
- * @method Model rejectVpcPeeringConnection(array $args = array()) {@command Ec2 RejectVpcPeeringConnection}
- * @method Model releaseAddress(array $args = array()) {@command Ec2 ReleaseAddress}
- * @method Model replaceNetworkAclAssociation(array $args = array()) {@command Ec2 ReplaceNetworkAclAssociation}
- * @method Model replaceNetworkAclEntry(array $args = array()) {@command Ec2 ReplaceNetworkAclEntry}
- * @method Model replaceRoute(array $args = array()) {@command Ec2 ReplaceRoute}
- * @method Model replaceRouteTableAssociation(array $args = array()) {@command Ec2 ReplaceRouteTableAssociation}
- * @method Model reportInstanceStatus(array $args = array()) {@command Ec2 ReportInstanceStatus}
- * @method Model requestSpotFleet(array $args = array()) {@command Ec2 RequestSpotFleet}
- * @method Model requestSpotInstances(array $args = array()) {@command Ec2 RequestSpotInstances}
- * @method Model resetImageAttribute(array $args = array()) {@command Ec2 ResetImageAttribute}
- * @method Model resetInstanceAttribute(array $args = array()) {@command Ec2 ResetInstanceAttribute}
- * @method Model resetNetworkInterfaceAttribute(array $args = array()) {@command Ec2 ResetNetworkInterfaceAttribute}
- * @method Model resetSnapshotAttribute(array $args = array()) {@command Ec2 ResetSnapshotAttribute}
- * @method Model restoreAddressToClassic(array $args = array()) {@command Ec2 RestoreAddressToClassic}
- * @method Model revokeSecurityGroupEgress(array $args = array()) {@command Ec2 RevokeSecurityGroupEgress}
- * @method Model revokeSecurityGroupIngress(array $args = array()) {@command Ec2 RevokeSecurityGroupIngress}
- * @method Model runInstances(array $args = array()) {@command Ec2 RunInstances}
- * @method Model startInstances(array $args = array()) {@command Ec2 StartInstances}
- * @method Model stopInstances(array $args = array()) {@command Ec2 StopInstances}
- * @method Model terminateInstances(array $args = array()) {@command Ec2 TerminateInstances}
- * @method Model unassignPrivateIpAddresses(array $args = array()) {@command Ec2 UnassignPrivateIpAddresses}
- * @method Model unmonitorInstances(array $args = array()) {@command Ec2 UnmonitorInstances}
- * @method waitUntilInstanceRunning(array $input) The input array uses the parameters of the DescribeInstances operation and waiter specific settings
- * @method waitUntilInstanceStopped(array $input) The input array uses the parameters of the DescribeInstances operation and waiter specific settings
- * @method waitUntilInstanceTerminated(array $input) The input array uses the parameters of the DescribeInstances operation and waiter specific settings
- * @method waitUntilExportTaskCompleted(array $input) The input array uses the parameters of the DescribeExportTasks operation and waiter specific settings
- * @method waitUntilExportTaskCancelled(array $input) The input array uses the parameters of the DescribeExportTasks operation and waiter specific settings
- * @method waitUntilSnapshotCompleted(array $input) The input array uses the parameters of the DescribeSnapshots operation and waiter specific settings
- * @method waitUntilSubnetAvailable(array $input) The input array uses the parameters of the DescribeSubnets operation and waiter specific settings
- * @method waitUntilVolumeAvailable(array $input) The input array uses the parameters of the DescribeVolumes operation and waiter specific settings
- * @method waitUntilVolumeInUse(array $input) The input array uses the parameters of the DescribeVolumes operation and waiter specific settings
- * @method waitUntilVolumeDeleted(array $input) The input array uses the parameters of the DescribeVolumes operation and waiter specific settings
- * @method waitUntilVpcAvailable(array $input) The input array uses the parameters of the DescribeVpcs operation and waiter specific settings
- * @method waitUntilVpnConnectionAvailable(array $input) The input array uses the parameters of the DescribeVpnConnections operation and waiter specific settings
- * @method waitUntilVpnConnectionDeleted(array $input) The input array uses the parameters of the DescribeVpnConnections operation and waiter specific settings
- * @method waitUntilBundleTaskComplete(array $input) The input array uses the parameters of the DescribeBundleTasks operation and waiter specific settings
- * @method waitUntilConversionTaskCompleted(array $input) The input array uses the parameters of the DescribeConversionTasks operation and waiter specific settings
- * @method waitUntilConversionTaskCancelled(array $input) The input array uses the parameters of the DescribeConversionTasks operation and waiter specific settings
- * @method waitUntilCustomerGatewayAvailable(array $input) The input array uses the parameters of the DescribeCustomerGateways operation and waiter specific settings
- * @method waitUntilConversionTaskDeleted(array $input) The input array uses the parameters of the DescribeCustomerGateways operation and waiter specific settings
- * @method ResourceIteratorInterface getDescribeAccountAttributesIterator(array $args = array()) The input array uses the parameters of the DescribeAccountAttributes operation
- * @method ResourceIteratorInterface getDescribeAddressesIterator(array $args = array()) The input array uses the parameters of the DescribeAddresses operation
- * @method ResourceIteratorInterface getDescribeAvailabilityZonesIterator(array $args = array()) The input array uses the parameters of the DescribeAvailabilityZones operation
- * @method ResourceIteratorInterface getDescribeBundleTasksIterator(array $args = array()) The input array uses the parameters of the DescribeBundleTasks operation
- * @method ResourceIteratorInterface getDescribeConversionTasksIterator(array $args = array()) The input array uses the parameters of the DescribeConversionTasks operation
- * @method ResourceIteratorInterface getDescribeCustomerGatewaysIterator(array $args = array()) The input array uses the parameters of the DescribeCustomerGateways operation
- * @method ResourceIteratorInterface getDescribeDhcpOptionsIterator(array $args = array()) The input array uses the parameters of the DescribeDhcpOptions operation
- * @method ResourceIteratorInterface getDescribeExportTasksIterator(array $args = array()) The input array uses the parameters of the DescribeExportTasks operation
- * @method ResourceIteratorInterface getDescribeImagesIterator(array $args = array()) The input array uses the parameters of the DescribeImages operation
- * @method ResourceIteratorInterface getDescribeInstanceStatusIterator(array $args = array()) The input array uses the parameters of the DescribeInstanceStatus operation
- * @method ResourceIteratorInterface getDescribeInstancesIterator(array $args = array()) The input array uses the parameters of the DescribeInstances operation
- * @method ResourceIteratorInterface getDescribeInternetGatewaysIterator(array $args = array()) The input array uses the parameters of the DescribeInternetGateways operation
- * @method ResourceIteratorInterface getDescribeKeyPairsIterator(array $args = array()) The input array uses the parameters of the DescribeKeyPairs operation
- * @method ResourceIteratorInterface getDescribeNetworkAclsIterator(array $args = array()) The input array uses the parameters of the DescribeNetworkAcls operation
- * @method ResourceIteratorInterface getDescribeNetworkInterfacesIterator(array $args = array()) The input array uses the parameters of the DescribeNetworkInterfaces operation
- * @method ResourceIteratorInterface getDescribePlacementGroupsIterator(array $args = array()) The input array uses the parameters of the DescribePlacementGroups operation
- * @method ResourceIteratorInterface getDescribeRegionsIterator(array $args = array()) The input array uses the parameters of the DescribeRegions operation
- * @method ResourceIteratorInterface getDescribeReservedInstancesIterator(array $args = array()) The input array uses the parameters of the DescribeReservedInstances operation
- * @method ResourceIteratorInterface getDescribeReservedInstancesListingsIterator(array $args = array()) The input array uses the parameters of the DescribeReservedInstancesListings operation
- * @method ResourceIteratorInterface getDescribeReservedInstancesOfferingsIterator(array $args = array()) The input array uses the parameters of the DescribeReservedInstancesOfferings operation
- * @method ResourceIteratorInterface getDescribeReservedInstancesModificationsIterator(array $args = array()) The input array uses the parameters of the DescribeReservedInstancesModifications operation
- * @method ResourceIteratorInterface getDescribeRouteTablesIterator(array $args = array()) The input array uses the parameters of the DescribeRouteTables operation
- * @method ResourceIteratorInterface getDescribeSecurityGroupsIterator(array $args = array()) The input array uses the parameters of the DescribeSecurityGroups operation
- * @method ResourceIteratorInterface getDescribeSnapshotsIterator(array $args = array()) The input array uses the parameters of the DescribeSnapshots operation
- * @method ResourceIteratorInterface getDescribeSpotInstanceRequestsIterator(array $args = array()) The input array uses the parameters of the DescribeSpotInstanceRequests operation
- * @method ResourceIteratorInterface getDescribeSpotPriceHistoryIterator(array $args = array()) The input array uses the parameters of the DescribeSpotPriceHistory operation
- * @method ResourceIteratorInterface getDescribeSubnetsIterator(array $args = array()) The input array uses the parameters of the DescribeSubnets operation
- * @method ResourceIteratorInterface getDescribeTagsIterator(array $args = array()) The input array uses the parameters of the DescribeTags operation
- * @method ResourceIteratorInterface getDescribeVolumeStatusIterator(array $args = array()) The input array uses the parameters of the DescribeVolumeStatus operation
- * @method ResourceIteratorInterface getDescribeVolumesIterator(array $args = array()) The input array uses the parameters of the DescribeVolumes operation
- * @method ResourceIteratorInterface getDescribeVpcsIterator(array $args = array()) The input array uses the parameters of the DescribeVpcs operation
- * @method ResourceIteratorInterface getDescribeVpnConnectionsIterator(array $args = array()) The input array uses the parameters of the DescribeVpnConnections operation
- * @method ResourceIteratorInterface getDescribeVpnGatewaysIterator(array $args = array()) The input array uses the parameters of the DescribeVpnGateways operation
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-ec2.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.Ec2.Ec2Client.html API docs
+ * @method \Aws\Result acceptVpcPeeringConnection(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise acceptVpcPeeringConnectionAsync(array $args = [])
+ * @method \Aws\Result allocateAddress(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise allocateAddressAsync(array $args = [])
+ * @method \Aws\Result allocateHosts(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise allocateHostsAsync(array $args = [])
+ * @method \Aws\Result assignPrivateIpAddresses(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise assignPrivateIpAddressesAsync(array $args = [])
+ * @method \Aws\Result associateAddress(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise associateAddressAsync(array $args = [])
+ * @method \Aws\Result associateDhcpOptions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise associateDhcpOptionsAsync(array $args = [])
+ * @method \Aws\Result associateRouteTable(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise associateRouteTableAsync(array $args = [])
+ * @method \Aws\Result attachClassicLinkVpc(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise attachClassicLinkVpcAsync(array $args = [])
+ * @method \Aws\Result attachInternetGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise attachInternetGatewayAsync(array $args = [])
+ * @method \Aws\Result attachNetworkInterface(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise attachNetworkInterfaceAsync(array $args = [])
+ * @method \Aws\Result attachVolume(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise attachVolumeAsync(array $args = [])
+ * @method \Aws\Result attachVpnGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise attachVpnGatewayAsync(array $args = [])
+ * @method \Aws\Result authorizeSecurityGroupEgress(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise authorizeSecurityGroupEgressAsync(array $args = [])
+ * @method \Aws\Result authorizeSecurityGroupIngress(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise authorizeSecurityGroupIngressAsync(array $args = [])
+ * @method \Aws\Result bundleInstance(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise bundleInstanceAsync(array $args = [])
+ * @method \Aws\Result cancelBundleTask(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise cancelBundleTaskAsync(array $args = [])
+ * @method \Aws\Result cancelConversionTask(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise cancelConversionTaskAsync(array $args = [])
+ * @method \Aws\Result cancelExportTask(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise cancelExportTaskAsync(array $args = [])
+ * @method \Aws\Result cancelImportTask(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise cancelImportTaskAsync(array $args = [])
+ * @method \Aws\Result cancelReservedInstancesListing(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise cancelReservedInstancesListingAsync(array $args = [])
+ * @method \Aws\Result cancelSpotFleetRequests(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise cancelSpotFleetRequestsAsync(array $args = [])
+ * @method \Aws\Result cancelSpotInstanceRequests(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise cancelSpotInstanceRequestsAsync(array $args = [])
+ * @method \Aws\Result confirmProductInstance(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise confirmProductInstanceAsync(array $args = [])
+ * @method \Aws\Result copyImage(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise copyImageAsync(array $args = [])
+ * @method \Aws\Result copySnapshot(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise copySnapshotAsync(array $args = [])
+ * @method \Aws\Result createCustomerGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createCustomerGatewayAsync(array $args = [])
+ * @method \Aws\Result createDhcpOptions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createDhcpOptionsAsync(array $args = [])
+ * @method \Aws\Result createFlowLogs(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createFlowLogsAsync(array $args = [])
+ * @method \Aws\Result createImage(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createImageAsync(array $args = [])
+ * @method \Aws\Result createInstanceExportTask(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createInstanceExportTaskAsync(array $args = [])
+ * @method \Aws\Result createInternetGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createInternetGatewayAsync(array $args = [])
+ * @method \Aws\Result createKeyPair(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createKeyPairAsync(array $args = [])
+ * @method \Aws\Result createNatGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createNatGatewayAsync(array $args = [])
+ * @method \Aws\Result createNetworkAcl(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createNetworkAclAsync(array $args = [])
+ * @method \Aws\Result createNetworkAclEntry(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createNetworkAclEntryAsync(array $args = [])
+ * @method \Aws\Result createNetworkInterface(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createNetworkInterfaceAsync(array $args = [])
+ * @method \Aws\Result createPlacementGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createPlacementGroupAsync(array $args = [])
+ * @method \Aws\Result createReservedInstancesListing(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createReservedInstancesListingAsync(array $args = [])
+ * @method \Aws\Result createRoute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createRouteAsync(array $args = [])
+ * @method \Aws\Result createRouteTable(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createRouteTableAsync(array $args = [])
+ * @method \Aws\Result createSecurityGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createSecurityGroupAsync(array $args = [])
+ * @method \Aws\Result createSnapshot(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createSnapshotAsync(array $args = [])
+ * @method \Aws\Result createSpotDatafeedSubscription(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createSpotDatafeedSubscriptionAsync(array $args = [])
+ * @method \Aws\Result createSubnet(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createSubnetAsync(array $args = [])
+ * @method \Aws\Result createTags(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createTagsAsync(array $args = [])
+ * @method \Aws\Result createVolume(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createVolumeAsync(array $args = [])
+ * @method \Aws\Result createVpc(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createVpcAsync(array $args = [])
+ * @method \Aws\Result createVpcEndpoint(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createVpcEndpointAsync(array $args = [])
+ * @method \Aws\Result createVpcPeeringConnection(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createVpcPeeringConnectionAsync(array $args = [])
+ * @method \Aws\Result createVpnConnection(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createVpnConnectionAsync(array $args = [])
+ * @method \Aws\Result createVpnConnectionRoute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createVpnConnectionRouteAsync(array $args = [])
+ * @method \Aws\Result createVpnGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createVpnGatewayAsync(array $args = [])
+ * @method \Aws\Result deleteCustomerGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteCustomerGatewayAsync(array $args = [])
+ * @method \Aws\Result deleteDhcpOptions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteDhcpOptionsAsync(array $args = [])
+ * @method \Aws\Result deleteFlowLogs(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteFlowLogsAsync(array $args = [])
+ * @method \Aws\Result deleteInternetGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteInternetGatewayAsync(array $args = [])
+ * @method \Aws\Result deleteKeyPair(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteKeyPairAsync(array $args = [])
+ * @method \Aws\Result deleteNatGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteNatGatewayAsync(array $args = [])
+ * @method \Aws\Result deleteNetworkAcl(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteNetworkAclAsync(array $args = [])
+ * @method \Aws\Result deleteNetworkAclEntry(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteNetworkAclEntryAsync(array $args = [])
+ * @method \Aws\Result deleteNetworkInterface(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteNetworkInterfaceAsync(array $args = [])
+ * @method \Aws\Result deletePlacementGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deletePlacementGroupAsync(array $args = [])
+ * @method \Aws\Result deleteRoute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteRouteAsync(array $args = [])
+ * @method \Aws\Result deleteRouteTable(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteRouteTableAsync(array $args = [])
+ * @method \Aws\Result deleteSecurityGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteSecurityGroupAsync(array $args = [])
+ * @method \Aws\Result deleteSnapshot(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteSnapshotAsync(array $args = [])
+ * @method \Aws\Result deleteSpotDatafeedSubscription(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteSpotDatafeedSubscriptionAsync(array $args = [])
+ * @method \Aws\Result deleteSubnet(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteSubnetAsync(array $args = [])
+ * @method \Aws\Result deleteTags(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteTagsAsync(array $args = [])
+ * @method \Aws\Result deleteVolume(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteVolumeAsync(array $args = [])
+ * @method \Aws\Result deleteVpc(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteVpcAsync(array $args = [])
+ * @method \Aws\Result deleteVpcEndpoints(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteVpcEndpointsAsync(array $args = [])
+ * @method \Aws\Result deleteVpcPeeringConnection(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteVpcPeeringConnectionAsync(array $args = [])
+ * @method \Aws\Result deleteVpnConnection(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteVpnConnectionAsync(array $args = [])
+ * @method \Aws\Result deleteVpnConnectionRoute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteVpnConnectionRouteAsync(array $args = [])
+ * @method \Aws\Result deleteVpnGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteVpnGatewayAsync(array $args = [])
+ * @method \Aws\Result deregisterImage(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deregisterImageAsync(array $args = [])
+ * @method \Aws\Result describeAccountAttributes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeAccountAttributesAsync(array $args = [])
+ * @method \Aws\Result describeAddresses(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeAddressesAsync(array $args = [])
+ * @method \Aws\Result describeAvailabilityZones(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeAvailabilityZonesAsync(array $args = [])
+ * @method \Aws\Result describeBundleTasks(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeBundleTasksAsync(array $args = [])
+ * @method \Aws\Result describeClassicLinkInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeClassicLinkInstancesAsync(array $args = [])
+ * @method \Aws\Result describeConversionTasks(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeConversionTasksAsync(array $args = [])
+ * @method \Aws\Result describeCustomerGateways(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeCustomerGatewaysAsync(array $args = [])
+ * @method \Aws\Result describeDhcpOptions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeDhcpOptionsAsync(array $args = [])
+ * @method \Aws\Result describeExportTasks(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeExportTasksAsync(array $args = [])
+ * @method \Aws\Result describeFlowLogs(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeFlowLogsAsync(array $args = [])
+ * @method \Aws\Result describeHosts(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeHostsAsync(array $args = [])
+ * @method \Aws\Result describeIdFormat(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeIdFormatAsync(array $args = [])
+ * @method \Aws\Result describeImageAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeImageAttributeAsync(array $args = [])
+ * @method \Aws\Result describeImages(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeImagesAsync(array $args = [])
+ * @method \Aws\Result describeImportImageTasks(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeImportImageTasksAsync(array $args = [])
+ * @method \Aws\Result describeImportSnapshotTasks(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeImportSnapshotTasksAsync(array $args = [])
+ * @method \Aws\Result describeInstanceAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeInstanceAttributeAsync(array $args = [])
+ * @method \Aws\Result describeInstanceStatus(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeInstanceStatusAsync(array $args = [])
+ * @method \Aws\Result describeInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeInstancesAsync(array $args = [])
+ * @method \Aws\Result describeInternetGateways(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeInternetGatewaysAsync(array $args = [])
+ * @method \Aws\Result describeKeyPairs(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeKeyPairsAsync(array $args = [])
+ * @method \Aws\Result describeMovingAddresses(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeMovingAddressesAsync(array $args = [])
+ * @method \Aws\Result describeNatGateways(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeNatGatewaysAsync(array $args = [])
+ * @method \Aws\Result describeNetworkAcls(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeNetworkAclsAsync(array $args = [])
+ * @method \Aws\Result describeNetworkInterfaceAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeNetworkInterfaceAttributeAsync(array $args = [])
+ * @method \Aws\Result describeNetworkInterfaces(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeNetworkInterfacesAsync(array $args = [])
+ * @method \Aws\Result describePlacementGroups(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describePlacementGroupsAsync(array $args = [])
+ * @method \Aws\Result describePrefixLists(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describePrefixListsAsync(array $args = [])
+ * @method \Aws\Result describeRegions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeRegionsAsync(array $args = [])
+ * @method \Aws\Result describeReservedInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeReservedInstancesAsync(array $args = [])
+ * @method \Aws\Result describeReservedInstancesListings(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeReservedInstancesListingsAsync(array $args = [])
+ * @method \Aws\Result describeReservedInstancesModifications(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeReservedInstancesModificationsAsync(array $args = [])
+ * @method \Aws\Result describeReservedInstancesOfferings(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeReservedInstancesOfferingsAsync(array $args = [])
+ * @method \Aws\Result describeRouteTables(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeRouteTablesAsync(array $args = [])
+ * @method \Aws\Result describeScheduledInstanceAvailability(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeScheduledInstanceAvailabilityAsync(array $args = [])
+ * @method \Aws\Result describeScheduledInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeScheduledInstancesAsync(array $args = [])
+ * @method \Aws\Result describeSecurityGroups(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSecurityGroupsAsync(array $args = [])
+ * @method \Aws\Result describeSnapshotAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSnapshotAttributeAsync(array $args = [])
+ * @method \Aws\Result describeSnapshots(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSnapshotsAsync(array $args = [])
+ * @method \Aws\Result describeSpotDatafeedSubscription(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSpotDatafeedSubscriptionAsync(array $args = [])
+ * @method \Aws\Result describeSpotFleetInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSpotFleetInstancesAsync(array $args = [])
+ * @method \Aws\Result describeSpotFleetRequestHistory(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSpotFleetRequestHistoryAsync(array $args = [])
+ * @method \Aws\Result describeSpotFleetRequests(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSpotFleetRequestsAsync(array $args = [])
+ * @method \Aws\Result describeSpotInstanceRequests(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSpotInstanceRequestsAsync(array $args = [])
+ * @method \Aws\Result describeSpotPriceHistory(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSpotPriceHistoryAsync(array $args = [])
+ * @method \Aws\Result describeSubnets(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSubnetsAsync(array $args = [])
+ * @method \Aws\Result describeTags(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeTagsAsync(array $args = [])
+ * @method \Aws\Result describeVolumeAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeVolumeAttributeAsync(array $args = [])
+ * @method \Aws\Result describeVolumeStatus(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeVolumeStatusAsync(array $args = [])
+ * @method \Aws\Result describeVolumes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeVolumesAsync(array $args = [])
+ * @method \Aws\Result describeVpcAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeVpcAttributeAsync(array $args = [])
+ * @method \Aws\Result describeVpcClassicLink(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeVpcClassicLinkAsync(array $args = [])
+ * @method \Aws\Result describeVpcClassicLinkDnsSupport(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeVpcClassicLinkDnsSupportAsync(array $args = [])
+ * @method \Aws\Result describeVpcEndpointServices(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeVpcEndpointServicesAsync(array $args = [])
+ * @method \Aws\Result describeVpcEndpoints(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeVpcEndpointsAsync(array $args = [])
+ * @method \Aws\Result describeVpcPeeringConnections(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeVpcPeeringConnectionsAsync(array $args = [])
+ * @method \Aws\Result describeVpcs(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeVpcsAsync(array $args = [])
+ * @method \Aws\Result describeVpnConnections(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeVpnConnectionsAsync(array $args = [])
+ * @method \Aws\Result describeVpnGateways(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeVpnGatewaysAsync(array $args = [])
+ * @method \Aws\Result detachClassicLinkVpc(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise detachClassicLinkVpcAsync(array $args = [])
+ * @method \Aws\Result detachInternetGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise detachInternetGatewayAsync(array $args = [])
+ * @method \Aws\Result detachNetworkInterface(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise detachNetworkInterfaceAsync(array $args = [])
+ * @method \Aws\Result detachVolume(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise detachVolumeAsync(array $args = [])
+ * @method \Aws\Result detachVpnGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise detachVpnGatewayAsync(array $args = [])
+ * @method \Aws\Result disableVgwRoutePropagation(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise disableVgwRoutePropagationAsync(array $args = [])
+ * @method \Aws\Result disableVpcClassicLink(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise disableVpcClassicLinkAsync(array $args = [])
+ * @method \Aws\Result disableVpcClassicLinkDnsSupport(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise disableVpcClassicLinkDnsSupportAsync(array $args = [])
+ * @method \Aws\Result disassociateAddress(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise disassociateAddressAsync(array $args = [])
+ * @method \Aws\Result disassociateRouteTable(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise disassociateRouteTableAsync(array $args = [])
+ * @method \Aws\Result enableVgwRoutePropagation(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise enableVgwRoutePropagationAsync(array $args = [])
+ * @method \Aws\Result enableVolumeIO(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise enableVolumeIOAsync(array $args = [])
+ * @method \Aws\Result enableVpcClassicLink(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise enableVpcClassicLinkAsync(array $args = [])
+ * @method \Aws\Result enableVpcClassicLinkDnsSupport(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise enableVpcClassicLinkDnsSupportAsync(array $args = [])
+ * @method \Aws\Result getConsoleOutput(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getConsoleOutputAsync(array $args = [])
+ * @method \Aws\Result getPasswordData(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getPasswordDataAsync(array $args = [])
+ * @method \Aws\Result importImage(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise importImageAsync(array $args = [])
+ * @method \Aws\Result importInstance(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise importInstanceAsync(array $args = [])
+ * @method \Aws\Result importKeyPair(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise importKeyPairAsync(array $args = [])
+ * @method \Aws\Result importSnapshot(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise importSnapshotAsync(array $args = [])
+ * @method \Aws\Result importVolume(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise importVolumeAsync(array $args = [])
+ * @method \Aws\Result modifyHosts(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyHostsAsync(array $args = [])
+ * @method \Aws\Result modifyIdFormat(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyIdFormatAsync(array $args = [])
+ * @method \Aws\Result modifyImageAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyImageAttributeAsync(array $args = [])
+ * @method \Aws\Result modifyInstanceAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyInstanceAttributeAsync(array $args = [])
+ * @method \Aws\Result modifyInstancePlacement(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyInstancePlacementAsync(array $args = [])
+ * @method \Aws\Result modifyNetworkInterfaceAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyNetworkInterfaceAttributeAsync(array $args = [])
+ * @method \Aws\Result modifyReservedInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyReservedInstancesAsync(array $args = [])
+ * @method \Aws\Result modifySnapshotAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifySnapshotAttributeAsync(array $args = [])
+ * @method \Aws\Result modifySpotFleetRequest(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifySpotFleetRequestAsync(array $args = [])
+ * @method \Aws\Result modifySubnetAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifySubnetAttributeAsync(array $args = [])
+ * @method \Aws\Result modifyVolumeAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyVolumeAttributeAsync(array $args = [])
+ * @method \Aws\Result modifyVpcAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyVpcAttributeAsync(array $args = [])
+ * @method \Aws\Result modifyVpcEndpoint(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyVpcEndpointAsync(array $args = [])
+ * @method \Aws\Result modifyVpcPeeringConnectionOptions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyVpcPeeringConnectionOptionsAsync(array $args = [])
+ * @method \Aws\Result monitorInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise monitorInstancesAsync(array $args = [])
+ * @method \Aws\Result moveAddressToVpc(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise moveAddressToVpcAsync(array $args = [])
+ * @method \Aws\Result purchaseReservedInstancesOffering(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise purchaseReservedInstancesOfferingAsync(array $args = [])
+ * @method \Aws\Result purchaseScheduledInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise purchaseScheduledInstancesAsync(array $args = [])
+ * @method \Aws\Result rebootInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise rebootInstancesAsync(array $args = [])
+ * @method \Aws\Result registerImage(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise registerImageAsync(array $args = [])
+ * @method \Aws\Result rejectVpcPeeringConnection(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise rejectVpcPeeringConnectionAsync(array $args = [])
+ * @method \Aws\Result releaseAddress(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise releaseAddressAsync(array $args = [])
+ * @method \Aws\Result releaseHosts(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise releaseHostsAsync(array $args = [])
+ * @method \Aws\Result replaceNetworkAclAssociation(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise replaceNetworkAclAssociationAsync(array $args = [])
+ * @method \Aws\Result replaceNetworkAclEntry(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise replaceNetworkAclEntryAsync(array $args = [])
+ * @method \Aws\Result replaceRoute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise replaceRouteAsync(array $args = [])
+ * @method \Aws\Result replaceRouteTableAssociation(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise replaceRouteTableAssociationAsync(array $args = [])
+ * @method \Aws\Result reportInstanceStatus(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise reportInstanceStatusAsync(array $args = [])
+ * @method \Aws\Result requestSpotFleet(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise requestSpotFleetAsync(array $args = [])
+ * @method \Aws\Result requestSpotInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise requestSpotInstancesAsync(array $args = [])
+ * @method \Aws\Result resetImageAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise resetImageAttributeAsync(array $args = [])
+ * @method \Aws\Result resetInstanceAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise resetInstanceAttributeAsync(array $args = [])
+ * @method \Aws\Result resetNetworkInterfaceAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise resetNetworkInterfaceAttributeAsync(array $args = [])
+ * @method \Aws\Result resetSnapshotAttribute(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise resetSnapshotAttributeAsync(array $args = [])
+ * @method \Aws\Result restoreAddressToClassic(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise restoreAddressToClassicAsync(array $args = [])
+ * @method \Aws\Result revokeSecurityGroupEgress(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise revokeSecurityGroupEgressAsync(array $args = [])
+ * @method \Aws\Result revokeSecurityGroupIngress(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise revokeSecurityGroupIngressAsync(array $args = [])
+ * @method \Aws\Result runInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise runInstancesAsync(array $args = [])
+ * @method \Aws\Result runScheduledInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise runScheduledInstancesAsync(array $args = [])
+ * @method \Aws\Result startInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise startInstancesAsync(array $args = [])
+ * @method \Aws\Result stopInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise stopInstancesAsync(array $args = [])
+ * @method \Aws\Result terminateInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise terminateInstancesAsync(array $args = [])
+ * @method \Aws\Result unassignPrivateIpAddresses(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise unassignPrivateIpAddressesAsync(array $args = [])
+ * @method \Aws\Result unmonitorInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise unmonitorInstancesAsync(array $args = [])
  */
-class Ec2Client extends AbstractClient
+class Ec2Client extends AwsClient
 {
-    const LATEST_API_VERSION = '2015-04-15';
+    public function __construct(array $args)
+    {
+        $args['with_resolved'] = function (array $args) {
+            $this->getHandlerList()->appendInit(
+                CopySnapshotMiddleware::wrap(
+                    $this,
+                    $args['endpoint_provider']
+                ),
+                'ec2.copy_snapshot'
+            );
+        };
+
+        parent::__construct($args);
+    }
 
     /**
-     * Factory method to create a new AWS Elastic Compute Cloud client using an array of configuration options.
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
+     * @internal
+     * @codeCoverageIgnore
      */
-    public static function factory($config = array())
+    public static function applyDocFilters(array $api, array $docs)
     {
-        $client = ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION             => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/ec2-%s.php'
-            ))
-            ->build();
+        // Several copy snapshot parameters are optional.
+        $docs['shapes']['String']['refs']['CopySnapshotRequest$PresignedUrl']
+            = '<div class="alert alert-info">The SDK will compute this value '
+            . 'for you on your behalf.</div>';
+        $docs['shapes']['String']['refs']['CopySnapshotRequest$DestinationRegion']
+            = '<div class="alert alert-info">The SDK will populate this '
+            . 'parameter on your behalf using the configured region value of '
+            . 'the client.</div>';
 
-        $client->addSubscriber(new CopySnapshotListener());
-
-        return $client;
+        return [
+            new Service($api, ApiProvider::defaultProvider()),
+            new DocModel($docs)
+        ];
     }
 }

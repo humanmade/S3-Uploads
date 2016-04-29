@@ -1,117 +1,120 @@
 <?php
-/**
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- * http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 namespace Aws\StorageGateway;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Enum\ClientOptions as Options;
-use Aws\Common\Exception\Parser\JsonQueryExceptionParser;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
-use Guzzle\Service\Resource\ResourceIteratorInterface;
+use Aws\AwsClient;
 
 /**
- * Client to interact with AWS Storage Gateway
+ * AWS Storage Gateway client.
  *
- * @method Model activateGateway(array $args = array()) {@command StorageGateway ActivateGateway}
- * @method Model addCache(array $args = array()) {@command StorageGateway AddCache}
- * @method Model addUploadBuffer(array $args = array()) {@command StorageGateway AddUploadBuffer}
- * @method Model addWorkingStorage(array $args = array()) {@command StorageGateway AddWorkingStorage}
- * @method Model cancelArchival(array $args = array()) {@command StorageGateway CancelArchival}
- * @method Model cancelRetrieval(array $args = array()) {@command StorageGateway CancelRetrieval}
- * @method Model createCachediSCSIVolume(array $args = array()) {@command StorageGateway CreateCachediSCSIVolume}
- * @method Model createSnapshot(array $args = array()) {@command StorageGateway CreateSnapshot}
- * @method Model createSnapshotFromVolumeRecoveryPoint(array $args = array()) {@command StorageGateway CreateSnapshotFromVolumeRecoveryPoint}
- * @method Model createStorediSCSIVolume(array $args = array()) {@command StorageGateway CreateStorediSCSIVolume}
- * @method Model createTapes(array $args = array()) {@command StorageGateway CreateTapes}
- * @method Model deleteBandwidthRateLimit(array $args = array()) {@command StorageGateway DeleteBandwidthRateLimit}
- * @method Model deleteChapCredentials(array $args = array()) {@command StorageGateway DeleteChapCredentials}
- * @method Model deleteGateway(array $args = array()) {@command StorageGateway DeleteGateway}
- * @method Model deleteSnapshotSchedule(array $args = array()) {@command StorageGateway DeleteSnapshotSchedule}
- * @method Model deleteTape(array $args = array()) {@command StorageGateway DeleteTape}
- * @method Model deleteTapeArchive(array $args = array()) {@command StorageGateway DeleteTapeArchive}
- * @method Model deleteVolume(array $args = array()) {@command StorageGateway DeleteVolume}
- * @method Model describeBandwidthRateLimit(array $args = array()) {@command StorageGateway DescribeBandwidthRateLimit}
- * @method Model describeCache(array $args = array()) {@command StorageGateway DescribeCache}
- * @method Model describeCachediSCSIVolumes(array $args = array()) {@command StorageGateway DescribeCachediSCSIVolumes}
- * @method Model describeChapCredentials(array $args = array()) {@command StorageGateway DescribeChapCredentials}
- * @method Model describeGatewayInformation(array $args = array()) {@command StorageGateway DescribeGatewayInformation}
- * @method Model describeMaintenanceStartTime(array $args = array()) {@command StorageGateway DescribeMaintenanceStartTime}
- * @method Model describeSnapshotSchedule(array $args = array()) {@command StorageGateway DescribeSnapshotSchedule}
- * @method Model describeStorediSCSIVolumes(array $args = array()) {@command StorageGateway DescribeStorediSCSIVolumes}
- * @method Model describeTapeArchives(array $args = array()) {@command StorageGateway DescribeTapeArchives}
- * @method Model describeTapeRecoveryPoints(array $args = array()) {@command StorageGateway DescribeTapeRecoveryPoints}
- * @method Model describeTapes(array $args = array()) {@command StorageGateway DescribeTapes}
- * @method Model describeUploadBuffer(array $args = array()) {@command StorageGateway DescribeUploadBuffer}
- * @method Model describeVTLDevices(array $args = array()) {@command StorageGateway DescribeVTLDevices}
- * @method Model describeWorkingStorage(array $args = array()) {@command StorageGateway DescribeWorkingStorage}
- * @method Model disableGateway(array $args = array()) {@command StorageGateway DisableGateway}
- * @method Model listGateways(array $args = array()) {@command StorageGateway ListGateways}
- * @method Model listLocalDisks(array $args = array()) {@command StorageGateway ListLocalDisks}
- * @method Model listVolumeInitiators(array $args = array()) {@command StorageGateway ListVolumeInitiators}
- * @method Model listVolumeRecoveryPoints(array $args = array()) {@command StorageGateway ListVolumeRecoveryPoints}
- * @method Model listVolumes(array $args = array()) {@command StorageGateway ListVolumes}
- * @method Model resetCache(array $args = array()) {@command StorageGateway ResetCache}
- * @method Model retrieveTapeArchive(array $args = array()) {@command StorageGateway RetrieveTapeArchive}
- * @method Model retrieveTapeRecoveryPoint(array $args = array()) {@command StorageGateway RetrieveTapeRecoveryPoint}
- * @method Model shutdownGateway(array $args = array()) {@command StorageGateway ShutdownGateway}
- * @method Model startGateway(array $args = array()) {@command StorageGateway StartGateway}
- * @method Model updateBandwidthRateLimit(array $args = array()) {@command StorageGateway UpdateBandwidthRateLimit}
- * @method Model updateChapCredentials(array $args = array()) {@command StorageGateway UpdateChapCredentials}
- * @method Model updateGatewayInformation(array $args = array()) {@command StorageGateway UpdateGatewayInformation}
- * @method Model updateGatewaySoftwareNow(array $args = array()) {@command StorageGateway UpdateGatewaySoftwareNow}
- * @method Model updateMaintenanceStartTime(array $args = array()) {@command StorageGateway UpdateMaintenanceStartTime}
- * @method Model updateSnapshotSchedule(array $args = array()) {@command StorageGateway UpdateSnapshotSchedule}
- * @method Model updateVTLDeviceType(array $args = array()) {@command StorageGateway UpdateVTLDeviceType}
- * @method ResourceIteratorInterface getDescribeCachediSCSIVolumesIterator(array $args = array()) The input array uses the parameters of the DescribeCachediSCSIVolumes operation
- * @method ResourceIteratorInterface getDescribeStorediSCSIVolumesIterator(array $args = array()) The input array uses the parameters of the DescribeStorediSCSIVolumes operation
- * @method ResourceIteratorInterface getDescribeTapeArchivesIterator(array $args = array()) The input array uses the parameters of the DescribeTapeArchives operation
- * @method ResourceIteratorInterface getDescribeTapeRecoveryPointsIterator(array $args = array()) The input array uses the parameters of the DescribeTapeRecoveryPoints operation
- * @method ResourceIteratorInterface getDescribeTapesIterator(array $args = array()) The input array uses the parameters of the DescribeTapes operation
- * @method ResourceIteratorInterface getDescribeVTLDevicesIterator(array $args = array()) The input array uses the parameters of the DescribeVTLDevices operation
- * @method ResourceIteratorInterface getListGatewaysIterator(array $args = array()) The input array uses the parameters of the ListGateways operation
- * @method ResourceIteratorInterface getListLocalDisksIterator(array $args = array()) The input array uses the parameters of the ListLocalDisks operation
- * @method ResourceIteratorInterface getListVolumeRecoveryPointsIterator(array $args = array()) The input array uses the parameters of the ListVolumeRecoveryPoints operation
- * @method ResourceIteratorInterface getListVolumesIterator(array $args = array()) The input array uses the parameters of the ListVolumes operation
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-storagegateway.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.StorageGateway.StorageGatewayClient.html API docs
+ * @method \Aws\Result activateGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise activateGatewayAsync(array $args = [])
+ * @method \Aws\Result addCache(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise addCacheAsync(array $args = [])
+ * @method \Aws\Result addTagsToResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise addTagsToResourceAsync(array $args = [])
+ * @method \Aws\Result addUploadBuffer(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise addUploadBufferAsync(array $args = [])
+ * @method \Aws\Result addWorkingStorage(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise addWorkingStorageAsync(array $args = [])
+ * @method \Aws\Result cancelArchival(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise cancelArchivalAsync(array $args = [])
+ * @method \Aws\Result cancelRetrieval(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise cancelRetrievalAsync(array $args = [])
+ * @method \Aws\Result createCachediSCSIVolume(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createCachediSCSIVolumeAsync(array $args = [])
+ * @method \Aws\Result createSnapshot(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createSnapshotAsync(array $args = [])
+ * @method \Aws\Result createSnapshotFromVolumeRecoveryPoint(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createSnapshotFromVolumeRecoveryPointAsync(array $args = [])
+ * @method \Aws\Result createStorediSCSIVolume(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createStorediSCSIVolumeAsync(array $args = [])
+ * @method \Aws\Result createTapeWithBarcode(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createTapeWithBarcodeAsync(array $args = [])
+ * @method \Aws\Result createTapes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createTapesAsync(array $args = [])
+ * @method \Aws\Result deleteBandwidthRateLimit(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteBandwidthRateLimitAsync(array $args = [])
+ * @method \Aws\Result deleteChapCredentials(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteChapCredentialsAsync(array $args = [])
+ * @method \Aws\Result deleteGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteGatewayAsync(array $args = [])
+ * @method \Aws\Result deleteSnapshotSchedule(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteSnapshotScheduleAsync(array $args = [])
+ * @method \Aws\Result deleteTape(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteTapeAsync(array $args = [])
+ * @method \Aws\Result deleteTapeArchive(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteTapeArchiveAsync(array $args = [])
+ * @method \Aws\Result deleteVolume(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteVolumeAsync(array $args = [])
+ * @method \Aws\Result describeBandwidthRateLimit(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeBandwidthRateLimitAsync(array $args = [])
+ * @method \Aws\Result describeCache(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeCacheAsync(array $args = [])
+ * @method \Aws\Result describeCachediSCSIVolumes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeCachediSCSIVolumesAsync(array $args = [])
+ * @method \Aws\Result describeChapCredentials(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeChapCredentialsAsync(array $args = [])
+ * @method \Aws\Result describeGatewayInformation(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeGatewayInformationAsync(array $args = [])
+ * @method \Aws\Result describeMaintenanceStartTime(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeMaintenanceStartTimeAsync(array $args = [])
+ * @method \Aws\Result describeSnapshotSchedule(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSnapshotScheduleAsync(array $args = [])
+ * @method \Aws\Result describeStorediSCSIVolumes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeStorediSCSIVolumesAsync(array $args = [])
+ * @method \Aws\Result describeTapeArchives(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeTapeArchivesAsync(array $args = [])
+ * @method \Aws\Result describeTapeRecoveryPoints(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeTapeRecoveryPointsAsync(array $args = [])
+ * @method \Aws\Result describeTapes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeTapesAsync(array $args = [])
+ * @method \Aws\Result describeUploadBuffer(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeUploadBufferAsync(array $args = [])
+ * @method \Aws\Result describeVTLDevices(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeVTLDevicesAsync(array $args = [])
+ * @method \Aws\Result describeWorkingStorage(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeWorkingStorageAsync(array $args = [])
+ * @method \Aws\Result disableGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise disableGatewayAsync(array $args = [])
+ * @method \Aws\Result listGateways(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listGatewaysAsync(array $args = [])
+ * @method \Aws\Result listLocalDisks(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listLocalDisksAsync(array $args = [])
+ * @method \Aws\Result listTagsForResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listTagsForResourceAsync(array $args = [])
+ * @method \Aws\Result listVolumeInitiators(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listVolumeInitiatorsAsync(array $args = [])
+ * @method \Aws\Result listVolumeRecoveryPoints(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listVolumeRecoveryPointsAsync(array $args = [])
+ * @method \Aws\Result listVolumes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listVolumesAsync(array $args = [])
+ * @method \Aws\Result removeTagsFromResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise removeTagsFromResourceAsync(array $args = [])
+ * @method \Aws\Result resetCache(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise resetCacheAsync(array $args = [])
+ * @method \Aws\Result retrieveTapeArchive(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise retrieveTapeArchiveAsync(array $args = [])
+ * @method \Aws\Result retrieveTapeRecoveryPoint(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise retrieveTapeRecoveryPointAsync(array $args = [])
+ * @method \Aws\Result setLocalConsolePassword(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise setLocalConsolePasswordAsync(array $args = [])
+ * @method \Aws\Result shutdownGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise shutdownGatewayAsync(array $args = [])
+ * @method \Aws\Result startGateway(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise startGatewayAsync(array $args = [])
+ * @method \Aws\Result updateBandwidthRateLimit(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateBandwidthRateLimitAsync(array $args = [])
+ * @method \Aws\Result updateChapCredentials(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateChapCredentialsAsync(array $args = [])
+ * @method \Aws\Result updateGatewayInformation(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateGatewayInformationAsync(array $args = [])
+ * @method \Aws\Result updateGatewaySoftwareNow(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateGatewaySoftwareNowAsync(array $args = [])
+ * @method \Aws\Result updateMaintenanceStartTime(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateMaintenanceStartTimeAsync(array $args = [])
+ * @method \Aws\Result updateSnapshotSchedule(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateSnapshotScheduleAsync(array $args = [])
+ * @method \Aws\Result updateVTLDeviceType(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateVTLDeviceTypeAsync(array $args = [])
  */
-class StorageGatewayClient extends AbstractClient
-{
-    const LATEST_API_VERSION = '2013-06-30';
-
-    /**
-     * Factory method to create a new AWS Storage Gateway client using an array of configuration options.
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     */
-    public static function factory($config = array())
-    {
-        return ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION             => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/storagegateway-%s.php'
-            ))
-            ->setExceptionParser(new JsonQueryExceptionParser())
-            ->build();
-    }
-}
+class StorageGatewayClient extends AwsClient {}

@@ -1,105 +1,58 @@
 <?php
-/**
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- * http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 namespace Aws\CloudSearch;
 
-use Aws\CloudSearchDomain\CloudSearchDomainClient;
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Enum\ClientOptions as Options;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
-use Guzzle\Service\Resource\ResourceIteratorInterface;
+use Aws\AwsClient;
 
 /**
- * Client to interact with Amazon CloudSearch
+ * This client is used to interact with the **Amazon CloudSearch** service.
  *
- * @method Model buildSuggesters(array $args = array()) {@command CloudSearch BuildSuggesters}
- * @method Model createDomain(array $args = array()) {@command CloudSearch CreateDomain}
- * @method Model defineAnalysisScheme(array $args = array()) {@command CloudSearch DefineAnalysisScheme}
- * @method Model defineExpression(array $args = array()) {@command CloudSearch DefineExpression}
- * @method Model defineIndexField(array $args = array()) {@command CloudSearch DefineIndexField}
- * @method Model defineSuggester(array $args = array()) {@command CloudSearch DefineSuggester}
- * @method Model deleteAnalysisScheme(array $args = array()) {@command CloudSearch DeleteAnalysisScheme}
- * @method Model deleteDomain(array $args = array()) {@command CloudSearch DeleteDomain}
- * @method Model deleteExpression(array $args = array()) {@command CloudSearch DeleteExpression}
- * @method Model deleteIndexField(array $args = array()) {@command CloudSearch DeleteIndexField}
- * @method Model deleteSuggester(array $args = array()) {@command CloudSearch DeleteSuggester}
- * @method Model describeAnalysisSchemes(array $args = array()) {@command CloudSearch DescribeAnalysisSchemes}
- * @method Model describeAvailabilityOptions(array $args = array()) {@command CloudSearch DescribeAvailabilityOptions}
- * @method Model describeDomains(array $args = array()) {@command CloudSearch DescribeDomains}
- * @method Model describeExpressions(array $args = array()) {@command CloudSearch DescribeExpressions}
- * @method Model describeIndexFields(array $args = array()) {@command CloudSearch DescribeIndexFields}
- * @method Model describeScalingParameters(array $args = array()) {@command CloudSearch DescribeScalingParameters}
- * @method Model describeServiceAccessPolicies(array $args = array()) {@command CloudSearch DescribeServiceAccessPolicies}
- * @method Model describeSuggesters(array $args = array()) {@command CloudSearch DescribeSuggesters}
- * @method Model indexDocuments(array $args = array()) {@command CloudSearch IndexDocuments}
- * @method Model listDomainNames(array $args = array()) {@command CloudSearch ListDomainNames}
- * @method Model updateAvailabilityOptions(array $args = array()) {@command CloudSearch UpdateAvailabilityOptions}
- * @method Model updateScalingParameters(array $args = array()) {@command CloudSearch UpdateScalingParameters}
- * @method Model updateServiceAccessPolicies(array $args = array()) {@command CloudSearch UpdateServiceAccessPolicies}
- * @method ResourceIteratorInterface getDescribeAnalysisSchemesIterator(array $args = array()) The input array uses the parameters of the DescribeAnalysisSchemes operation
- * @method ResourceIteratorInterface getDescribeDomainsIterator(array $args = array()) The input array uses the parameters of the DescribeDomains operation
- * @method ResourceIteratorInterface getDescribeExpressionsIterator(array $args = array()) The input array uses the parameters of the DescribeExpressions operation
- * @method ResourceIteratorInterface getDescribeIndexFieldsIterator(array $args = array()) The input array uses the parameters of the DescribeIndexFields operation
- * @method ResourceIteratorInterface getDescribeSuggestersIterator(array $args = array()) The input array uses the parameters of the DescribeSuggesters operation
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-cloudsearch.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.CloudSearch.CloudSearchClient.html API docs
+ * @method \Aws\Result buildSuggesters(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise buildSuggestersAsync(array $args = [])
+ * @method \Aws\Result createDomain(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createDomainAsync(array $args = [])
+ * @method \Aws\Result defineAnalysisScheme(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise defineAnalysisSchemeAsync(array $args = [])
+ * @method \Aws\Result defineExpression(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise defineExpressionAsync(array $args = [])
+ * @method \Aws\Result defineIndexField(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise defineIndexFieldAsync(array $args = [])
+ * @method \Aws\Result defineSuggester(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise defineSuggesterAsync(array $args = [])
+ * @method \Aws\Result deleteAnalysisScheme(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteAnalysisSchemeAsync(array $args = [])
+ * @method \Aws\Result deleteDomain(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteDomainAsync(array $args = [])
+ * @method \Aws\Result deleteExpression(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteExpressionAsync(array $args = [])
+ * @method \Aws\Result deleteIndexField(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteIndexFieldAsync(array $args = [])
+ * @method \Aws\Result deleteSuggester(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteSuggesterAsync(array $args = [])
+ * @method \Aws\Result describeAnalysisSchemes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeAnalysisSchemesAsync(array $args = [])
+ * @method \Aws\Result describeAvailabilityOptions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeAvailabilityOptionsAsync(array $args = [])
+ * @method \Aws\Result describeDomains(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeDomainsAsync(array $args = [])
+ * @method \Aws\Result describeExpressions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeExpressionsAsync(array $args = [])
+ * @method \Aws\Result describeIndexFields(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeIndexFieldsAsync(array $args = [])
+ * @method \Aws\Result describeScalingParameters(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeScalingParametersAsync(array $args = [])
+ * @method \Aws\Result describeServiceAccessPolicies(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeServiceAccessPoliciesAsync(array $args = [])
+ * @method \Aws\Result describeSuggesters(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSuggestersAsync(array $args = [])
+ * @method \Aws\Result indexDocuments(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise indexDocumentsAsync(array $args = [])
+ * @method \Aws\Result listDomainNames(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listDomainNamesAsync(array $args = [])
+ * @method \Aws\Result updateAvailabilityOptions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateAvailabilityOptionsAsync(array $args = [])
+ * @method \Aws\Result updateScalingParameters(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateScalingParametersAsync(array $args = [])
+ * @method \Aws\Result updateServiceAccessPolicies(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateServiceAccessPoliciesAsync(array $args = [])
  */
-class CloudSearchClient extends AbstractClient
-{
-    const LATEST_API_VERSION = '2013-01-01';
-
-    /**
-     * Factory method to create a new Amazon CloudSearch client using an array of configuration options.
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     */
-    public static function factory($config = array())
-    {
-        return ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION             => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/cloudsearch-%s.php'
-            ))
-            ->build();
-    }
-
-    /**
-     * Create a CloudSearchDomainClient for a particular domain to do searching
-     * and document uploads.
-     *
-     * @param string $domainName Name of the domain for which to create a domain client.
-     * @param array  $config     Config options for the CloudSearchDomainClient
-     *
-     * @return CloudSearchDomainClient
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     */
-    public function getDomainClient($domainName, array $config = array())
-    {
-        // Determine the Domain client's endpoint
-        $config['endpoint'] = $this->describeDomains(array(
-            'DomainNames' => array($domainName)
-        ))->getPath('DomainStatusList/0/SearchService/Endpoint');
-
-        return CloudSearchDomainClient::factory($config);
-    }
-}
+class CloudSearchClient extends AwsClient {}

@@ -1,104 +1,86 @@
 <?php
-/**
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- * http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 namespace Aws\ElastiCache;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Enum\ClientOptions as Options;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
-use Guzzle\Service\Resource\ResourceIteratorInterface;
+use Aws\AwsClient;
 
 /**
- * Client to interact with Amazon ElastiCache
+ * This client is used to interact with the **Amazon ElastiCache** service.
  *
- * @method Model addTagsToResource(array $args = array()) {@command ElastiCache AddTagsToResource}
- * @method Model authorizeCacheSecurityGroupIngress(array $args = array()) {@command ElastiCache AuthorizeCacheSecurityGroupIngress}
- * @method Model copySnapshot(array $args = array()) {@command ElastiCache CopySnapshot}
- * @method Model createCacheCluster(array $args = array()) {@command ElastiCache CreateCacheCluster}
- * @method Model createCacheParameterGroup(array $args = array()) {@command ElastiCache CreateCacheParameterGroup}
- * @method Model createCacheSecurityGroup(array $args = array()) {@command ElastiCache CreateCacheSecurityGroup}
- * @method Model createCacheSubnetGroup(array $args = array()) {@command ElastiCache CreateCacheSubnetGroup}
- * @method Model createReplicationGroup(array $args = array()) {@command ElastiCache CreateReplicationGroup}
- * @method Model createSnapshot(array $args = array()) {@command ElastiCache CreateSnapshot}
- * @method Model deleteCacheCluster(array $args = array()) {@command ElastiCache DeleteCacheCluster}
- * @method Model deleteCacheParameterGroup(array $args = array()) {@command ElastiCache DeleteCacheParameterGroup}
- * @method Model deleteCacheSecurityGroup(array $args = array()) {@command ElastiCache DeleteCacheSecurityGroup}
- * @method Model deleteCacheSubnetGroup(array $args = array()) {@command ElastiCache DeleteCacheSubnetGroup}
- * @method Model deleteReplicationGroup(array $args = array()) {@command ElastiCache DeleteReplicationGroup}
- * @method Model deleteSnapshot(array $args = array()) {@command ElastiCache DeleteSnapshot}
- * @method Model describeCacheClusters(array $args = array()) {@command ElastiCache DescribeCacheClusters}
- * @method Model describeCacheEngineVersions(array $args = array()) {@command ElastiCache DescribeCacheEngineVersions}
- * @method Model describeCacheParameterGroups(array $args = array()) {@command ElastiCache DescribeCacheParameterGroups}
- * @method Model describeCacheParameters(array $args = array()) {@command ElastiCache DescribeCacheParameters}
- * @method Model describeCacheSecurityGroups(array $args = array()) {@command ElastiCache DescribeCacheSecurityGroups}
- * @method Model describeCacheSubnetGroups(array $args = array()) {@command ElastiCache DescribeCacheSubnetGroups}
- * @method Model describeEngineDefaultParameters(array $args = array()) {@command ElastiCache DescribeEngineDefaultParameters}
- * @method Model describeEvents(array $args = array()) {@command ElastiCache DescribeEvents}
- * @method Model describeReplicationGroups(array $args = array()) {@command ElastiCache DescribeReplicationGroups}
- * @method Model describeReservedCacheNodes(array $args = array()) {@command ElastiCache DescribeReservedCacheNodes}
- * @method Model describeReservedCacheNodesOfferings(array $args = array()) {@command ElastiCache DescribeReservedCacheNodesOfferings}
- * @method Model describeSnapshots(array $args = array()) {@command ElastiCache DescribeSnapshots}
- * @method Model listTagsForResource(array $args = array()) {@command ElastiCache ListTagsForResource}
- * @method Model modifyCacheCluster(array $args = array()) {@command ElastiCache ModifyCacheCluster}
- * @method Model modifyCacheParameterGroup(array $args = array()) {@command ElastiCache ModifyCacheParameterGroup}
- * @method Model modifyCacheSubnetGroup(array $args = array()) {@command ElastiCache ModifyCacheSubnetGroup}
- * @method Model modifyReplicationGroup(array $args = array()) {@command ElastiCache ModifyReplicationGroup}
- * @method Model purchaseReservedCacheNodesOffering(array $args = array()) {@command ElastiCache PurchaseReservedCacheNodesOffering}
- * @method Model rebootCacheCluster(array $args = array()) {@command ElastiCache RebootCacheCluster}
- * @method Model removeTagsFromResource(array $args = array()) {@command ElastiCache RemoveTagsFromResource}
- * @method Model resetCacheParameterGroup(array $args = array()) {@command ElastiCache ResetCacheParameterGroup}
- * @method Model revokeCacheSecurityGroupIngress(array $args = array()) {@command ElastiCache RevokeCacheSecurityGroupIngress}
- * @method ResourceIteratorInterface getDescribeCacheClustersIterator(array $args = array()) The input array uses the parameters of the DescribeCacheClusters operation
- * @method ResourceIteratorInterface getDescribeCacheEngineVersionsIterator(array $args = array()) The input array uses the parameters of the DescribeCacheEngineVersions operation
- * @method ResourceIteratorInterface getDescribeCacheParameterGroupsIterator(array $args = array()) The input array uses the parameters of the DescribeCacheParameterGroups operation
- * @method ResourceIteratorInterface getDescribeCacheParametersIterator(array $args = array()) The input array uses the parameters of the DescribeCacheParameters operation
- * @method ResourceIteratorInterface getDescribeCacheSecurityGroupsIterator(array $args = array()) The input array uses the parameters of the DescribeCacheSecurityGroups operation
- * @method ResourceIteratorInterface getDescribeCacheSubnetGroupsIterator(array $args = array()) The input array uses the parameters of the DescribeCacheSubnetGroups operation
- * @method ResourceIteratorInterface getDescribeEngineDefaultParametersIterator(array $args = array()) The input array uses the parameters of the DescribeEngineDefaultParameters operation
- * @method ResourceIteratorInterface getDescribeEventsIterator(array $args = array()) The input array uses the parameters of the DescribeEvents operation
- * @method ResourceIteratorInterface getDescribeReservedCacheNodesIterator(array $args = array()) The input array uses the parameters of the DescribeReservedCacheNodes operation
- * @method ResourceIteratorInterface getDescribeReservedCacheNodesOfferingsIterator(array $args = array()) The input array uses the parameters of the DescribeReservedCacheNodesOfferings operation
- * @method ResourceIteratorInterface getDescribeReplicationGroupsIterator(array $args = array()) The input array uses the parameters of the DescribeReplicationGroups operation
- * @method ResourceIteratorInterface getDescribeSnapshotsIterator(array $args = array()) The input array uses the parameters of the DescribeSnapshots operation
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-elasticache.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.ElastiCache.ElastiCacheClient.html API docs
+ * @method \Aws\Result addTagsToResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise addTagsToResourceAsync(array $args = [])
+ * @method \Aws\Result authorizeCacheSecurityGroupIngress(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise authorizeCacheSecurityGroupIngressAsync(array $args = [])
+ * @method \Aws\Result copySnapshot(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise copySnapshotAsync(array $args = [])
+ * @method \Aws\Result createCacheCluster(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createCacheClusterAsync(array $args = [])
+ * @method \Aws\Result createCacheParameterGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createCacheParameterGroupAsync(array $args = [])
+ * @method \Aws\Result createCacheSecurityGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createCacheSecurityGroupAsync(array $args = [])
+ * @method \Aws\Result createCacheSubnetGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createCacheSubnetGroupAsync(array $args = [])
+ * @method \Aws\Result createReplicationGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createReplicationGroupAsync(array $args = [])
+ * @method \Aws\Result createSnapshot(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createSnapshotAsync(array $args = [])
+ * @method \Aws\Result deleteCacheCluster(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteCacheClusterAsync(array $args = [])
+ * @method \Aws\Result deleteCacheParameterGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteCacheParameterGroupAsync(array $args = [])
+ * @method \Aws\Result deleteCacheSecurityGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteCacheSecurityGroupAsync(array $args = [])
+ * @method \Aws\Result deleteCacheSubnetGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteCacheSubnetGroupAsync(array $args = [])
+ * @method \Aws\Result deleteReplicationGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteReplicationGroupAsync(array $args = [])
+ * @method \Aws\Result deleteSnapshot(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteSnapshotAsync(array $args = [])
+ * @method \Aws\Result describeCacheClusters(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeCacheClustersAsync(array $args = [])
+ * @method \Aws\Result describeCacheEngineVersions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeCacheEngineVersionsAsync(array $args = [])
+ * @method \Aws\Result describeCacheParameterGroups(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeCacheParameterGroupsAsync(array $args = [])
+ * @method \Aws\Result describeCacheParameters(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeCacheParametersAsync(array $args = [])
+ * @method \Aws\Result describeCacheSecurityGroups(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeCacheSecurityGroupsAsync(array $args = [])
+ * @method \Aws\Result describeCacheSubnetGroups(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeCacheSubnetGroupsAsync(array $args = [])
+ * @method \Aws\Result describeEngineDefaultParameters(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeEngineDefaultParametersAsync(array $args = [])
+ * @method \Aws\Result describeEvents(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeEventsAsync(array $args = [])
+ * @method \Aws\Result describeReplicationGroups(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeReplicationGroupsAsync(array $args = [])
+ * @method \Aws\Result describeReservedCacheNodes(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeReservedCacheNodesAsync(array $args = [])
+ * @method \Aws\Result describeReservedCacheNodesOfferings(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeReservedCacheNodesOfferingsAsync(array $args = [])
+ * @method \Aws\Result describeSnapshots(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSnapshotsAsync(array $args = [])
+ * @method \Aws\Result listAllowedNodeTypeModifications(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listAllowedNodeTypeModificationsAsync(array $args = [])
+ * @method \Aws\Result listTagsForResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listTagsForResourceAsync(array $args = [])
+ * @method \Aws\Result modifyCacheCluster(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyCacheClusterAsync(array $args = [])
+ * @method \Aws\Result modifyCacheParameterGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyCacheParameterGroupAsync(array $args = [])
+ * @method \Aws\Result modifyCacheSubnetGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyCacheSubnetGroupAsync(array $args = [])
+ * @method \Aws\Result modifyReplicationGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyReplicationGroupAsync(array $args = [])
+ * @method \Aws\Result purchaseReservedCacheNodesOffering(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise purchaseReservedCacheNodesOfferingAsync(array $args = [])
+ * @method \Aws\Result rebootCacheCluster(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise rebootCacheClusterAsync(array $args = [])
+ * @method \Aws\Result removeTagsFromResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise removeTagsFromResourceAsync(array $args = [])
+ * @method \Aws\Result resetCacheParameterGroup(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise resetCacheParameterGroupAsync(array $args = [])
+ * @method \Aws\Result revokeCacheSecurityGroupIngress(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise revokeCacheSecurityGroupIngressAsync(array $args = [])
  */
-class ElastiCacheClient extends AbstractClient
-{
-    const LATEST_API_VERSION = '2015-02-02';
-
-    /**
-     * Factory method to create a new Amazon ElastiCache client using an array of configuration options.
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     */
-    public static function factory($config = array())
-    {
-        return ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION             => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/elasticache-%s.php'
-            ))
-            ->build();
-    }
-}
+class ElastiCacheClient extends AwsClient {}

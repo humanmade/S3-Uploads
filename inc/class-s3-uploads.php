@@ -17,13 +17,13 @@ class S3_Uploads {
 	public static function get_instance() {
 
 		if ( ! self::$instance ) {
-
-			$key    = defined( 'S3_UPLOADS_KEY' ) ? S3_UPLOADS_KEY : null;
-			$secret = defined( 'S3_UPLOADS_SECRET' ) ? S3_UPLOADS_SECRET : null;
-			$url    = defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null;
-			$region = defined( 'S3_UPLOADS_REGION' ) ? S3_UPLOADS_REGION : null;
-
-			self::$instance = new S3_Uploads( S3_UPLOADS_BUCKET, $key, $secret, $url, $region );
+			self::$instance = new S3_Uploads(
+				S3_UPLOADS_BUCKET,
+				S3_UPLOADS_KEY,
+				S3_UPLOADS_SECRET,
+				defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null,
+				S3_UPLOADS_REGION
+			);
 		}
 
 		return self::$instance;
@@ -71,7 +71,7 @@ class S3_Uploads {
 		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
-			S3_Uploads_Stream_Wrapper::register_streamwrapper( $this );
+			S3_Uploads_Stream_Wrapper::register( $this->s3() );
 			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', 'public-read' );
 		}
 
@@ -127,6 +127,19 @@ class S3_Uploads {
 		return apply_filters( 's3_uploads_bucket_url', 'https://' . $bucket . '.s3.amazonaws.com' . $path );
 	}
 
+	/**
+	 * Get the S3 bucket name
+	 *
+	 * @return string
+	 */
+	public function get_s3_bucket() {
+		return $bucket = strtok( $this->bucket, '/' );
+	}
+
+	public function get_s3_bucket_region() {
+		return $this->region;
+	}
+
 	public function get_original_upload_dir() {
 
 		if ( empty( $this->original_upload_dir ) ) {
@@ -145,11 +158,11 @@ class S3_Uploads {
 			return $this->s3;
 		}
 
-		$params = array();
+		$params = array( 'version' => 'latest' );
 
 		if ( $this->key && $this->secret ) {
-			$params['key'] = $this->key;
-			$params['secret'] = $this->secret;
+			$params['credentials']['key'] = $this->key;
+			$params['credentials']['secret'] = $this->secret;
 		}
 
 		if ( $this->region ) {
@@ -169,8 +182,7 @@ class S3_Uploads {
 		}
 
 		$params = apply_filters( 's3_uploads_s3_client_params', $params );
-
-		$this->s3 = Aws\Common\Aws::factory( $params )->get( 's3' );
+		$this->s3 = Aws\S3\S3Client::factory( $params );
 
 		return $this->s3;
 	}
@@ -178,7 +190,7 @@ class S3_Uploads {
 	public function filter_editors( $editors ) {
 
 		if ( ( $position = array_search( 'WP_Image_Editor_Imagick', $editors ) ) !== false ) {
-			unset( $editors[ $position ] );
+			unset($editors[$position]);
 		}
 
 		array_unshift( $editors, 'S3_Uploads_Image_Editor_Imagick' );

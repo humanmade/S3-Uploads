@@ -1,75 +1,84 @@
 <?php
-/**
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- * http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 namespace Aws\CloudHsm;
 
-use Aws\Common\Client\AbstractClient;
-use Aws\Common\Client\ClientBuilder;
-use Aws\Common\Enum\ClientOptions as Options;
-use Aws\Common\Exception\Parser\JsonQueryExceptionParser;
-use Guzzle\Common\Collection;
-use Guzzle\Service\Resource\Model;
+use Aws\Api\ApiProvider;
+use Aws\Api\DocModel;
+use Aws\Api\Service;
+use Aws\AwsClient;
 
 /**
- * Client to interact with Amazon CloudHSM
+ * This client is used to interact with **AWS CloudHSM**.
  *
- * @method Model createHapg(array $args = array()) {@command CloudHsm CreateHapg}
- * @method Model createHsm(array $args = array()) {@command CloudHsm CreateHsm}
- * @method Model createLunaClient(array $args = array()) {@command CloudHsm CreateLunaClient}
- * @method Model deleteHapg(array $args = array()) {@command CloudHsm DeleteHapg}
- * @method Model deleteHsm(array $args = array()) {@command CloudHsm DeleteHsm}
- * @method Model deleteLunaClient(array $args = array()) {@command CloudHsm DeleteLunaClient}
- * @method Model describeHapg(array $args = array()) {@command CloudHsm DescribeHapg}
- * @method Model describeHsm(array $args = array()) {@command CloudHsm DescribeHsm}
- * @method Model describeLunaClient(array $args = array()) {@command CloudHsm DescribeLunaClient}
- * @method Model getConfig(array $args = array()) {@command CloudHsm GetConfig}
- * @method Model listAvailableZones(array $args = array()) {@command CloudHsm ListAvailableZones}
- * @method Model listHapgs(array $args = array()) {@command CloudHsm ListHapgs}
- * @method Model listHsms(array $args = array()) {@command CloudHsm ListHsms}
- * @method Model listLunaClients(array $args = array()) {@command CloudHsm ListLunaClients}
- * @method Model modifyHapg(array $args = array()) {@command CloudHsm ModifyHapg}
- * @method Model modifyHsm(array $args = array()) {@command CloudHsm ModifyHsm}
- * @method Model modifyLunaClient(array $args = array()) {@command CloudHsm ModifyLunaClient}
- *
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-cloudhsm.html User guide
- * @link http://docs.aws.amazon.com/aws-sdk-php/v2/api/class-Aws.CloudHsm.CloudHsmClient.html API docs
+ * @method \Aws\Result addTagsToResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise addTagsToResourceAsync(array $args = [])
+ * @method \Aws\Result createHapg(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createHapgAsync(array $args = [])
+ * @method \Aws\Result createHsm(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createHsmAsync(array $args = [])
+ * @method \Aws\Result createLunaClient(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise createLunaClientAsync(array $args = [])
+ * @method \Aws\Result deleteHapg(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteHapgAsync(array $args = [])
+ * @method \Aws\Result deleteHsm(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteHsmAsync(array $args = [])
+ * @method \Aws\Result deleteLunaClient(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise deleteLunaClientAsync(array $args = [])
+ * @method \Aws\Result describeHapg(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeHapgAsync(array $args = [])
+ * @method \Aws\Result describeHsm(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeHsmAsync(array $args = [])
+ * @method \Aws\Result describeLunaClient(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeLunaClientAsync(array $args = [])
+ * @method \Aws\Result getConfig(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getConfigAsync(array $args = [])
+ * @method \Aws\Result listAvailableZones(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listAvailableZonesAsync(array $args = [])
+ * @method \Aws\Result listHapgs(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listHapgsAsync(array $args = [])
+ * @method \Aws\Result listHsms(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listHsmsAsync(array $args = [])
+ * @method \Aws\Result listLunaClients(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listLunaClientsAsync(array $args = [])
+ * @method \Aws\Result listTagsForResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listTagsForResourceAsync(array $args = [])
+ * @method \Aws\Result modifyHapg(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyHapgAsync(array $args = [])
+ * @method \Aws\Result modifyHsm(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyHsmAsync(array $args = [])
+ * @method \Aws\Result modifyLunaClient(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyLunaClientAsync(array $args = [])
+ * @method \Aws\Result removeTagsFromResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise removeTagsFromResourceAsync(array $args = [])
  */
-class CloudHsmClient extends AbstractClient
+class CloudHsmClient extends AwsClient
 {
-    const LATEST_API_VERSION = '2014-05-30';
+    public function __call($name, array $args)
+    {
+        // Overcomes a naming collision with `AwsClient::getConfig`.
+        if (lcfirst($name) === 'getConfigFiles') {
+            $name = 'GetConfig';
+        } elseif (lcfirst($name) === 'getConfigFilesAsync') {
+            $name = 'GetConfigAsync';
+        }
+
+        return parent::__call($name, $args);
+    }
 
     /**
-     * Factory method to create a new Amazon CloudHSM client using an array of configuration options.
-     *
-     * See http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
-     *
-     * @param array|Collection $config Client configuration data
-     *
-     * @return self
-     * @link http://docs.aws.amazon.com/aws-sdk-php/v2/guide/configuration.html#client-configuration-options
+     * @internal
+     * @codeCoverageIgnore
      */
-    public static function factory($config = array())
+    public static function applyDocFilters(array $api, array $docs)
     {
-        return ClientBuilder::factory(__NAMESPACE__)
-            ->setConfig($config)
-            ->setConfigDefaults(array(
-                Options::VERSION             => self::LATEST_API_VERSION,
-                Options::SERVICE_DESCRIPTION => __DIR__ . '/Resources/cloudhsm-%s.php'
-            ))
-            ->setExceptionParser(new JsonQueryExceptionParser)
-            ->build();
+        // Overcomes a naming collision with `AwsClient::getConfig`.
+        $api['operations']['GetConfigFiles'] = $api['operations']['GetConfig'];
+        $docs['operations']['GetConfigFiles'] = $docs['operations']['GetConfig'];
+        unset($api['operations']['GetConfig'], $docs['operations']['GetConfig']);
+        ksort($api['operations']);
+
+        return [
+            new Service($api, ApiProvider::defaultProvider()),
+            new DocModel($docs)
+        ];
     }
 }

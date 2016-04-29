@@ -1,10 +1,9 @@
 <?php
-
 namespace Aws\CloudWatchLogs\Exception;
 
-use Aws\Common\Exception\ServiceResponseException;
+use Aws\Exception\AwsException;
 
 /**
- * Exception thrown by the CloudWatchLogs client.
+ * Represents an error interacting with the Amazon CloudWatch Logs service.
  */
-class CloudWatchLogsException extends ServiceResponseException {}
+class CloudWatchLogsException extends AwsException {}

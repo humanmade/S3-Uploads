@@ -31,6 +31,10 @@ function s3_uploads_init() {
 		return;
 	}
 
+	if ( ! defined( 'S3_UPLOADS_REGION' ) ) {
+		wp_die( 'S3_UPLOADS_REGION constant is required. Please define it in your wp-config.php' );
+	}
+
 	$instance = S3_Uploads::get_instance();
 	$instance->setup();
 }
@@ -62,7 +66,6 @@ function s3_uploads_outdated_php_version_notice() {
 		PHP_VERSION
 	);
 }
-
 /**
  * Check if URL rewriting is enabled.
  *
