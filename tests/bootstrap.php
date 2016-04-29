@@ -37,4 +37,8 @@ if ( getenv( 'S3_UPLOADS_SECRET' ) ) {
 	define( 'S3_UPLOADS_SECRET', getenv( 'S3_UPLOADS_SECRET' ) );
 }
 
+if ( getenv( 'S3_UPLOADS_REGION' ) ) {
+	define( 'S3_UPLOADS_REGION', getenv( 'S3_UPLOADS_REGION' ) );
+}
+
 require $test_root . '/includes/bootstrap.php';
