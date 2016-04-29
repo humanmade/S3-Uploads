@@ -132,14 +132,7 @@ function or_chain()
  * Loads a compiled JSON file from a PHP file.
  *
  * If the JSON file has not been cached to disk as a PHP file, it will be loaded
- * from the JSON source file, written to disk as a PHP file, and returned. This
- * allows subsequent access of the JSON file to be read from a compiled PHP
- * script which is added to PHP's in-memory opcode cache.
- *
- * The default directory used to save compiled PHP scripts is the "aws-cache"
- * sub-directory of PHP temp directory (return value of sys_get_temp_dir()).
- * You can customize where the cache files are stored by specifying the
- * `AWS_PHP_CACHE_DIR` environment variable.
+ * from the JSON source file and returned.
  *
  * @param string $path Path to the JSON file on disk
  *
@@ -148,23 +141,25 @@ function or_chain()
  */
 function load_compiled_json($path)
 {
-    static $loader;
-
-    if (!$loader) {
-        $loader = new JsonCompiler();
+    if ($compiled = @include("$path.php")) {
+        return $compiled;
     }
 
-    return $loader->load($path);
+    if (!file_exists($path)) {
+        throw new \InvalidArgumentException(
+            sprintf("File not found: %s", $path)
+        );
+    }
+
+    return json_decode(file_get_contents($path), true);
 }
 
 /**
- * Clears the compiled JSON cache, deleting all "*.json.php" files that are
- * used by the SDK.
+ * No-op
  */
 function clear_compiled_json()
 {
-    $loader = new JsonCompiler();
-    $loader->purge();
+    // pass
 }
 
 //-----------------------------------------------------------------------------
@@ -308,4 +303,49 @@ function serialize(CommandInterface $command)
     }
 
     return $request;
+}
+
+/**
+ * Retrieves data for a service from the SDK's service manifest file.
+ *
+ * Manifest data is stored statically, so it does not need to be loaded more
+ * than once per process. The JSON data is also cached in opcache.
+ *
+ * @param string $service Case-insensitive namespace or endpoint prefix of the
+ *                        service for which you are retrieving manifest data.
+ *
+ * @return array
+ * @throws \InvalidArgumentException if the service is not supported.
+ */
+function manifest($service = null)
+{
+    // Load the manifest and create aliases for lowercased namespaces
+    static $manifest = [];
+    static $aliases = [];
+    if (empty($manifest)) {
+        $manifest = load_compiled_json(__DIR__ . '/data/manifest.json');
+        foreach ($manifest as $endpoint => $info) {
+            $alias = strtolower($info['namespace']);
+            if ($alias !== $endpoint) {
+                $aliases[$alias] = $endpoint;
+            }
+        }
+    }
+
+    // If no service specified, then return the whole manifest.
+    if ($service === null) {
+        return $manifest;
+    }
+
+    // Look up the service's info in the manifest data.
+    $service = strtolower($service);
+    if (isset($manifest[$service])) {
+        return $manifest[$service] + ['endpoint' => $service];
+    } elseif (isset($aliases[$service])) {
+        return manifest($aliases[$service]);
+    } else {
+        throw new \InvalidArgumentException(
+            "The service \"{$service}\" is not provided by the AWS SDK for PHP."
+        );
+    }
 }

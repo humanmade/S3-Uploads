@@ -13,6 +13,24 @@ class Utils
     ];
 
     /**
+     * Returns true if the value is truthy
+     *
+     * @param mixed $value Value to check
+     *
+     * @return bool
+     */
+    public static function isTruthy($value)
+    {
+        if (!$value) {
+            return $value === 0 || $value === '0';
+        } elseif ($value instanceof \stdClass) {
+            return (bool) get_object_vars($value);
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Gets the JMESPath type equivalent of a PHP variable.
      *
      * @param mixed $arg PHP variable

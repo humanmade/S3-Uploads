@@ -53,10 +53,9 @@ class JsonBody
                 $data = [];
                 foreach ($value as $k => $v) {
                     if ($v !== null && $shape->hasMember($k)) {
-                        $data[$shape['locationName'] ?: $k] = $this->format(
-                            $shape->getMember($k),
-                            $v
-                        );
+                        $valueShape = $shape->getMember($k);
+                        $data[$valueShape['locationName'] ?: $k]
+                            = $this->format($valueShape, $v);
                     }
                 }
                 return $data;
@@ -64,7 +63,7 @@ class JsonBody
             case 'list':
                 $items = $shape->getMember();
                 foreach ($value as &$v) {
-                    $data[] = $this->format($items, $v);
+                    $v = $this->format($items, $v);
                 }
                 return $value;
 

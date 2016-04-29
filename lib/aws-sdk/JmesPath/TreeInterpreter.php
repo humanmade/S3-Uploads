@@ -124,11 +124,20 @@ class TreeInterpreter
 
             case 'or':
                 $result = $this->dispatch($node['children'][0], $value);
-                if (!$result && $result !== '0' && $result !== 0) {
-                    $result = $this->dispatch($node['children'][1], $value);
-                }
+                return Utils::isTruthy($result)
+                    ? $result
+                    : $this->dispatch($node['children'][1], $value);
 
-                return $result;
+            case 'and':
+                $result = $this->dispatch($node['children'][0], $value);
+                return Utils::isTruthy($result)
+                    ? $this->dispatch($node['children'][1], $value)
+                    : $result;
+
+            case 'not':
+                return !Utils::isTruthy(
+                    $this->dispatch($node['children'][0], $value)
+                );
 
             case 'pipe':
                 return $this->dispatch(
@@ -175,7 +184,7 @@ class TreeInterpreter
                 }
 
             case 'condition':
-                return true === $this->dispatch($node['children'][0], $value)
+                return Utils::isTruthy($this->dispatch($node['children'][0], $value))
                     ? $this->dispatch($node['children'][1], $value)
                     : null;
 

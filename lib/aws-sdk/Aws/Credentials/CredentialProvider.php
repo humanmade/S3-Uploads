@@ -2,6 +2,7 @@
 namespace Aws\Credentials;
 
 use Aws;
+use Aws\CacheInterface;
 use Aws\Exception\CredentialsException;
 use GuzzleHttp\Promise;
 
@@ -61,11 +62,21 @@ class CredentialProvider
      */
     public static function defaultProvider(array $config = [])
     {
+        $instanceProfileProvider = self::instanceProfile($config);
+        if (isset($config['credentials'])
+            && $config['credentials'] instanceof CacheInterface
+        ) {
+            $instanceProfileProvider = self::cache(
+                $instanceProfileProvider,
+                $config['credentials']
+            );
+        }
+
         return self::memoize(
             self::chain(
                 self::env(),
                 self::ini(),
-                self::instanceProfile($config)
+                $instanceProfileProvider
             )
         );
     }
@@ -122,34 +133,79 @@ class CredentialProvider
      */
     public static function memoize(callable $provider)
     {
-        // Create the initial promise that will be used as the cached value
-        // until it expires.
-        $result = $provider();
-        $isConstant = false;
+        return function () use ($provider) {
+            static $result;
+            static $isConstant;
 
-        return function () use (&$result, &$isConstant, $provider) {
             // Constant credentials will be returned constantly.
             if ($isConstant) {
                 return $result;
             }
 
-            // Determine if these are constant credentials.
-            if ($result->getState() === Promise\PromiseInterface::FULFILLED
-                && !$result->wait()->getExpiration()
-            ) {
-                $isConstant = true;
-                return $result;
+            // Create the initial promise that will be used as the cached value
+            // until it expires.
+            if (null === $result) {
+                $result = $provider();
             }
 
             // Return credentials that could expire and refresh when needed.
             return $result
-                ->then(function (CredentialsInterface $creds) use ($provider, &$result) {
+                ->then(function (CredentialsInterface $creds) use ($provider, &$isConstant, &$result) {
+                    // Determine if these are constant credentials.
+                    if (!$creds->getExpiration()) {
+                        $isConstant = true;
+                        return $creds;
+                    }
+
                     // Refresh expired credentials.
                     if (!$creds->isExpired()) {
                         return $creds;
                     }
                     // Refresh the result and forward the promise.
                     return $result = $provider();
+                });
+        };
+    }
+
+    /**
+     * Wraps a credential provider and saves provided credentials in an
+     * instance of Aws\CacheInterface. Forwards calls when no credentials found
+     * in cache and updates cache with the results.
+     *
+     * Defaults to using a simple file-based cache when none provided.
+     *
+     * @param callable $provider Credentials provider function to wrap
+     * @param CacheInterface $cache (optional) Cache to store credentials
+     * @param string|null $cacheKey (optional) Cache key to use
+     *
+     * @return callable
+     */
+    public static function cache(
+        callable $provider,
+        CacheInterface $cache,
+        $cacheKey = null
+    ) {
+        $cacheKey = $cacheKey ?: 'aws_cached_credentials';
+
+        return function () use ($provider, $cache, $cacheKey) {
+            $found = $cache->get($cacheKey);
+            if ($found instanceof CredentialsInterface && !$found->isExpired()) {
+                return Promise\promise_for($found);
+            }
+
+            return $provider()
+                ->then(function (CredentialsInterface $creds) use (
+                    $cache,
+                    $cacheKey
+                ) {
+                    $cache->set(
+                        $cacheKey,
+                        $creds,
+                        null === $creds->getExpiration() ?
+                            0 : $creds->getExpiration() - time()
+                    );
+
+                    return $creds;
                 });
         };
     }
@@ -225,13 +281,18 @@ class CredentialProvider
                     . "'$profile' ($filename)");
             }
 
+            if (empty($data[$profile]['aws_session_token'])) {
+                $data[$profile]['aws_session_token']
+                    = isset($data[$profile]['aws_security_token'])
+                        ? $data[$profile]['aws_security_token']
+                        : null;
+            }
+
             return Promise\promise_for(
                 new Credentials(
                     $data[$profile]['aws_access_key_id'],
                     $data[$profile]['aws_secret_access_key'],
-                    isset($data[$profile]['aws_security_token'])
-                        ? $data[$profile]['aws_security_token']
-                        : null
+                    $data[$profile]['aws_session_token']
                 )
             );
         };

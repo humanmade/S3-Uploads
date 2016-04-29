@@ -5,6 +5,7 @@ use Aws\Sdk;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Event\EndEvent;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Message\ResponseInterface as GuzzleResponse;
@@ -88,11 +89,15 @@ class GuzzleHandler
     private function createGuzzleRequest(Psr7Request $psrRequest, array $options)
     {
         $ringConfig = [];
+        $statsCallback = isset($options['http_stats_receiver'])
+            ? $options['http_stats_receiver']
+            : null;
+        unset($options['http_stats_receiver']);
 
         // Remove unsupported options.
         foreach (array_keys($options) as $key) {
-            if (isset(self::$validOptions[$key])) {
-                unset($options['key']);
+            if (!isset(self::$validOptions[$key])) {
+                unset($options[$key]);
             }
         }
 
@@ -120,6 +125,15 @@ class GuzzleHandler
             $options
         );
 
+        if (is_callable($statsCallback)) {
+            $request->getEmitter()->on(
+                'end',
+                function (EndEvent $event) use ($statsCallback) {
+                    $statsCallback($event->getTransferInfo());
+                }
+            );
+        }
+
         // For the request body, adapt the PSR stream to a Guzzle stream.
         $body = $psrRequest->getBody();
         if ($body->getSize() === 0) {
@@ -129,9 +143,11 @@ class GuzzleHandler
         }
 
         $request->setHeaders($psrRequest->getHeaders());
+
         $request->setHeader(
             'User-Agent',
-            'aws-sdk-php/' . Sdk::VERSION . ' ' . Client::getDefaultUserAgent()
+            $request->getHeader('User-Agent')
+                . ' ' . Client::getDefaultUserAgent()
         );
 
         // Make sure the delay is configured, if provided.

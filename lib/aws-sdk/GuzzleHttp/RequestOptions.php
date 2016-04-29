@@ -14,7 +14,22 @@ final class RequestOptions
      * allow_redirects: (bool|array) Controls redirect behavior. Pass false
      * to disable redirects, pass true to enable redirects, pass an
      * associative to provide custom redirect settings. Defaults to "false".
-     * This option only works if your handler has the RedirectMiddleware.
+     * This option only works if your handler has the RedirectMiddleware. When
+     * passing an associative array, you can provide the following key value
+     * pairs:
+     *
+     * - max: (int, default=5) maximum number of allowed redirects.
+     * - strict: (bool, default=false) Set to true to use strict redirects
+     *   meaning redirect POST requests with POST requests vs. doing what most
+     *   browsers do which is redirect POST requests with GET requests
+     * - referer: (bool, default=true) Set to false to disable the Referer
+     *   header.
+     * - protocols: (array, default=['http', 'https']) Allowed redirect
+     *   protocols.
+     * - on_redirect: (callable) PHP callable that is invoked when a redirect
+     *   is encountered. The callable is invoked with the request, the redirect
+     *   response that was received, and the effective URI. Any return value
+     *   from the on_redirect function is ignored.
      */
     const ALLOW_REDIRECTS = 'allow_redirects';
 
@@ -134,6 +149,24 @@ final class RequestOptions
      * will be added to the part.
      */
     const MULTIPART = 'multipart';
+
+    /**
+     * on_headers: (callable) A callable that is invoked when the HTTP headers
+     * of the response have been received but the body has not yet begun to
+     * download.
+     */
+    const ON_HEADERS = 'on_headers';
+
+    /**
+     * on_stats: (callable) allows you to get access to transfer statistics of
+     * a request and access the lower level transfer details of the handler
+     * associated with your client. ``on_stats`` is a callable that is invoked
+     * when a handler has finished sending a request. The callback is invoked
+     * with transfer statistics about the request, the response received, or
+     * the error encountered. Included in the data is the total amount of time
+     * taken to send the request.
+     */
+    const ON_STATS = 'on_stats';
 
     /**
      * progress: (callable) Defines a function to invoke when transfer

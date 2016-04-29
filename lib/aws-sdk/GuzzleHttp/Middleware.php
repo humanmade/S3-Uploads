@@ -2,13 +2,12 @@
 namespace GuzzleHttp;
 
 use GuzzleHttp\Cookie\CookieJarInterface;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Promise\RejectedPromise;
 use GuzzleHttp\Psr7;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 /**
  * Functions used to create and wrap handlers with handler middleware.
@@ -63,9 +62,7 @@ final class Middleware
                         if ($code < 400) {
                             return $response;
                         }
-                        throw $code > 499
-                            ? new ServerException("Server error: $code", $request, $response)
-                            : new ClientException("Client error: $code", $request, $response);
+                        throw RequestException::create($request, $response);
                     }
                 );
             };
@@ -78,9 +75,14 @@ final class Middleware
      * @param array $container Container to hold the history (by reference).
      *
      * @return callable Returns a function that accepts the next handler.
+     * @throws \InvalidArgumentException if container is not an array or ArrayAccess.
      */
-    public static function history(array &$container)
+    public static function history(&$container)
     {
+        if (!is_array($container) && !$container instanceof \ArrayAccess) {
+            throw new \InvalidArgumentException('history container must be an array or object implementing ArrayAccess');
+        }
+
         return function (callable $handler) use (&$container) {
             return function ($request, array $options) use ($handler, &$container) {
                 return $handler($request, $options)->then(
@@ -176,17 +178,18 @@ final class Middleware
      *
      * @param LoggerInterface  $logger Logs messages.
      * @param MessageFormatter $formatter Formatter used to create message strings.
+     * @param string           $logLevel Level at which to log requests.
      *
      * @return callable Returns a function that accepts the next handler.
      */
-    public static function log(LoggerInterface $logger, MessageFormatter $formatter)
+    public static function log(LoggerInterface $logger, MessageFormatter $formatter, $logLevel = LogLevel::INFO)
     {
-        return function (callable $handler) use ($logger, $formatter) {
-            return function ($request, array $options) use ($handler, $logger, $formatter) {
+        return function (callable $handler) use ($logger, $formatter, $logLevel) {
+            return function ($request, array $options) use ($handler, $logger, $formatter, $logLevel) {
                 return $handler($request, $options)->then(
-                    function ($response) use ($logger, $request, $formatter) {
+                    function ($response) use ($logger, $request, $formatter, $logLevel) {
                         $message = $formatter->format($request, $response);
-                        $logger->info($message);
+                        $logger->log($logLevel, $message);
                         return $response;
                     },
                     function ($reason) use ($logger, $request, $formatter) {

@@ -53,7 +53,10 @@ abstract class AbstractRestParser extends AbstractParser
             }
         }
 
-        if (!$payload && $response->getBody()->getSize() > 0) {
+        if (!$payload
+            && $response->getBody()->getSize() > 0
+            && count($output->getMembers()) > 0
+        ) {
             // if no payload was found, then parse the contents of the body
             $this->payload($response, $output, $result);
         }
@@ -89,18 +92,30 @@ abstract class AbstractRestParser extends AbstractParser
         &$result
     ) {
         $value = $response->getHeaderLine($shape['locationName'] ?: $name);
-        $type = $shape->getType();
 
-        if ($type === 'blob') {
-            $value = base64_decode($value);
-        } elseif ($type === 'timestamp') {
-            try {
-                $value = new DateTimeResult($value);
-            } catch (\Exception $e) {
-                // If the value cannot be parsed, then do not add it to the
-                // output structure.
-                return;
-            }
+        switch ($shape->getType()) {
+            case 'float':
+            case 'double':
+                $value = (float) $value;
+                break;
+            case 'long':
+                $value = (int) $value;
+                break;
+            case 'boolean':
+                $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                break;
+            case 'blob':
+                $value = base64_decode($value);
+                break;
+            case 'timestamp':
+                try {
+                    $value = new DateTimeResult($value);
+                    break;
+                } catch (\Exception $e) {
+                    // If the value cannot be parsed, then do not add it to the
+                    // output structure.
+                    return;
+                }
         }
 
         $result[$name] = $value;

@@ -67,6 +67,9 @@ class StreamWrapper
     /** @var StreamInterface Underlying stream resource */
     private $body;
 
+    /** @var int Size of the body that is opened */
+    private $size;
+
     /** @var array Hash of opened stream parameters */
     private $params = [];
 
@@ -88,15 +91,18 @@ class StreamWrapper
     /** @var CacheInterface Cache for object and dir lookups */
     private $cache;
 
+    /** @var string The opened protocol (e.g., "s3") */
+    private $protocol = 's3';
+
     /**
      * Register the 's3://' stream wrapper
      *
-     * @param S3Client       $client   Client to use with the stream wrapper
-     * @param string         $protocol Protocol to register as.
-     * @param CacheInterface $cache    Default cache for the protocol.
+     * @param S3ClientInterface $client   Client to use with the stream wrapper
+     * @param string            $protocol Protocol to register as.
+     * @param CacheInterface    $cache    Default cache for the protocol.
      */
     public static function register(
-        S3Client $client,
+        S3ClientInterface $client,
         $protocol = 's3',
         CacheInterface $cache = null
     ) {
@@ -126,6 +132,7 @@ class StreamWrapper
 
     public function stream_open($path, $mode, $options, &$opened_path)
     {
+        $this->initProtocol($path);
         $this->params = $this->getBucketKey($path);
         $this->mode = rtrim($mode, 'bt');
 
@@ -167,6 +174,7 @@ class StreamWrapper
             $params['ContentType'] = $type;
         }
 
+        $this->clearCacheKey("s3://{$params['Bucket']}/{$params['Key']}");
         return $this->boolCall(function () use ($params) {
             return (bool) $this->getClient()->putObject($params);
         });
@@ -199,6 +207,8 @@ class StreamWrapper
 
     public function unlink($path)
     {
+        $this->initProtocol($path);
+
         return $this->boolCall(function () use ($path) {
             $this->clearCacheKey($path);
             $this->getClient()->deleteObject($this->withPath($path));
@@ -209,7 +219,7 @@ class StreamWrapper
     public function stream_stat()
     {
         $stat = $this->getStatTemplate();
-        $stat[7] = $stat['size'] = (int) $this->body->getSize();
+        $stat[7] = $stat['size'] = $this->getSize();
         $stat[2] = $stat['mode'] = $this->mode;
 
         return $stat;
@@ -222,6 +232,8 @@ class StreamWrapper
      */
     public function url_stat($path, $flags)
     {
+        $this->initProtocol($path);
+
         // Some paths come through as S3:// for some reason.
         $split = explode('://', $path);
         $path = strtolower($split[0]) . '://' . $split[1];
@@ -240,8 +252,20 @@ class StreamWrapper
         return $stat;
     }
 
+    /**
+     * Parse the protocol out of the given path.
+     *
+     * @param $path
+     */
+    private function initProtocol($path)
+    {
+        $parts = explode('://', $path, 2);
+        $this->protocol = $parts[0] ?: 's3';
+    }
+
     private function createStat($path, $flags)
     {
+        $this->initProtocol($path);
         $parts = $this->withPath($path);
 
         if (!$parts['Key']) {
@@ -305,6 +329,7 @@ class StreamWrapper
      */
     public function mkdir($path, $mode, $options)
     {
+        $this->initProtocol($path);
         $params = $this->withPath($path);
         $this->clearCacheKey($path);
         if (!$params['Bucket']) {
@@ -322,6 +347,7 @@ class StreamWrapper
 
     public function rmdir($path, $options)
     {
+        $this->initProtocol($path);
         $this->clearCacheKey($path);
         $params = $this->withPath($path);
         $client = $this->getClient();
@@ -356,6 +382,7 @@ class StreamWrapper
      */
     public function dir_opendir($path, $options)
     {
+        $this->initProtocol($path);
         $this->openedPath = $path;
         $params = $this->withPath($path);
         $delimiter = $this->getOption('delimiter');
@@ -489,6 +516,9 @@ class StreamWrapper
      */
     public function rename($path_from, $path_to)
     {
+        // PHP will not allow rename across wrapper types, so we can safely
+        // assume $path_from and $path_to have the same protocol
+        $this->initProtocol($path_from);
         $partsFrom = $this->withPath($path_from);
         $partsTo = $this->withPath($path_to);
         $this->clearCacheKey($path_from);
@@ -500,20 +530,22 @@ class StreamWrapper
         }
 
         return $this->boolCall(function () use ($partsFrom, $partsTo) {
+            $options = $this->getOptions(true);
             // Copy the object and allow overriding default parameters if
             // desired, but by default copy metadata
-            $this->getClient()->copyObject($this->getOptions(true) + [
-                'Bucket'            => $partsTo['Bucket'],
-                'Key'               => $partsTo['Key'],
-                'MetadataDirective' => 'COPY',
-                'CopySource'        => '/' . $partsFrom['Bucket'] . '/'
-                                           . rawurlencode($partsFrom['Key']),
-            ]);
+            $this->getClient()->copy(
+                $partsFrom['Bucket'],
+                $partsFrom['Key'],
+                $partsTo['Bucket'],
+                $partsTo['Key'],
+                isset($options['acl']) ? $options['acl'] : 'private',
+                $options
+            );
             // Delete the original object
             $this->getClient()->deleteObject([
                 'Bucket' => $partsFrom['Bucket'],
                 'Key'    => $partsFrom['Key']
-            ] + $this->getOptions(true));
+            ] + $options);
             return true;
         });
     }
@@ -571,11 +603,15 @@ class StreamWrapper
             $options = [];
         } else {
             $options = stream_context_get_options($this->context);
-            $options = isset($options['s3']) ? $options['s3'] : [];
+            $options = isset($options[$this->protocol])
+                ? $options[$this->protocol]
+                : [];
         }
 
         $default = stream_context_get_options(stream_context_get_default());
-        $default = isset($default['s3']) ? $default['s3'] : [];
+        $default = isset($default[$this->protocol])
+            ? $default[$this->protocol]
+            : [];
         $result = $this->params + $options + $default;
 
         if ($removeContextData) {
@@ -602,7 +638,7 @@ class StreamWrapper
     /**
      * Gets the client from the stream context
      *
-     * @return S3Client
+     * @return S3ClientInterface
      * @throws \RuntimeException if no client has been configured
      */
     private function getClient()
@@ -647,6 +683,7 @@ class StreamWrapper
         $command = $client->getCommand('GetObject', $this->getOptions(true));
         $command['@http']['stream'] = true;
         $result = $client->execute($command);
+        $this->size = $result['ContentLength'];
         $this->body = $result['Body'];
 
         // Wrap the body in a caching entity body if seeking is allowed
@@ -897,5 +934,17 @@ class StreamWrapper
     {
         clearstatcache(true, $key);
         $this->getCacheStorage()->remove($key);
+    }
+
+    /**
+     * Returns the size of the opened object body.
+     *
+     * @return int|null
+     */
+    private function getSize()
+    {
+        $size = $this->body->getSize();
+
+        return $size !== null ? $size : $this->size;
     }
 }

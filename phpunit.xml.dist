@@ -18,6 +18,7 @@
 			<file>./s3-uploads.php</file>
 			<exclude>
 				<directory suffix=".php">./lib</directory>
+				<file>./inc/class-s3-uploads-wp-cli-command.php</file>
 			</exclude>
 		</whitelist>
 	</filter>

@@ -1,4 +1,4 @@
-# AWS SDK for PHP
+# AWS SDK for PHP - Version 3
 
 [![@awsforphp on Twitter](http://img.shields.io/badge/twitter-%40awsforphp-blue.svg?style=flat)](https://twitter.com/awsforphp)
 [![Total Downloads](https://img.shields.io/packagist/dt/aws/aws-sdk-php.svg?style=flat)](https://packagist.org/packages/aws/aws-sdk-php)
@@ -105,6 +105,7 @@ try {
 * [AWS Service Provider for Laravel][mod-laravel]
 * [AWS SDK ZF2 Module][mod-zf2]
 * [AWS Service Provider for Silex][mod-silex]
+* [AWS SDK Bundle for Symfony][mod-symfony]
 * [Guzzle Version 6][guzzle-docs] – PHP HTTP client and framework
 * Other [AWS SDKs & Tools][aws-tools] (e.g., js, cli, ruby, python, java, etc.)
 
@@ -128,7 +129,7 @@ try {
 [docs-signup]: http://aws.amazon.com/developers/access-keys/
 [docs-requirements]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/getting-started/requirements.html
 [docs-installation]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/getting-started/installation.html
-[docs-quickstart]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/quick-start.html
+[docs-quickstart]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/#getting-started
 [docs-paginators]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/paginators.html
 [docs-waiters]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/waiters.html
 [docs-results]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/getting-started/basic-usage.html#result-objects
@@ -154,3 +155,4 @@ try {
 [mod-laravel]: https://github.com/aws/aws-sdk-php-laravel
 [mod-zf2]: https://github.com/aws/aws-sdk-php-zf2
 [mod-silex]: https://github.com/aws/aws-sdk-php-silex
+[mod-symfony]: https://github.com/aws/aws-sdk-php-symfony

@@ -10,8 +10,9 @@ class S3_Uploads_Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 	protected function _save( $image, $filename = null, $mime_type = null ) {
 		list( $filename, $extension, $mime_type ) = $this->get_output_format( $filename, $mime_type );
 
-		if ( ! $filename )
+		if ( ! $filename ) {
 			$filename = $this->generate_filename( null, null, $extension );
+		}
 
 		$upload_dir = wp_upload_dir();
 
@@ -22,12 +23,14 @@ class S3_Uploads_Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 		$save = parent::_save( $image, $temp_filename, $mime_type );
 
 		if ( is_wp_error( $save ) ) {
+			unlink( $temp_filename );
 			return $save;
 		}
 
 		$copy_result = copy( $save['path'], $filename );
 
 		unlink( $save['path'] );
+		unlink( $temp_filename );
 
 		if ( ! $copy_result ) {
 			return new WP_Error( 'unable-to-copy-to-s3', 'Unable to copy the temp image to S3' );

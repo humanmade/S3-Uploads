@@ -264,6 +264,16 @@ class FnDispatcher
         return Utils::isArray($args[0]) ? $args[0] : [$args[0]];
     }
 
+    private function fn_map(array $args)
+    {
+        $this->validate('map', $args, [['expression'], ['any']]);
+        $result = [];
+        foreach ($args[1] as $a) {
+            $result[] = $args[0]($a);
+        }
+        return $result;
+    }
+
     private function typeError($from, $msg)
     {
         if (strpos($from, ':')) {

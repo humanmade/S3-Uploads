@@ -68,22 +68,24 @@ function uri_for($uri)
  * - metadata: Array of custom metadata.
  * - size: Size of the stream.
  *
- * @param resource|string|StreamInterface $resource Entity body data
- * @param array                           $options  Additional options
+ * @param resource|int|string|float|bool|StreamInterface $resource Entity body data
+ * @param array                                          $options  Additional options
  *
  * @return Stream
  * @throws \InvalidArgumentException if the $resource arg is not valid.
  */
 function stream_for($resource = '', array $options = [])
 {
+    if (is_scalar($resource)) {
+        $stream = fopen('php://temp', 'r+');
+        if ($resource !== '') {
+            fwrite($stream, $resource);
+            fseek($stream, 0);
+        }
+        return new Stream($stream, $options);
+    }
+
     switch (gettype($resource)) {
-        case 'string':
-            $stream = fopen('php://temp', 'r+');
-            if ($resource !== '') {
-                fwrite($stream, $resource);
-                fseek($stream, 0);
-            }
-            return new Stream($stream, $options);
         case 'resource':
             return new Stream($resource, $options);
         case 'object':
@@ -209,6 +211,14 @@ function modify_request(RequestInterface $request, array $changes)
         // Remove the host header if one is on the URI
         if ($host = $changes['uri']->getHost()) {
             $changes['set_headers']['Host'] = $host;
+
+            if ($port = $changes['uri']->getPort()) {
+                $standardPorts = ['http' => 80, 'https' => 443];
+                $scheme = $changes['uri']->getScheme();
+                if (isset($standardPorts[$scheme]) && $port != $standardPorts[$scheme]) {
+                    $changes['set_headers']['Host'] .= ':'.$port;
+                }
+            }
         }
         $uri = $changes['uri'];
     }
@@ -440,19 +450,22 @@ function readline(StreamInterface $stream, $maxLength = null)
 function parse_request($message)
 {
     $data = _parse_message($message);
-    if (!preg_match('/^[a-zA-Z]+\s+\/.*/', $data['start-line'])) {
+    $matches = [];
+    if (!preg_match('/^[\S]+\s+([a-zA-Z]+:\/\/|\/).*/', $data['start-line'], $matches)) {
         throw new \InvalidArgumentException('Invalid request string');
     }
     $parts = explode(' ', $data['start-line'], 3);
     $version = isset($parts[2]) ? explode('/', $parts[2])[1] : '1.1';
 
-    return new Request(
+    $request = new Request(
         $parts[0],
-        _parse_request_uri($parts[1], $data['headers']),
+        $matches[1] === '/' ? _parse_request_uri($parts[1], $data['headers']) : $parts[1],
         $data['headers'],
         $data['body'],
         $version
     );
+
+    return $matches[1] === '/' ? $request : $request->withRequestTarget($parts[1]);
 }
 
 /**

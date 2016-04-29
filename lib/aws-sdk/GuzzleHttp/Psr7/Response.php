@@ -59,6 +59,7 @@ class Response implements ResponseInterface
         428 => 'Precondition Required',
         429 => 'Too Many Requests',
         431 => 'Request Header Fields Too Large',
+        451 => 'Unavailable For Legal Reasons',
         500 => 'Internal Server Error',
         501 => 'Not Implemented',
         502 => 'Bad Gateway',
@@ -93,7 +94,7 @@ class Response implements ResponseInterface
     ) {
         $this->statusCode = (int) $status;
 
-        if ($body) {
+        if ($body !== null) {
             $this->stream = stream_for($body);
         }
 

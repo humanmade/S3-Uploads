@@ -11,6 +11,8 @@ use Psr\Http\Message\ResponseInterface;
  */
 class QueryParser extends AbstractParser
 {
+    use PayloadParserTrait;
+
     /** @var XmlParser */
     private $xmlParser;
 
@@ -22,7 +24,7 @@ class QueryParser extends AbstractParser
      * @param XmlParser $xmlParser          Optional XML parser
      * @param bool      $honorResultWrapper Set to false to disable the peeling
      *                                      back of result wrappers from the
-     *                                      output strucutre.
+     *                                      output structure.
      */
     public function __construct(
         Service $api,
@@ -39,7 +41,7 @@ class QueryParser extends AbstractParser
         ResponseInterface $response
     ) {
         $output = $this->api->getOperation($command->getName())->getOutput();
-        $xml = new \SimpleXMLElement($response->getBody());
+        $xml = $this->parseXml($response->getBody());
 
         if ($this->honorResultWrapper && $output['resultWrapper']) {
             $xml = $xml->{$output['resultWrapper']};

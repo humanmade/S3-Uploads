@@ -28,7 +28,6 @@ class TreeCompiler
             ->write('')
             ->write('function %s(Ti $interpreter, $value) {', $fnName)
             ->indent()
-                ->write('$current = $value;')
                 ->dispatch($ast)
                 ->write('')
                 ->write('return $value;')
@@ -116,6 +115,29 @@ class TreeCompiler
             ->write('}');
     }
 
+    private function visit_and(array $node)
+    {
+        $a = $this->makeVar('beforeAnd');
+        return $this
+            ->write('%s = $value;', $a)
+            ->dispatch($node['children'][0])
+            ->write('if ($value || $value === "0" || $value === 0) {')
+                ->indent()
+                ->write('$value = %s;', $a)
+                ->dispatch($node['children'][1])
+                ->outdent()
+            ->write('}');
+    }
+
+    private function visit_not(array $node)
+    {
+        return $this
+            ->write('// Visiting not node')
+            ->dispatch($node['children'][0])
+            ->write('// Applying boolean not to result of not node')
+            ->write('$value = !Utils::isTruthy($value);');
+    }
+
     private function visit_subexpression(array $node)
     {
         return $this
@@ -182,7 +204,6 @@ class TreeCompiler
     {
         return $this
             ->dispatch($node['children'][0])
-            ->write('$current = $value;')
             ->dispatch($node['children'][1]);
     }
 
@@ -193,13 +214,11 @@ class TreeCompiler
 
     private function visit_multi_select_hash(array $node)
     {
-        $tmpCurrent = $this->makeVar('cur');
         $listVal = $this->makeVar('list');
         $value = $this->makeVar('prev');
         $this->write('if ($value !== null) {')
             ->indent()
             ->write('%s = [];', $listVal)
-            ->write('%s = $current;', $tmpCurrent)
             ->write('%s = $value;', $value);
 
         $first = true;
@@ -220,7 +239,6 @@ class TreeCompiler
 
         return $this
             ->write('$value = %s;', $listVal)
-            ->write('$current = %s;', $tmpCurrent)
             ->outdent()
             ->write('}');
     }
@@ -228,16 +246,13 @@ class TreeCompiler
     private function visit_function(array $node)
     {
         $value = $this->makeVar('val');
-        $current = $this->makeVar('current');
         $args = $this->makeVar('args');
         $this->write('%s = $value;', $value)
-            ->write('%s = $current;', $current)
             ->write('%s = [];', $args);
 
         foreach ($node['children'] as $arg) {
             $this->dispatch($arg);
             $this->write('%s[] = $value;', $args)
-                ->write('$current = %s;', $current)
                 ->write('$value = %s;', $value);
         }
 
@@ -347,12 +362,20 @@ class TreeCompiler
 
     private function visit_condition(array $node)
     {
+        $value = $this->makeVar('beforeCondition');
         return $this
-            ->write('// Visiting projection node')
+            ->write('%s = $value;', $value)
+            ->write('// Visiting condition node')
             ->dispatch($node['children'][0])
-            ->write('if ($value !== null) {')
+            ->write('// Checking result of condition node')
+            ->write('if (Utils::isTruthy($value)) {')
                 ->indent()
+                ->write('$value = %s;', $value)
                 ->dispatch($node['children'][1])
+                ->outdent()
+            ->write('} else {')
+                ->indent()
+                ->write('$value = null;')
                 ->outdent()
             ->write('}');
     }
@@ -360,14 +383,12 @@ class TreeCompiler
     private function visit_comparator(array $node)
     {
         $value = $this->makeVar('val');
-        $tmpCurrent = $this->makeVar('cur');
         $a = $this->makeVar('left');
         $b = $this->makeVar('right');
 
         $this
             ->write('// Visiting comparator node')
             ->write('%s = $value;', $value)
-            ->write('%s = $current;', $tmpCurrent)
             ->dispatch($node['children'][0])
             ->write('%s = $value;', $a)
             ->write('$value = %s;', $value)
@@ -375,19 +396,17 @@ class TreeCompiler
             ->write('%s = $value;', $b);
 
         if ($node['value'] == '==') {
-            $this->write('$result = Utils::isEqual(%s, %s);', $a, $b);
+            $this->write('$value = Utils::isEqual(%s, %s);', $a, $b);
         } elseif ($node['value'] == '!=') {
-            $this->write('$result = !Utils::isEqual(%s, %s);', $a, $b);
+            $this->write('$value = !Utils::isEqual(%s, %s);', $a, $b);
         } else {
             $this->write(
-                '$result = is_int(%s) && is_int(%s) && %s %s %s;',
+                '$value = is_int(%s) && is_int(%s) && %s %s %s;',
                 $a, $b, $a, $node['value'], $b
             );
         }
 
-        return $this
-            ->write('$value = $result === true ? %s : null;', $value)
-            ->write('$current = %s;', $tmpCurrent);
+        return $this;
     }
 
     /** @internal */

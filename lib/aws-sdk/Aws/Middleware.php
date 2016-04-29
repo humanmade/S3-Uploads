@@ -4,10 +4,12 @@ namespace Aws;
 use Aws\Api\Service;
 use Aws\Api\Validator;
 use Aws\Credentials\CredentialsInterface;
+use Aws\Exception\AwsException;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\LazyOpenStream;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 final class Middleware
 {
@@ -62,9 +64,9 @@ final class Middleware
      *
      * @return callable
      */
-    public static function validation(Service $api)
+    public static function validation(Service $api, Validator $validator = null)
     {
-        $validator = new Validator();
+        $validator = $validator ?: new Validator();
         return function (callable $handler) use ($api, $validator) {
             return function (
                 CommandInterface $command,
@@ -167,19 +169,46 @@ final class Middleware
      *                          returns true if the command is to be retried.
      * @param callable $delay   Function that accepts the number of retries and
      *                          returns the number of milliseconds to delay.
+     * @param bool $stats       Whether to collect statistics on retries and the
+     *                          associated delay.
      *
      * @return callable
      */
-    public static function retry(callable $decider = null, callable $delay = null)
-    {
+    public static function retry(
+        callable $decider = null,
+        callable $delay = null,
+        $stats = false
+    ) {
         $decider = $decider ?: RetryMiddleware::createDefaultDecider();
         $delay = $delay ?: [RetryMiddleware::class, 'exponentialDelay'];
 
-        return function (callable $handler) use ($decider, $delay) {
-            return new RetryMiddleware($decider, $delay, $handler);
+        return function (callable $handler) use ($decider, $delay, $stats) {
+            return new RetryMiddleware($decider, $delay, $handler, $stats);
         };
     }
-
+    /**
+     * Middleware wrapper function that adds an invocation id header to
+     * requests, which is only applied after the build step.
+     *
+     * This is a uniquely generated UUID to identify initial and subsequent
+     * retries as part of a complete request lifecycle.
+     *
+     * @return callable
+     */
+    public static function invocationId()
+    {
+        return function (callable $handler) {
+            return function (
+                CommandInterface $command,
+                RequestInterface $request
+            ) use ($handler){
+                return $handler($command, $request->withHeader(
+                    'aws-sdk-invocation-id',
+                    md5(uniqid(gethostname(), true))
+                ));
+            };
+        };
+    }
     /**
      * Middleware wrapper function that adds a Content-Type header to requests.
      * This is only done when the Content-Type has not already been set, and the
@@ -302,6 +331,42 @@ final class Middleware
                 RequestInterface $request = null
             ) use ($handler, $f) {
                 return $handler($command, $request)->then($f);
+            };
+        };
+    }
+
+    public static function timer()
+    {
+        return function (callable $handler) {
+            return function (
+                CommandInterface $command,
+                RequestInterface $request = null
+            ) use ($handler) {
+                $start = microtime(true);
+                return $handler($command, $request)
+                    ->then(
+                        function (ResultInterface $res) use ($start) {
+                            if (!isset($res['@metadata'])) {
+                                $res['@metadata'] = [];
+                            }
+                            if (!isset($res['@metadata']['transferStats'])) {
+                                $res['@metadata']['transferStats'] = [];
+                            }
+
+                            $res['@metadata']['transferStats']['total_time']
+                                = microtime(true) - $start;
+
+                            return $res;
+                        },
+                        function ($err) use ($start) {
+                            if ($err instanceof AwsException) {
+                                $err->setTransferInfo([
+                                    'total_time' => microtime(true) - $start,
+                                ] + $err->getTransferInfo());
+                            }
+                            return Promise\rejection_for($err);
+                        }
+                    );
             };
         };
     }

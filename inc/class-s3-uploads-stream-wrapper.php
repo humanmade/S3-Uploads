@@ -1,6 +1,7 @@
 <?php
 
-use Aws\S3;
+
+use Aws\S3\S3ClientInterface;
 use Aws\CacheInterface;
 use Aws\LruArrayCache;
 use Aws\Result;
@@ -67,6 +68,9 @@ class S3_Uploads_Stream_Wrapper
 	/** @var StreamInterface Underlying stream resource */
 	private $body;
 
+	/** @var int Size of the body that is opened */
+	private $size;
+
 	/** @var array Hash of opened stream parameters */
 	private $params = [];
 
@@ -88,15 +92,18 @@ class S3_Uploads_Stream_Wrapper
 	/** @var CacheInterface Cache for object and dir lookups */
 	private $cache;
 
+	/** @var string The opened protocol (e.g., "s3") */
+	private $protocol = 's3';
+
 	/**
 	 * Register the 's3://' stream wrapper
 	 *
-	 * @param S3Client       $client   Client to use with the stream wrapper
-	 * @param string         $protocol Protocol to register as.
-	 * @param CacheInterface $cache    Default cache for the protocol.
+	 * @param S3ClientInterface $client   Client to use with the stream wrapper
+	 * @param string            $protocol Protocol to register as.
+	 * @param CacheInterface    $cache    Default cache for the protocol.
 	 */
 	public static function register(
-		Aws\S3\S3Client $client,
+		S3ClientInterface $client,
 		$protocol = 's3',
 		CacheInterface $cache = null
 	) {
@@ -126,6 +133,7 @@ class S3_Uploads_Stream_Wrapper
 
 	public function stream_open($path, $mode, $options, &$opened_path)
 	{
+		$this->initProtocol($path);
 		$this->params = $this->getBucketKey($path);
 		$this->mode = rtrim($mode, 'bt');
 
@@ -145,12 +153,14 @@ class S3_Uploads_Stream_Wrapper
 					 * et al that the write has failed.
 					 *
 					 * As a work around, we attempt to write an empty object.
+					 *
+					 * Added by Joe Hoyle
 					 */
 					try {
 						$p = $this->params;
 						$p['Body'] = '';
 						$this->getClient()->putObject($p);
-					} catch (\Exception $e) {
+					} catch (Exception $e) {
 						return $this->triggerError($e->getMessage());
 					}
 
@@ -177,7 +187,7 @@ class S3_Uploads_Stream_Wrapper
 		$params['Body'] = (string) $this->body;
 
 		// Attempt to guess the ContentType of the upload based on the
-		// file extension of the key
+		// file extension of the key. Added by Joe Hoyle
 		if (!isset($params['ContentType']) &&
 			($type = Psr7\mimetype_from_filename($params['Key']))
 		) {
@@ -186,15 +196,14 @@ class S3_Uploads_Stream_Wrapper
 
 		/// Expires:
 		if ( defined( 'S3_UPLOADS_HTTP_EXPIRES' ) ) {
-			 $params[ 'Expires' ] = S3_UPLOADS_HTTP_EXPIRES;
+			$params[ 'Expires' ] = S3_UPLOADS_HTTP_EXPIRES;
 		}
-
 		// Cache-Control:
 		if ( defined( 'S3_UPLOADS_HTTP_CACHE_CONTROL' ) ) {
 			if ( is_numeric( S3_UPLOADS_HTTP_CACHE_CONTROL ) ) {
-				 $params[ 'CacheControl' ] = 'max-age='. S3_UPLOADS_HTTP_CACHE_CONTROL;
+					 $params[ 'CacheControl' ] = 'max-age='. S3_UPLOADS_HTTP_CACHE_CONTROL;
 			} else {
-				 $params[ 'CacheControl' ] = S3_UPLOADS_HTTP_CACHE_CONTROL;
+					 $params[ 'CacheControl' ] = S3_UPLOADS_HTTP_CACHE_CONTROL;
 			}
 		}
 
@@ -205,11 +214,11 @@ class S3_Uploads_Stream_Wrapper
 		 *
 		 * @param array $params S3Client::putObject paramteres.
 		 */
-		 $params = apply_filters( 's3_uploads_putObject_params',  $params );
+		$params = apply_filters( 's3_uploads_putObject_params',  $params );
 
+		$this->clearCacheKey("s3://{$params['Bucket']}/{$params['Key']}");
 		return $this->boolCall(function () use ($params) {
-			$res = $this->getClient()->putObject($params);
-			return (bool) $res;
+			return (bool) $this->getClient()->putObject($params);
 		});
 	}
 
@@ -240,6 +249,8 @@ class S3_Uploads_Stream_Wrapper
 
 	public function unlink($path)
 	{
+		$this->initProtocol($path);
+
 		return $this->boolCall(function () use ($path) {
 			$this->clearCacheKey($path);
 			$this->getClient()->deleteObject($this->withPath($path));
@@ -250,7 +261,7 @@ class S3_Uploads_Stream_Wrapper
 	public function stream_stat()
 	{
 		$stat = $this->getStatTemplate();
-		$stat[7] = $stat['size'] = (int) $this->body->getSize();
+		$stat[7] = $stat['size'] = $this->getSize();
 		$stat[2] = $stat['mode'] = $this->mode;
 
 		return $stat;
@@ -262,44 +273,46 @@ class S3_Uploads_Stream_Wrapper
 	 * @link http://www.php.net/manual/en/streamwrapper.url-stat.php
 	 */
 	public function url_stat($path, $flags)
-	{	
-		$extension = pathinfo($path, PATHINFO_EXTENSION);
+	{
+		$this->initProtocol($path);
 
+		$extension = pathinfo($path, PATHINFO_EXTENSION);
 		/**
 		 * If the file is actually just a path to a directory
 		 * then return it as always existing. This is to work
 		 * around wp_upload_dir doing file_exists checks on
-		 * the uploads directory on every page load
+		 * the uploads directory on every page load.
+		 *
+		 * Added by Joe Hoyle
 		 */
 		if ( ! $extension ) {
-
 			return array (
-				0 => 0,
-				'dev' => 0,
-				1 => 0,
-				'ino' => 0,
-				2 => 16895,
-				'mode' => 16895,
-				3 => 0,
-				'nlink' => 0,
-				4 => 0,
-				'uid' => 0,
-				5 => 0,
-				'gid' => 0,
-				6 => -1,
-				'rdev' => -1,
-				7 => 0,
-				'size' => 0,
-				8 => 0,
-				'atime' => 0,
-				9 => 0,
-				'mtime' => 0,
-				10 => 0,
-				'ctime' => 0,
-				11 => -1,
-				'blksize' => -1,
-				12 => -1,
-				'blocks' => -1,
+					0         => 0,
+					'dev'     => 0,
+					1         => 0,
+					'ino'     => 0,
+					2         => 16895,
+					'mode'    => 16895,
+					3         => 0,
+					'nlink'   => 0,
+					4         => 0,
+					'uid'     => 0,
+					5         => 0,
+					'gid'     => 0,
+					6         => -1,
+					'rdev'    => -1,
+					7         => 0,
+					'size'    => 0,
+					8         => 0,
+					'atime'   => 0,
+					9         => 0,
+					'mtime'   => 0,
+					10        => 0,
+					'ctime'   => 0,
+					11        => -1,
+					'blksize' => -1,
+					12        => -1,
+					'blocks'  => -1,
 			);
 		}
 
@@ -321,8 +334,20 @@ class S3_Uploads_Stream_Wrapper
 		return $stat;
 	}
 
+	/**
+	 * Parse the protocol out of the given path.
+	 *
+	 * @param $path
+	 */
+	private function initProtocol($path)
+	{
+		$parts = explode('://', $path, 2);
+		$this->protocol = $parts[0] ?: 's3';
+	}
+
 	private function createStat($path, $flags)
 	{
+		$this->initProtocol($path);
 		$parts = $this->withPath($path);
 
 		if (!$parts['Key']) {
@@ -386,6 +411,7 @@ class S3_Uploads_Stream_Wrapper
 	 */
 	public function mkdir($path, $mode, $options)
 	{
+		$this->initProtocol($path);
 		$params = $this->withPath($path);
 		$this->clearCacheKey($path);
 		if (!$params['Bucket']) {
@@ -403,6 +429,7 @@ class S3_Uploads_Stream_Wrapper
 
 	public function rmdir($path, $options)
 	{
+		$this->initProtocol($path);
 		$this->clearCacheKey($path);
 		$params = $this->withPath($path);
 		$client = $this->getClient();
@@ -437,6 +464,7 @@ class S3_Uploads_Stream_Wrapper
 	 */
 	public function dir_opendir($path, $options)
 	{
+		$this->initProtocol($path);
 		$this->openedPath = $path;
 		$params = $this->withPath($path);
 		$delimiter = $this->getOption('delimiter');
@@ -570,6 +598,9 @@ class S3_Uploads_Stream_Wrapper
 	 */
 	public function rename($path_from, $path_to)
 	{
+		// PHP will not allow rename across wrapper types, so we can safely
+		// assume $path_from and $path_to have the same protocol
+		$this->initProtocol($path_from);
 		$partsFrom = $this->withPath($path_from);
 		$partsTo = $this->withPath($path_to);
 		$this->clearCacheKey($path_from);
@@ -581,20 +612,22 @@ class S3_Uploads_Stream_Wrapper
 		}
 
 		return $this->boolCall(function () use ($partsFrom, $partsTo) {
+			$options = $this->getOptions(true);
 			// Copy the object and allow overriding default parameters if
 			// desired, but by default copy metadata
-			$this->getClient()->copyObject($this->getOptions(true) + [
-				'Bucket'            => $partsTo['Bucket'],
-				'Key'               => $partsTo['Key'],
-				'MetadataDirective' => 'COPY',
-				'CopySource'        => '/' . $partsFrom['Bucket'] . '/'
-										   . rawurlencode($partsFrom['Key']),
-			]);
+			$this->getClient()->copy(
+				$partsFrom['Bucket'],
+				$partsFrom['Key'],
+				$partsTo['Bucket'],
+				$partsTo['Key'],
+				isset($options['acl']) ? $options['acl'] : 'private',
+				$options
+			);
 			// Delete the original object
 			$this->getClient()->deleteObject([
 				'Bucket' => $partsFrom['Bucket'],
 				'Key'    => $partsFrom['Key']
-			] + $this->getOptions(true));
+			] + $options);
 			return true;
 		});
 	}
@@ -652,11 +685,15 @@ class S3_Uploads_Stream_Wrapper
 			$options = [];
 		} else {
 			$options = stream_context_get_options($this->context);
-			$options = isset($options['s3']) ? $options['s3'] : [];
+			$options = isset($options[$this->protocol])
+				? $options[$this->protocol]
+				: [];
 		}
 
 		$default = stream_context_get_options(stream_context_get_default());
-		$default = isset($default['s3']) ? $default['s3'] : [];
+		$default = isset($default[$this->protocol])
+			? $default[$this->protocol]
+			: [];
 		$result = $this->params + $options + $default;
 
 		if ($removeContextData) {
@@ -683,7 +720,7 @@ class S3_Uploads_Stream_Wrapper
 	/**
 	 * Gets the client from the stream context
 	 *
-	 * @return S3Client
+	 * @return S3ClientInterface
 	 * @throws \RuntimeException if no client has been configured
 	 */
 	private function getClient()
@@ -728,6 +765,7 @@ class S3_Uploads_Stream_Wrapper
 		$command = $client->getCommand('GetObject', $this->getOptions(true));
 		$command['@http']['stream'] = true;
 		$result = $client->execute($command);
+		$this->size = $result['ContentLength'];
 		$this->body = $result['Body'];
 
 		// Wrap the body in a caching entity body if seeking is allowed
@@ -980,7 +1018,15 @@ class S3_Uploads_Stream_Wrapper
 		$this->getCacheStorage()->remove($key);
 	}
 
-	public function stream_metadata( $path, $option, $value ) {
-		// not implemented
+	/**
+	 * Returns the size of the opened object body.
+	 *
+	 * @return int|null
+	 */
+	private function getSize()
+	{
+		$size = $this->body->getSize();
+
+		return $size !== null ? $size : $this->size;
 	}
 }

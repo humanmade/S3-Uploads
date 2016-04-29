@@ -65,7 +65,7 @@ class Test_S3_Uploads_Image_Editor_Imagick extends WP_UnitTestCase {
 			'width="100" height="100"',
 			'bits' => 8,
 			'channels' => 3,
-			'mime' => 'image/jpeg'
+			'mime' => 'image/jpeg',
 		), $image );
 	}
 }
