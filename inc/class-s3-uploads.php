@@ -118,7 +118,7 @@ class S3_Uploads {
 
 	public function get_s3_url() {
 		if ( $this->bucket_url ) {
-			return $this->bucket_url;
+			return apply_filters( 's3_uploads_bucket_url', $this->bucket_url );
 		}
 
 		$bucket = strtok( $this->bucket, '/' );
