@@ -40,7 +40,7 @@ function s3_uploads_init() {
 	}
 
 	$instance = S3_Uploads::get_instance();
-	$instance->setup();
+	$instance->setup(); 
 }
 
 /**
