@@ -118,7 +118,7 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		$uploads = new S3_Uploads( 'hmn-uploads', S3_UPLOADS_KEY, S3_UPLOADS_SECRET, null, S3_UPLOADS_REGION );
 
 		$region = $uploads->get_s3_bucket_region();
-		$this->assertEquals( 'us-east-1', $region );
+		$this->assertEquals( S3_UPLOADS_REGION, $region );
 	}
 
 	function test_get_s3_bucket() {
