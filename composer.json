@@ -19,6 +19,7 @@
 	},
 	"type": "wordpress-plugin",
 	"require": {
+		"aws/aws-sdk-php": "^3.8",
 		"composer/installers": "~1.0"
 	 }
 }

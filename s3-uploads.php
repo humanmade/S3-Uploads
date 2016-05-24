@@ -12,6 +12,10 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once dirname( __FILE__ ) . '/inc/class-s3-uploads-wp-cli-command.php';
 }
 
+if ( file_exists( dirname( __FILE__ ) . '/vendor/autoload.php' ) ) {
+	require 'vendor/autoload.php';
+}
+
 add_action( 'plugins_loaded', 's3_uploads_init' );
 
 function s3_uploads_init() {
@@ -91,11 +95,6 @@ function s3_uploads_enabled() {
  * @param $class_name Name of the class to load.
  */
 function s3_uploads_autoload( $class_name ) {
-	/*
-	 * Load plugin classes:
-	 * - Class name: S3_Uploads_Image_Editor_Imagick.
-	 * - File name: class-s3-uploads-image-editor-imagick.php.
-	 */
 	$class_file = 'class-' . strtolower( str_replace( '_', '-', $class_name ) ) . '.php';
 	$class_path = dirname( __FILE__ ) . '/inc/' . $class_file;
 
@@ -107,6 +106,3 @@ function s3_uploads_autoload( $class_name ) {
 }
 
 spl_autoload_register( 's3_uploads_autoload' );
-
-// Require AWS Autoloader file.
-require_once dirname( __FILE__ ) . '/lib/aws-sdk/aws-autoloader.php';

@@ -1,6 +1,5 @@
 <?php
 
-
 use Aws\S3\S3ClientInterface;
 use Aws\CacheInterface;
 use Aws\LruArrayCache;
