@@ -1,6 +1,7 @@
 <?php
 
 use Aws\S3\StreamWrapper;
+use Aws\S3\S3Client;
 
 class S3_Uploads {
 
@@ -20,7 +21,7 @@ class S3_Uploads {
 
 		if ( ! self::$instance ) {
 			self::$instance = new S3_Uploads(
-				S3_UPLOADS_BUCKET,
+				defined( 'S3_UPLOADS_BUCKET' ) ? S3_UPLOADS_BUCKET : null,
 				defined( 'S3_UPLOADS_KEY' ) ? S3_UPLOADS_KEY : null,
 				defined( 'S3_UPLOADS_SECRET' ) ? S3_UPLOADS_SECRET : null,
 				defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null,
@@ -182,7 +183,7 @@ class S3_Uploads {
 		}
 
 		$params = apply_filters( 's3_uploads_s3_client_params', $params );
-		$this->s3 = Aws\S3\S3Client::factory( $params );
+		$this->s3 = S3Client::factory( $params );
 
 		return $this->s3;
 	}
@@ -190,7 +191,7 @@ class S3_Uploads {
 	public function filter_editors( $editors ) {
 
 		if ( ( $position = array_search( 'WP_Image_Editor_Imagick', $editors ) ) !== false ) {
-			unset($editors[$position]);
+			unset( $editors[ $position ] );
 		}
 
 		array_unshift( $editors, 'S3_Uploads_Image_Editor_Imagick' );
