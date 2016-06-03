@@ -1,5 +1,7 @@
 <?php
 
+use Aws\S3\StreamWrapper;
+
 class S3_Uploads {
 
 	private static $instance;
@@ -22,14 +24,14 @@ class S3_Uploads {
 				defined( 'S3_UPLOADS_KEY' ) ? S3_UPLOADS_KEY : null,
 				defined( 'S3_UPLOADS_SECRET' ) ? S3_UPLOADS_SECRET : null,
 				defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null,
-				S3_UPLOADS_REGION
+				defined( 'S3_UPLOADS_REGION' ) ? S3_UPLOADS_REGION : null
 			);
 		}
 
 		return self::$instance;
 	}
 
-	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null ) {
+	public function __construct( $bucket, $key = null, $secret = null, $bucket_url = null, $region = null ) {
 
 		$this->bucket = $bucket;
 		$this->key = $key;
@@ -48,8 +50,6 @@ class S3_Uploads {
 		add_filter( 'wp_image_editors', array( $this, 'filter_editors' ), 9 );
 		add_filter( 'wp_delete_file', array( $this, 'wp_filter_delete_file' ) );
 		remove_filter( 'admin_notices', 'wpthumb_errors' );
-
-		add_action( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
 	}
 
 	/**
@@ -71,7 +71,7 @@ class S3_Uploads {
 		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
-			S3_Uploads_Stream_Wrapper::register( $this->s3() );
+			StreamWrapper::register( $this->s3() );
 			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', 'public-read' );
 		}
 
@@ -198,22 +198,4 @@ class S3_Uploads {
 		return $editors;
 	}
 
-	/**
-	 * Copy the file from /tmp to an s3 dir so handle_sideload doesn't fail due to
-	 * trying to do a rename() on the file cross streams. This is somewhat of a hack
-	 * to work around the core issue https://core.trac.wordpress.org/ticket/29257
-	 *
-	 * @param array File array
-	 * @return array
-	 */
-	public function filter_sideload_move_temp_file_to_s3( array $file ) {
-		$upload_dir = wp_upload_dir();
-		$new_path = $upload_dir['basedir'] . '/tmp/' . basename( $file['tmp_name'] );
-
-		copy( $file['tmp_name'], $new_path );
-		unlink( $file['tmp_name'] );
-		$file['tmp_name'] = $new_path;
-
-		return $file;
-	}
 }
