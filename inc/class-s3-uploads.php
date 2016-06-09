@@ -19,8 +19,8 @@ class S3_Uploads {
 		if ( ! self::$instance ) {
 			self::$instance = new S3_Uploads(
 				S3_UPLOADS_BUCKET,
-				S3_UPLOADS_KEY,
-				S3_UPLOADS_SECRET,
+				defined( 'S3_UPLOADS_KEY' ) ? S3_UPLOADS_KEY : null,
+				defined( 'S3_UPLOADS_SECRET' ) ? S3_UPLOADS_SECRET : null,
 				defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null,
 				S3_UPLOADS_REGION
 			);
