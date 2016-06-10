@@ -24,7 +24,6 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 
 		$this->assertEquals( 10, has_action( 'upload_dir', array( S3_Uploads::get_instance(), 'filter_upload_dir' ) ) );
 		$this->assertEquals( 9, has_action( 'wp_image_editors', array( S3_Uploads::get_instance(), 'filter_editors' ) ) );
-		$this->assertEquals( 10, has_action( 'wp_handle_sideload_prefilter', array( S3_Uploads::get_instance(), 'filter_sideload_move_temp_file_to_s3' ) ) );
 
 		$this->assertTrue( in_array( 's3', stream_get_wrappers() ) );
 		S3_Uploads::get_instance()->tear_down();
