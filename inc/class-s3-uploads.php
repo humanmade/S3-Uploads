@@ -58,7 +58,10 @@ class S3_Uploads {
 	 */
 	public function tear_down() {
 
-		stream_wrapper_unregister( 's3' );
+		if ( in_array( 's3', stream_get_wrappers() ) ) {
+		 	stream_wrapper_unregister( 's3' );
+		}
+
 		remove_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
 		remove_filter( 'wp_image_editors', array( $this, 'filter_editors' ), 9 );
 		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );

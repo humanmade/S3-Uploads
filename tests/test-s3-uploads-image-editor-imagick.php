@@ -3,6 +3,7 @@
 class Test_S3_Uploads_Image_Editor_Imagick extends WP_UnitTestCase {
 
 	public function setUp() {
+		
 		$this->image_path = dirname( __FILE__ ) . '/data/canola.jpg';
 
 		require_once ABSPATH . WPINC . '/class-wp-image-editor.php';
@@ -11,11 +12,13 @@ class Test_S3_Uploads_Image_Editor_Imagick extends WP_UnitTestCase {
 		if ( ! WP_Image_Editor_Imagick::test() ) {
 			$this->markTestSkipped( 'WP_Image_Editor_Imagick test failed' );
 		}
+
 	}
 	public function test_s3_upload_image_editor_is_present() {
 		$editors = apply_filters( 'wp_image_editors', array( 'WP_Image_Editor_Imagick', 'WP_Image_Editor_GD' ) );
 
 		$this->assertFalse( in_array( 'WP_Image_Editor_Imagick', $editors ), 'Imagick editor should be removed from the image editors array.' );
+
 	}
 
 	/**
@@ -35,6 +38,7 @@ class Test_S3_Uploads_Image_Editor_Imagick extends WP_UnitTestCase {
 		$status = $image_editor->save( $upload_dir['basedir'] . '/canola-100x100.jpg' );
 
 		$this->assertWPError( $status );
+
 	}
 
 	public function test_save_image() {
@@ -67,5 +71,7 @@ class Test_S3_Uploads_Image_Editor_Imagick extends WP_UnitTestCase {
 			'channels' => 3,
 			'mime' => 'image/jpeg',
 		), $image );
+
 	}
+	
 }
