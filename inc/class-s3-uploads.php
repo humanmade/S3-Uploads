@@ -223,94 +223,28 @@ class S3_Uploads {
 	 * file streams so we need to make a temporary local copy to extract
 	 * exif data from.
 	 *
-	 * @param array  $meta Array of metadata
-	 * @param string $file File name on S3
-	 * @return array
+	 * @param array  $meta
+	 * @param string $file
+	 * @return array|bool
 	 */
 	public function wp_filter_read_image_metadata( $meta, $file ) {
-
-		// Get a local copy of the file
-		$temp_filename = wp_tempnam( $file, 's3-uploads' );
-		@ copy( $file, $temp_filename );
-
-		$exif = @ exif_read_data( $temp_filename );
-
-		// Clean up
-		@ unlink( $temp_filename );
-
-		// Bail if the copy and exif read failed
-		if ( ! $exif ) {
-			return $meta;
-		}
-
-		if ( ! empty( $exif['ImageDescription'] ) ) {
-			mbstring_binary_safe_encoding();
-			$description_length = strlen( $exif['ImageDescription'] );
-			reset_mbstring_encoding();
-
-			if ( empty( $meta['title'] ) && $description_length < 80 ) {
-				// Assume the title is stored in ImageDescription
-				$meta['title'] = trim( $exif['ImageDescription'] );
-			}
-
-			if ( empty( $meta['caption'] ) && ! empty( $exif['COMPUTED']['UserComment'] ) ) {
-				$meta['caption'] = trim( $exif['COMPUTED']['UserComment'] );
-			}
-
-			if ( empty( $meta['caption'] ) ) {
-				$meta['caption'] = trim( $exif['ImageDescription'] );
-			}
-		} elseif ( empty( $meta['caption'] ) && ! empty( $exif['Comments'] ) ) {
-			$meta['caption'] = trim( $exif['Comments'] );
-		}
-
-		if ( empty( $meta['credit'] ) ) {
-			if ( ! empty( $exif['Artist'] ) ) {
-				$meta['credit'] = trim( $exif['Artist'] );
-			} elseif ( ! empty( $exif['Author'] ) ) {
-				$meta['credit'] = trim( $exif['Author'] );
-			}
-		}
-
-		if ( empty( $meta['copyright'] ) && ! empty( $exif['Copyright'] ) ) {
-			$meta['copyright'] = trim( $exif['Copyright'] );
-		}
-		if ( ! empty( $exif['FNumber'] ) ) {
-			$meta['aperture'] = round( wp_exif_frac2dec( $exif['FNumber'] ), 2 );
-		}
-		if ( ! empty( $exif['Model'] ) ) {
-			$meta['camera'] = trim( $exif['Model'] );
-		}
-		if ( empty( $meta['created_timestamp'] ) && ! empty( $exif['DateTimeDigitized'] ) ) {
-			$meta['created_timestamp'] = wp_exif_date2ts( $exif['DateTimeDigitized'] );
-		}
-		if ( ! empty( $exif['FocalLength'] ) ) {
-			$meta['focal_length'] = (string) wp_exif_frac2dec( $exif['FocalLength'] );
-		}
-		if ( ! empty( $exif['ISOSpeedRatings'] ) ) {
-			$meta['iso'] = is_array( $exif['ISOSpeedRatings'] ) ? reset( $exif['ISOSpeedRatings'] ) : $exif['ISOSpeedRatings'];
-			$meta['iso'] = trim( $meta['iso'] );
-		}
-		if ( ! empty( $exif['ExposureTime'] ) ) {
-			$meta['shutter_speed'] = (string) wp_exif_frac2dec( $exif['ExposureTime'] );
-		}
-		if ( ! empty( $exif['Orientation'] ) ) {
-			$meta['orientation'] = $exif['Orientation'];
-		}
-
-
-		foreach ( array( 'title', 'caption', 'credit', 'copyright', 'camera', 'iso' ) as $key ) {
-			if ( $meta[ $key ] && ! seems_utf8( $meta[ $key ] ) ) {
-				$meta[ $key ] = utf8_encode( $meta[ $key ] );
-			}
-		}
-
-		foreach ( $meta['keywords'] as $key => $keyword ) {
-			if ( ! seems_utf8( $keyword ) ) {
-				$meta['keywords'][ $key ] = utf8_encode( $keyword );
-			}
-		}
-
+		remove_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), 10, 2 );
+		$temp_file = $this->copy_image_from_s3( $file );
+		$meta      = wp_read_image_metadata( $temp_file );
+		add_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), 10, 2 );
+		unlink( $temp_file );
 		return $meta;
+	}
+
+	/**
+	 * Get a local copy of the file.
+	 *
+	 * @param  string $file
+	 * @return string
+	 */
+	public function copy_image_from_s3( $file, $callback ) {
+		$temp_filename = wp_tempnam( $file, 's3-uploads' );
+		copy( $file, $temp_filename );
+		return $temp_filename;
 	}
 }
