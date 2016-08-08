@@ -3,10 +3,10 @@
 class S3_Uploads {
 
 	private static $instance;
-	private $bucket;
-	private $bucket_url;
-	private $key;
-	private $secret;
+	private        $bucket;
+	private        $bucket_url;
+	private        $key;
+	private        $secret;
 
 	public $original_upload_dir;
 
@@ -31,11 +31,11 @@ class S3_Uploads {
 
 	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null ) {
 
-		$this->bucket = $bucket;
-		$this->key = $key;
-		$this->secret = $secret;
+		$this->bucket     = $bucket;
+		$this->key        = $key;
+		$this->secret     = $secret;
 		$this->bucket_url = $bucket_url;
-		$this->region = $region;
+		$this->region     = $region;
 	}
 
 	/**
@@ -47,6 +47,7 @@ class S3_Uploads {
 		add_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
 		add_filter( 'wp_image_editors', array( $this, 'filter_editors' ), 9 );
 		add_filter( 'wp_delete_file', array( $this, 'wp_filter_delete_file' ) );
+		add_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), 10, 2 );
 		remove_filter( 'admin_notices', 'wpthumb_errors' );
 
 		add_action( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
@@ -161,17 +162,17 @@ class S3_Uploads {
 		$params = array( 'version' => 'latest' );
 
 		if ( $this->key && $this->secret ) {
-			$params['credentials']['key'] = $this->key;
+			$params['credentials']['key']    = $this->key;
 			$params['credentials']['secret'] = $this->secret;
 		}
 
 		if ( $this->region ) {
 			$params['signature'] = 'v4';
-			$params['region'] = $this->region;
+			$params['region']    = $this->region;
 		}
 
 		if ( defined( 'WP_PROXY_HOST' ) && defined( 'WP_PROXY_PORT' ) ) {
-			$proxy_auth = '';
+			$proxy_auth    = '';
 			$proxy_address = WP_PROXY_HOST . ':' . WP_PROXY_PORT;
 
 			if ( defined( 'WP_PROXY_USERNAME' ) && defined( 'WP_PROXY_PASSWORD' ) ) {
@@ -181,7 +182,7 @@ class S3_Uploads {
 			$params['request.options']['proxy'] = $proxy_auth . $proxy_address;
 		}
 
-		$params = apply_filters( 's3_uploads_s3_client_params', $params );
+		$params   = apply_filters( 's3_uploads_s3_client_params', $params );
 		$this->s3 = Aws\S3\S3Client::factory( $params );
 
 		return $this->s3;
@@ -190,7 +191,7 @@ class S3_Uploads {
 	public function filter_editors( $editors ) {
 
 		if ( ( $position = array_search( 'WP_Image_Editor_Imagick', $editors ) ) !== false ) {
-			unset($editors[$position]);
+			unset( $editors[ $position ] );
 		}
 
 		array_unshift( $editors, 'S3_Uploads_Image_Editor_Imagick' );
@@ -208,12 +209,108 @@ class S3_Uploads {
 	 */
 	public function filter_sideload_move_temp_file_to_s3( array $file ) {
 		$upload_dir = wp_upload_dir();
-		$new_path = $upload_dir['basedir'] . '/tmp/' . basename( $file['tmp_name'] );
+		$new_path   = $upload_dir['basedir'] . '/tmp/' . basename( $file['tmp_name'] );
 
 		copy( $file['tmp_name'], $new_path );
 		unlink( $file['tmp_name'] );
 		$file['tmp_name'] = $new_path;
 
 		return $file;
+	}
+
+	/**
+	 * Filters wp_read_image_metadata. exif_read_data() doesn't work on
+	 * file streams so we need to make a temporary local copy to extract
+	 * exif data from.
+	 *
+	 * @param array  $meta Array of metadata
+	 * @param string $file File name on S3
+	 * @return array
+	 */
+	public function wp_filter_read_image_metadata( $meta, $file ) {
+
+		// Get a local copy of the file
+		$temp_filename = wp_tempnam( $file, 's3-uploads' );
+		@ copy( $file, $temp_filename );
+
+		$exif = @exif_read_data( $temp_filename );
+
+		// Clean up
+		@ unlink( $temp_filename );
+
+		// Bail if the copy and exif read failed
+		if ( ! $exif ) {
+			return $meta;
+		}
+
+		if ( ! empty( $exif['ImageDescription'] ) ) {
+			mbstring_binary_safe_encoding();
+			$description_length = strlen( $exif['ImageDescription'] );
+			reset_mbstring_encoding();
+
+			if ( empty( $meta['title'] ) && $description_length < 80 ) {
+				// Assume the title is stored in ImageDescription
+				$meta['title'] = trim( $exif['ImageDescription'] );
+			}
+
+			if ( empty( $meta['caption'] ) && ! empty( $exif['COMPUTED']['UserComment'] ) ) {
+				$meta['caption'] = trim( $exif['COMPUTED']['UserComment'] );
+			}
+
+			if ( empty( $meta['caption'] ) ) {
+				$meta['caption'] = trim( $exif['ImageDescription'] );
+			}
+		} elseif ( empty( $meta['caption'] ) && ! empty( $exif['Comments'] ) ) {
+			$meta['caption'] = trim( $exif['Comments'] );
+		}
+
+		if ( empty( $meta['credit'] ) ) {
+			if ( ! empty( $exif['Artist'] ) ) {
+				$meta['credit'] = trim( $exif['Artist'] );
+			} elseif ( ! empty( $exif['Author'] ) ) {
+				$meta['credit'] = trim( $exif['Author'] );
+			}
+		}
+
+		if ( empty( $meta['copyright'] ) && ! empty( $exif['Copyright'] ) ) {
+			$meta['copyright'] = trim( $exif['Copyright'] );
+		}
+		if ( ! empty( $exif['FNumber'] ) ) {
+			$meta['aperture'] = round( wp_exif_frac2dec( $exif['FNumber'] ), 2 );
+		}
+		if ( ! empty( $exif['Model'] ) ) {
+			$meta['camera'] = trim( $exif['Model'] );
+		}
+		if ( empty( $meta['created_timestamp'] ) && ! empty( $exif['DateTimeDigitized'] ) ) {
+			$meta['created_timestamp'] = wp_exif_date2ts( $exif['DateTimeDigitized'] );
+		}
+		if ( ! empty( $exif['FocalLength'] ) ) {
+			$meta['focal_length'] = (string) wp_exif_frac2dec( $exif['FocalLength'] );
+		}
+		if ( ! empty( $exif['ISOSpeedRatings'] ) ) {
+			$meta['iso'] = is_array( $exif['ISOSpeedRatings'] ) ? reset( $exif['ISOSpeedRatings'] ) : $exif['ISOSpeedRatings'];
+			$meta['iso'] = trim( $meta['iso'] );
+		}
+		if ( ! empty( $exif['ExposureTime'] ) ) {
+			$meta['shutter_speed'] = (string) wp_exif_frac2dec( $exif['ExposureTime'] );
+		}
+		if ( ! empty( $exif['Orientation'] ) ) {
+			$meta['orientation'] = $exif['Orientation'];
+		}
+
+
+		foreach ( array( 'title', 'caption', 'credit', 'copyright', 'camera', 'iso' ) as $key ) {
+			if ( $meta[ $key ] && ! seems_utf8( $meta[ $key ] ) ) {
+				$meta[ $key ] = utf8_encode( $meta[ $key ] );
+			}
+		}
+
+		foreach ( $meta['keywords'] as $key => $keyword ) {
+			if ( ! seems_utf8( $keyword ) ) {
+				$meta['keywords'][ $key ] = utf8_encode( $keyword );
+			}
+		}
+
+		return $meta;
 	}
 }
