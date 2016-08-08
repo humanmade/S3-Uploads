@@ -233,7 +233,7 @@ class S3_Uploads {
 		$temp_filename = wp_tempnam( $file, 's3-uploads' );
 		@ copy( $file, $temp_filename );
 
-		$exif = @exif_read_data( $temp_filename );
+		$exif = @ exif_read_data( $temp_filename );
 
 		// Clean up
 		@ unlink( $temp_filename );
