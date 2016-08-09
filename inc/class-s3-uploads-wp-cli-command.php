@@ -24,7 +24,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		WP_CLI::print_value( 'Attempting to upload file ' . $s3_path );
 
 		$copy = copy(
-			dirname( dirname( __FILE__ ) ) . '/tests/data/canola.jpg',
+			dirname( dirname( __FILE__ ) ) . '/tests/data/sunflower.jpg',
 			$s3_path
 		);
 
