@@ -228,7 +228,7 @@ class S3_Uploads {
 	 * @return array|bool
 	 */
 	public function wp_filter_read_image_metadata( $meta, $file ) {
-		remove_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), 10, 2 );
+		remove_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), 10 );
 		$temp_file = $this->copy_image_from_s3( $file );
 		$meta      = wp_read_image_metadata( $temp_file );
 		add_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), 10, 2 );
@@ -242,7 +242,7 @@ class S3_Uploads {
 	 * @param  string $file
 	 * @return string
 	 */
-	public function copy_image_from_s3( $file, $callback ) {
+	public function copy_image_from_s3( $file ) {
 		$temp_filename = wp_tempnam( $file, 's3-uploads' );
 		copy( $file, $temp_filename );
 		return $temp_filename;
