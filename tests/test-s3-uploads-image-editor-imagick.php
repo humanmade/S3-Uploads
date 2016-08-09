@@ -3,7 +3,7 @@
 class Test_S3_Uploads_Image_Editor_Imagick extends WP_UnitTestCase {
 
 	public function setUp() {
-		$this->image_path = dirname( __FILE__ ) . '/data/canola.jpg';
+		$this->image_path = dirname( __FILE__ ) . '/data/sunflower.jpg';
 
 		require_once ABSPATH . WPINC . '/class-wp-image-editor.php';
 		require_once ABSPATH . WPINC . '/class-wp-image-editor-imagick.php';
@@ -26,13 +26,13 @@ class Test_S3_Uploads_Image_Editor_Imagick extends WP_UnitTestCase {
 	public function test_save_image_with_inbuilt_fails() {
 
 		$upload_dir = wp_upload_dir();
-		$path = $upload_dir['basedir'] . '/canola.jpg';
+		$path = $upload_dir['basedir'] . '/sunflower.jpg';
 		copy( $this->image_path, $path );
 
 		$image_editor = new WP_Image_Editor_Imagick( $path );
 
 		$image_editor->load();
-		$status = $image_editor->save( $upload_dir['basedir'] . '/canola-100x100.jpg' );
+		$status = $image_editor->save( $upload_dir['basedir'] . '/sunflower-100x100.jpg' );
 
 		$this->assertWPError( $status );
 	}
@@ -40,19 +40,19 @@ class Test_S3_Uploads_Image_Editor_Imagick extends WP_UnitTestCase {
 	public function test_save_image() {
 
 		$upload_dir = wp_upload_dir();
-		$path = $upload_dir['basedir'] . '/canola.jpg';
+		$path = $upload_dir['basedir'] . '/sunflower.jpg';
 		copy( $this->image_path, $path );
 
 		$image_editor = new S3_Uploads_Image_Editor_Imagick( $path );
 
 		$image_editor->load();
 		$image_editor->resize( 100, 100, true );
-		$status = $image_editor->save( $upload_dir['basedir'] . '/canola-100x100.jpg' );
+		$status = $image_editor->save( $upload_dir['basedir'] . '/sunflower-100x100.jpg' );
 
 		$this->assertNotInstanceOf( 'WP_Error', $status );
 
-		$this->assertEquals( $upload_dir['basedir'] . '/canola-100x100.jpg', $status['path'] );
-		$this->assertEquals( 'canola-100x100.jpg', $status['file'] );
+		$this->assertEquals( $upload_dir['basedir'] . '/sunflower-100x100.jpg', $status['path'] );
+		$this->assertEquals( 'sunflower-100x100.jpg', $status['file'] );
 		$this->assertEquals( 100, $status['width'] );
 		$this->assertEquals( 100, $status['height'] );
 
