@@ -45,7 +45,7 @@ function s3_uploads_init() {
  * @return bool True if the requirements are met, else false.
  */
 function s3_uploads_check_requirements() {
-	if ( version_compare( '5.3.3', PHP_VERSION, '>' ) ) {
+	if ( version_compare( '5.5.0', PHP_VERSION, '>' ) ) {
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
 			add_action( 'admin_notices', 's3_uploads_outdated_php_version_notice' );
 		}
@@ -62,7 +62,7 @@ function s3_uploads_check_requirements() {
  * This has to be a named function for compatibility with PHP 5.2.
  */
 function s3_uploads_outdated_php_version_notice() {
-	printf( '<div class="error"><p>The S3 Uploads plugin requires PHP version 5.3.3 or higher. Your server is running PHP version %s.</p></div>',
+	printf( '<div class="error"><p>The S3 Uploads plugin requires PHP version 5.5.0 or higher. Your server is running PHP version %s.</p></div>',
 		PHP_VERSION
 	);
 }
