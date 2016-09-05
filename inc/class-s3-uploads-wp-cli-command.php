@@ -188,39 +188,65 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 			$path = str_replace( strtok( S3_UPLOADS_BUCKET, '/' ) . '/', '', S3_UPLOADS_BUCKET );
 		}
 
-		return '{
+		return sprintf(
+			trim( '
+{
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "Stmt1392016154000",
+      "Sid": "ObjectOperationsReadWriteDelete",
       "Effect": "Allow",
+      "Resource": "arn:aws:s3:::%1$s/*",
       "Action": [
-        "s3:AbortMultipartUpload",
-        "s3:DeleteObject",
-        "s3:GetBucketAcl",
-        "s3:GetBucketLocation",
-        "s3:GetBucketPolicy",
         "s3:GetObject",
-        "s3:GetObjectAcl",
-        "s3:ListBucket",
-        "s3:ListBucketMultipartUploads",
-        "s3:ListMultipartUploadParts",
         "s3:PutObject",
-        "s3:PutObjectAcl"
-      ],
-      "Resource": [
-        "arn:aws:s3:::' . S3_UPLOADS_BUCKET . '/*"
+        "s3:GetObjectAcl",
+        "s3:PutObjectAcl",
+        "s3:DeleteObject",
+        "s3:AbortMultipartUpload",
+        "s3:ListMultipartUploadParts"
       ]
     },
     {
-      "Sid": "AllowRootAndHomeListingOfBucket",
-      "Action": ["s3:ListBucket"],
+      "Sid": "BucketOperationsListContents",
       "Effect": "Allow",
-      "Resource": ["arn:aws:s3:::' . $bucket . '"],
-      "Condition":{"StringLike":{"s3:prefix":["' . ( $path ? $path . '/' : '' ) . '*"]}}
+      "Resource": "arn:aws:s3:::%2$s",
+      "Condition": { "StringLike": {
+        "s3:prefix": [ "%3$s" ],
+        "s3:delimiter": [ "/" ]
+      } },
+      "Action": [
+        "s3:ListBucket"
+      ]
+    },
+    {
+      "Sid": "BucketSubresourceOperationsRead",
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::%2$s",
+      "Action": [
+        "s3:GetAccelerateConfiguration",
+        "s3:GetBucketAcl",
+        "s3:GetBucketCORS",
+        "s3:GetBucketVersioning",
+        "s3:GetBucketRequestPayment",
+        "s3:GetBucketLocation",
+        "s3:GetBucketPolicy",
+        "s3:GetBucketNotification",
+        "s3:GetBucketLogging",
+        "s3:GetBucketTagging",
+        "s3:GetBucketWebsite",
+        "s3:GetLifecycleConfiguration",
+        "s3:GetReplicationConfiguration"
+      ]
     }
   ]
-}';
+}
+			' ),
+			S3_UPLOADS_BUCKET,
+			$bucket,
+			( $path ? $path . '/' : '' ) . '*'
+		);
+
 	}
 
 	/**
