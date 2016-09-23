@@ -72,7 +72,7 @@ class S3_Uploads {
 		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
-			S3_Uploads_Stream_Wrapper::register( $this->s3() );
+			S3_Uploads_Stream_Wrapper::register( $this->get_s3_config() );
 			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', 'public-read' );
 		}
 
@@ -154,11 +154,16 @@ class S3_Uploads {
 	 * @return Aws\S3\S3Client
 	 */
 	public function s3() {
-
 		if ( ! empty( $this->s3 ) ) {
 			return $this->s3;
 		}
 
+		$this->s3 = Aws\S3\S3Client::factory( $this->get_s3_config() );
+
+		return $this->s3;
+	}
+
+	public function get_s3_config() {
 		$params = array( 'version' => 'latest' );
 
 		if ( $this->key && $this->secret ) {
@@ -183,9 +188,8 @@ class S3_Uploads {
 		}
 
 		$params   = apply_filters( 's3_uploads_s3_client_params', $params );
-		$this->s3 = Aws\S3\S3Client::factory( $params );
 
-		return $this->s3;
+		return $params;
 	}
 
 	public function filter_editors( $editors ) {

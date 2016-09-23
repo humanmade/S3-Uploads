@@ -95,15 +95,17 @@ class S3_Uploads_Stream_Wrapper
 	/** @var string The opened protocol (e.g., "s3") */
 	private $protocol = 's3';
 
+	private $client;
+
 	/**
 	 * Register the 's3://' stream wrapper
 	 *
-	 * @param S3ClientInterface $client   Client to use with the stream wrapper
+	 * @param array             $client_config   Client to use with the stream wrapper
 	 * @param string            $protocol Protocol to register as.
 	 * @param CacheInterface    $cache    Default cache for the protocol.
 	 */
 	public static function register(
-		S3ClientInterface $client,
+		array $client_config,
 		$protocol = 's3',
 		CacheInterface $cache = null
 	) {
@@ -114,7 +116,7 @@ class S3_Uploads_Stream_Wrapper
 		// Set the client passed in as the default stream context client
 		stream_wrapper_register($protocol, get_called_class(), STREAM_IS_URL);
 		$default = stream_context_get_options(stream_context_get_default());
-		$default[$protocol]['client'] = $client;
+		$default[$protocol]['client'] = $client_config;
 
 		if ($cache) {
 			$default[$protocol]['cache'] = $cache;
@@ -725,11 +727,17 @@ class S3_Uploads_Stream_Wrapper
 	 */
 	private function getClient()
 	{
-		if (!$client = $this->getOption('client')) {
+		if( $this->client ) {
+			return $this->client;
+		}
+
+		if (!$client_config = $this->getOption('client')) {
 			throw new \RuntimeException('No client in stream context');
 		}
 
-		return $client;
+		$this->client = Aws\S3\S3Client::factory( $client_config );
+
+		return $this->client;
 	}
 
 	private function getBucketKey($path)
