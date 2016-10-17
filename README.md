@@ -53,10 +53,10 @@ like so:
 wp s3-uploads verify
 ```
 
-You'll want to create a new IAM user for the S3-Uploads plugin, so you are not using admin level access keys on your site. S3-Uploads can create the IAM user for you and asign the correct permissions.
+You'll want to create a new IAM user for the S3-Uploads plugin, so you are not using admin level access keys on your site. S3-Uploads can create the IAM user for you and assign the correct permissions.
 
 ```
-wp s3-uploads create-iam-user --admin-key=<key> --admin-secret=<secret>
+AWS_ACCESS_KEY_ID=<key> AWS_SECRET_ACCESS_KEY=<secret> wp s3-uploads create-iam-user
 ```
 
 This will provide you with a new Access Key and Secret Key which you can configure S3-Uploads with. Paste the values in the `wp-config.php`. Once you have migrated your media to S3 with any of the below methods, you'll want to enable S3 Uploads: `wp s3-uploads enable`.

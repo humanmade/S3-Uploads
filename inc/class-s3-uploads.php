@@ -7,6 +7,7 @@ class S3_Uploads {
 	private        $bucket_url;
 	private        $key;
 	private        $secret;
+    private        $s3;
 
 	public $original_upload_dir;
 
@@ -183,7 +184,7 @@ class S3_Uploads {
 		}
 
 		$params   = apply_filters( 's3_uploads_s3_client_params', $params );
-		$this->s3 = Aws\S3\S3Client::factory( $params );
+		$this->s3 = new Aws\S3\S3Client( $params );
 
 		return $this->s3;
 	}
