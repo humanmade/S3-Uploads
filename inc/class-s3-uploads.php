@@ -7,7 +7,7 @@ class S3_Uploads {
 	private        $bucket_url;
 	private        $key;
 	private        $secret;
-    private        $s3;
+	private        $s3;
 
 	public $original_upload_dir;
 
