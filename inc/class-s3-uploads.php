@@ -90,7 +90,7 @@ class S3_Uploads {
 		}
 
 		$dirs['path']    = str_replace( WP_CONTENT_DIR, 's3://' . $bucket_path, $dirs['path'] );
-		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $bucket_path, $dirs['basedir'] );
+		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $bucket_path, $dirs['basedir'] ); 
 		
 		if ( ! defined( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) || ! S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL ) {
 
