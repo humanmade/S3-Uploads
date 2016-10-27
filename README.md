@@ -38,6 +38,7 @@ define( 'S3_UPLOADS_BUCKET', 'my-bucket' );
 define( 'S3_UPLOADS_KEY', '' );
 define( 'S3_UPLOADS_SECRET', '' );
 define( 'S3_UPLOADS_REGION', '' ); // the s3 bucket region, required for Frankfurt and Beijing.
+define( 'S3_UPLOADS_SUBFOLDER', '' ); //optional support for subfolders, see 'Subfolder Support'
 ```
 
 You must then enable the plugin. To do this via WP-CLI use command:
@@ -123,6 +124,20 @@ define( 'S3_UPLOADS_HTTP_EXPIRES', gmdate( 'D, d M Y H:i:s', time() + (10 * 365 
 	// will expire in 10 years time
 ```
 
+Subfolder Support
+==========
+By default, S3 Uploads will store your `uploads` folder in the root of your bucket. If you want to host 
+multiple websites in the same bucket, you can specify a constant to tell S3 Uploads to store uploads in a subfolder.
+
+For example, if you specify the following constant in your wp-config.php:
+
+```PHP
+define( 'S3_UPLOADS_SUBFOLDER', 'mysubfolder' ); 
+```
+
+Then your links will change from `https://mybucket.s3.amazonaws.com/uploads` to `https://mybucket.s3.amazonaws.com/mysubfolder/uploads`. 
+This may be useful if you host hundreds of sites, as Amazon imposes restrictions on the number of buckets you can have.
+
 Default Behaviour
 ==========
 
@@ -136,16 +151,8 @@ in your `wp-config.php`:
 define( 'S3_UPLOADS_AUTOENABLE', false );
 ```
 
-To then enable S3 Uploads rewriting, use the wp-cli command: `wp s3-uploads enable` / `wp s3-uploads disable`
-to toggle the behaviour. 
-
-URL Rewrites
-=======
-By default, S3 Uploads will use the canonical S3 URIs for referencing the uploads, i.e. `[bucket name].s3.amazonaws.com/uploads/[file path]`. If you want to use another URL to serve the images from (for instance, if you [wish to use S3 as an origin for CloudFlare](https://support.cloudflare.com/hc/en-us/articles/200168926-How-do-I-use-CloudFlare-with-Amazon-s-S3-Service-)), you should define `S3_UPLOADS_BUCKET_URL` in your `wp-config.php`:
-
-```PHP
-define( 'S3_UPLOADS_BUCKET_URL`, '[Your origin domain/URL]' );
-```
+To then enabled S3 Uploads rewriting, use the wp-cli command: `wp s3-uploads enable` / `wp s3-uploads disable`
+to toggle the behaviour.
 
 Offline Development
 =======

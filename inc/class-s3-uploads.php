@@ -85,7 +85,7 @@ class S3_Uploads {
 
 		//allow user to specify subfolder in bucket
 		$bucket_path = $this->bucket;
-		if ( defined('S3_UPLOADS_SUBFOLDER') ) {
+		if ( defined( 'S3_UPLOADS_SUBFOLDER' ) && ! empty( S3_UPLOADS_SUBFOLDER ) ) {
 			$bucket_path .= '/' . trim(S3_UPLOADS_SUBFOLDER, '/');  
 		}
 
