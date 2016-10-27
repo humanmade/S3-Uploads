@@ -83,9 +83,15 @@ class S3_Uploads {
 
 		$this->original_upload_dir = $dirs;
 
-		$dirs['path']    = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['path'] );
-		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['basedir'] );
+		//allow user to specify subfolder in bucket
+		$bucket_path = $this->bucket;
+		if ( defined('S3_UPLOADS_SUBFOLDER') ) {
+			$bucket_path .= '/' . trim(S3_UPLOADS_SUBFOLDER, '/');  
+		}
 
+		$dirs['path']    = str_replace( WP_CONTENT_DIR, 's3://' . $bucket_path, $dirs['path'] );
+		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $bucket_path, $dirs['basedir'] );
+		
 		if ( ! defined( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) || ! S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL ) {
 
 			if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
