@@ -239,7 +239,7 @@ class S3_Uploads_Stream_Wrapper
 
 	public function stream_metadata($path, $option, $value)
 	{
-		// void
+		return false;
 	}
 
 	public function stream_tell()
