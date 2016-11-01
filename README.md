@@ -38,6 +38,8 @@ define( 'S3_UPLOADS_BUCKET', 'my-bucket' );
 define( 'S3_UPLOADS_KEY', '' );
 define( 'S3_UPLOADS_SECRET', '' );
 define( 'S3_UPLOADS_REGION', '' ); // the s3 bucket region, required for Frankfurt and Beijing.
+
+define ( 'S3_UPLOADS_ENDPOINT_URL', ''); // optional, used for s3 compatible services such as Minio
 ```
 
 You must then enable the plugin. To do this via WP-CLI use command:
@@ -137,7 +139,7 @@ define( 'S3_UPLOADS_AUTOENABLE', false );
 ```
 
 To then enable S3 Uploads rewriting, use the wp-cli command: `wp s3-uploads enable` / `wp s3-uploads disable`
-to toggle the behaviour. 
+to toggle the behaviour.
 
 URL Rewrites
 =======

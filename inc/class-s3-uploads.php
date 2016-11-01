@@ -22,20 +22,22 @@ class S3_Uploads {
 				defined( 'S3_UPLOADS_KEY' ) ? S3_UPLOADS_KEY : null,
 				defined( 'S3_UPLOADS_SECRET' ) ? S3_UPLOADS_SECRET : null,
 				defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null,
-				S3_UPLOADS_REGION
+				S3_UPLOADS_REGION,
+				defined( 'S3_UPLOADS_ENDPOINT_URL' ) ? S3_UPLOADS_ENDPOINT_URL : null
 			);
 		}
 
 		return self::$instance;
 	}
 
-	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null ) {
+	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null, $endpoint_url = null ) {
 
-		$this->bucket     = $bucket;
-		$this->key        = $key;
-		$this->secret     = $secret;
-		$this->bucket_url = $bucket_url;
-		$this->region     = $region;
+		$this->bucket       = $bucket;
+		$this->key          = $key;
+		$this->secret       = $secret;
+		$this->bucket_url   = $bucket_url;
+		$this->region       = $region;
+		$this->endpoint_url = $endpoint_url;
 	}
 
 	/**
@@ -171,6 +173,10 @@ class S3_Uploads {
 			$params['region']    = $this->region;
 		}
 
+		if ( $this->endpoint_url ) {
+			$params['endpoint']  = $this->endpoint_url;
+		}
+
 		if ( defined( 'WP_PROXY_HOST' ) && defined( 'WP_PROXY_PORT' ) ) {
 			$proxy_auth    = '';
 			$proxy_address = WP_PROXY_HOST . ':' . WP_PROXY_PORT;
@@ -248,3 +254,4 @@ class S3_Uploads {
 		return $temp_filename;
 	}
 }
+
