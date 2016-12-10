@@ -218,7 +218,16 @@ class S3_Uploads_Stream_Wrapper
 
 		$this->clearCacheKey("s3://{$params['Bucket']}/{$params['Key']}");
 		return $this->boolCall(function () use ($params) {
-			return (bool) $this->getClient()->putObject($params);
+			$bool = (bool) $this->getClient()->putObject($params);
+
+			/**
+			 * Action when a new object has been uploaded to s3.
+			 *
+			 * @param array  $params S3Client::putObject paramteres.
+			 */
+			do_action( 's3_uploads_putObject', $params );
+
+			return $bool;
 		});
 	}
 
