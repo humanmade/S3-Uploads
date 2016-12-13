@@ -246,6 +246,11 @@ class S3_Uploads_Stream_Wrapper
 			});
 	}
 
+	public function stream_metadata($path, $option, $value)
+	{
+		return false;
+	}
+
 	public function stream_tell()
 	{
 		return $this->boolCall(function() { return $this->body->tell(); });
