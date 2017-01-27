@@ -1,6 +1,6 @@
 <?php
 
-class S3_Uploads_UploadSyncBuilder extends Aws\S3\Sync\UploadSyncBuilder {
+class S3_Uploads_UploadSyncBuilder {
 
 	public function __construct( $is_dry_run = false ) {
 		$this->dry_run = $is_dry_run;
