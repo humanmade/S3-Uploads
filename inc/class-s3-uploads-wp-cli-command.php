@@ -72,7 +72,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 			$this->migrate_attachment_to_s3( array( $attachment->ID ), $args_assoc );
 		}
 
-		WP_CLI::success( 'Moved all attachment to S3. If you wish to update references in your database run: ' );
+		WP_CLI::success( 'Moved all attachments to S3. If you wish to update references in your database run: ' );
 		WP_CLI::line( '' );
 
 		// Ensure things are active
