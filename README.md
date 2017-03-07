@@ -145,7 +145,7 @@ By default, S3 Uploads will use the canonical S3 URIs for referencing the upload
 
 ```PHP
 // Define the base bucket URL (without trailing slash)
-define( 'S3_UPLOADS_BUCKET_URL`, 'https://your.origin.url.example/path' );
+define( 'S3_UPLOADS_BUCKET_URL', 'https://your.origin.url.example/path' );
 ```
 
 Offline Development
