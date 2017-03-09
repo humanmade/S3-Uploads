@@ -243,7 +243,7 @@ class S3_Uploads {
 	 * @return string
 	 */
 	public function copy_image_from_s3( $file ) {
-		$temp_filename = wp_tempnam( $file, 's3-uploads' );
+		$temp_filename = wp_tempnam( $file, WP_CONTENT_DIR . '/s3-uploads/' );
 		copy( $file, $temp_filename );
 		return $temp_filename;
 	}
