@@ -8,6 +8,12 @@ Version: 2.0.0-beta2
 Author URI: http://hmn.md
 */
 
+$php_version = phpversion();
+
+if ( version_compare( $php_version ,'5.5', '<' ) ) {
+	return;
+}
+
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once dirname( __FILE__ ) . '/inc/class-s3-uploads-wp-cli-command.php';
 }
