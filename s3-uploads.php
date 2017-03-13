@@ -40,6 +40,13 @@ function s3_uploads_init() {
 }
 
 /**
+ * Disable self
+ */
+function _s3_deactivate_self() {
+	deactivate_plugins( plugin_basename( __FILE__ ) );
+}
+
+/**
  * Check whether the environment meets the plugin's requirements, like the minimum PHP version.
  *
  * @return bool True if the requirements are met, else false.
@@ -48,6 +55,7 @@ function s3_uploads_check_requirements() {
 	if ( version_compare( '5.5.0', PHP_VERSION, '>' ) ) {
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
 			add_action( 'admin_notices', 's3_uploads_outdated_php_version_notice' );
+			add_action( 'admin_init', '_s3_deactivate_self' );
 		}
 
 		return false;
