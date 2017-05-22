@@ -38,6 +38,7 @@ define( 'S3_UPLOADS_BUCKET', 'my-bucket' );
 define( 'S3_UPLOADS_KEY', '' );
 define( 'S3_UPLOADS_SECRET', '' );
 define( 'S3_UPLOADS_REGION', '' ); // the s3 bucket region, required for Frankfurt and Beijing.
+define( 'S3_UPLOADS_SUBFOLDER', '' ); //optional support for subfolders, see 'Subfolder Support'
 ```
 
 You must then enable the plugin. To do this via WP-CLI use command:
@@ -102,6 +103,20 @@ wp s3-uploads cp <from> <to>
 ```
 
 Note: as either `<from>` or `<to>` can be S3 or local locations, you must specify the full S3 location via `s3://mybucket/mydirectory` for example `cp ./test.txt s3://mybucket/test.txt`.
+
+Subfolder Support
+==========
+By default, S3 Uploads will store your `uploads` folder in the root of your bucket. If you want to host 
+multiple websites in the same bucket, you can specify a constant to tell S3 Uploads to store uploads in a subfolder.
+
+For example, if you specify the following constant in your wp-config.php:
+
+```PHP
+define( 'S3_UPLOADS_SUBFOLDER', 'mysubfolder' ); 
+```
+
+Then your links will change from `https://mybucket.s3.amazonaws.com/uploads` to `https://mybucket.s3.amazonaws.com/mysubfolder/uploads`. 
+This may be useful if you host hundreds of sites, as Amazon imposes restrictions on the number of buckets you can have.
 
 Cache Control
 ==========
