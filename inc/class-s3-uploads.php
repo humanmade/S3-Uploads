@@ -16,6 +16,28 @@ class S3_Uploads {
 	 */
 	public static function get_instance() {
 
+		//load your mutlisites' information
+		//"id" is the blog id of each website
+		//"key" is the user's Access Key Id
+		//"bucket" is S3 bucket name
+		//"secret" is the user's Secret Access Key
+		//"region" is the corresponding bucket region 
+		$sites =  array(
+	array("id"=>"YOUR SITE BLOG ID (e.g. 1)",
+		"key"=>"YOUR ACCESS KEY ID",
+		"bucket"=>"YOUR BUCKET NAME FOR THIS SITE",
+		"secret"=>"YOUR SECRET ACCESS KEY",
+		"region"=>"THE REGION OF THIS BUCKET"),
+	array("id"=>"YOUR SITE BLOG ID (e.g. 2)",
+		"key"=>"YOUR ACCESS KEY ID",
+		"bucket"=>"YOUR BUCKET NAME FOR THIS SITE",
+		"secret"=>"YOUR SECRET ACCESS KEY",
+		"region"=>"THE REGION OF THIS BUCKET")
+	);
+
+        
+        //load the default end point of s3-uploads which come from your wp-config.php
+		//This will set up the default S3 end point when there is no value set in $sites
 		if ( ! self::$instance ) {
 			self::$instance = new S3_Uploads(
 				S3_UPLOADS_BUCKET,
@@ -25,6 +47,21 @@ class S3_Uploads {
 				S3_UPLOADS_REGION
 			);
 		}
+
+		//replace the default S3 endpoint by the endpoint of the current website
+		for ($i=0;$i<count($sites);$i++){
+			$thesite=$sites[$i];
+			if ($thesite['id']==get_current_blog_id()) {
+			self::$instance = new S3_Uploads(
+			$thesite['bucket'],
+			$thesite['key'],
+			$thesite['secret'],
+			null,
+			$thesite['region']
+			);
+			break;
+		    }
+	    }
 
 		return self::$instance;
 	}

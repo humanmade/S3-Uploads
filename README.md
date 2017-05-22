@@ -160,6 +160,32 @@ if you want to develop offline you have a couple of options.
 Option 2 will allow you to run the S3 Uploads plugin for production parity purposes, it will essentially mock
 Amazon S3 with a local stream wrapper and actually store the uploads in your WP Upload Dir `/s3/`.
 
+Multisite Configuration
+=======
+For seperating the S3 endpoint of each sub site in the network, you can modify the /inc/class-s3-uploads.php:
+
+```PHP
+public static function get_instance() {
+
+		//load your mutlisites' information
+		$sites =  array(
+	array("id"=>"YOUR SITE BLOG ID (e.g. 1)", //"id" is the blog id of each website
+		"key"=>"YOUR ACCESS KEY ID", //"key" is the user's Access Key Id
+		"bucket"=>"YOUR BUCKET NAME FOR THIS SITE", //"bucket" is S3 bucket name
+		"secret"=>"YOUR SECRET ACCESS KEY", //"secret" is the user's Secret Access Key
+		"region"=>"THE REGION OF THIS BUCKET"), //"region" is the corresponding bucket region
+	array("id"=>"YOUR SITE BLOG ID (e.g. 2)",
+		"key"=>"YOUR ACCESS KEY ID",
+		"bucket"=>"YOUR BUCKET NAME FOR THIS SITE",
+		"secret"=>"YOUR SECRET ACCESS KEY",
+		"region"=>"THE REGION OF THIS BUCKET")
+	);
+	
+	...
+	
+}
+```
+
 Credits
 =======
 Created by Human Made for high volume and large-scale sites. We run S3 Uploads on sites with millions of monthly page views, and thousands of sites.
