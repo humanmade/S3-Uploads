@@ -97,6 +97,9 @@ function s3_uploads_enabled() {
  * @param $class_name Name of the class to load.
  */
 function s3_uploads_autoload( $class_name ) {
+	if ( strpos( $class_name, 'S3_Uploads' ) !== 0 ) {
+		return;
+	}
 	/*
 	 * Load plugin classes:
 	 * - Class name: S3_Uploads_Image_Editor_Imagick.
