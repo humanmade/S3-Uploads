@@ -159,6 +159,7 @@ class S3_Uploads_Stream_Wrapper
 					try {
 						$p = $this->params;
 						$p['Body'] = '';
+						$p = apply_filters( 's3_uploads_putObject_params', $p );
 						$this->getClient()->putObject($p);
 					} catch (Exception $e) {
 						return $this->triggerError($e->getMessage());
