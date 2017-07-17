@@ -137,7 +137,7 @@ define( 'S3_UPLOADS_AUTOENABLE', false );
 ```
 
 To then enable S3 Uploads rewriting, use the wp-cli command: `wp s3-uploads enable` / `wp s3-uploads disable`
-to toggle the behaviour. 
+to toggle the behaviour.
 
 URL Rewrites
 =======
@@ -146,6 +146,11 @@ By default, S3 Uploads will use the canonical S3 URIs for referencing the upload
 ```PHP
 // Define the base bucket URL (without trailing slash)
 define( 'S3_UPLOADS_BUCKET_URL', 'https://your.origin.url.example/path' );
+```
+S3 Uploads' URL rewriting feature can be disabled if the current website does not require it, nginx proxy to s3 etc. In this case the plugin will only upload files to the S3 bucket.
+```PHP
+// disable URL rewriting alltogether
+define( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL', true );
 ```
 
 Offline Development
