@@ -154,6 +154,21 @@ S3 Uploads' URL rewriting feature can be disabled if the current website does no
 define( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL', true );
 ```
 
+S3 Object Permissions
+=======
+
+The object permission of files uploaded to S3 by this plugin can be controlled by setting the `S3_UPLOADS_OBJECT_ACL`
+constant. The default setting if not specified is `public-read` to allow objects to be read by anyone. If you don't
+want the uploads to be publicly readable then you can define `S3_UPLOADS_OBJECT_ACL` as one of `private` or `authenticated-read` 
+in you wp-config file:
+
+```PHP
+// Set the S3 object permission to private
+define('S3_UPLOADS_OBJECT_ACL', 'private');
+```
+
+For more information on S3 permissions please see the Amazon S3 permissions documentation.
+
 Offline Development
 =======
 

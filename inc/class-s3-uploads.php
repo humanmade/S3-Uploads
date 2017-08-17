@@ -73,7 +73,8 @@ class S3_Uploads {
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
 			S3_Uploads_Stream_Wrapper::register( $this->s3() );
-			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', 'public-read' );
+			$objectAcl = defined( 'S3_UPLOADS_OBJECT_ACL' ) ? S3_UPLOADS_OBJECT_ACL : 'public-read';
+			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', $objectAcl );
 		}
 
 		stream_context_set_option( stream_context_get_default(), 's3', 'seekable', true );
