@@ -105,7 +105,12 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		$old_upload_dir = $instance->get_original_upload_dir();
 		$upload_dir = wp_upload_dir();
 
-		$files = array( get_post_meta( $args[0], '_wp_attached_file', true ) );
+		$files         = array();
+		$attached_file = get_post_meta( $args[0], '_wp_attached_file', true );
+
+		if ( ! empty( $attached_file ) ) {
+			$files[] = $attached_file;
+		}
 
 		$meta_data = wp_get_attachment_metadata( $args[0] );
 
