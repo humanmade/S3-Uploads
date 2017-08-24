@@ -105,7 +105,12 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		$old_upload_dir = $instance->get_original_upload_dir();
 		$upload_dir = wp_upload_dir();
 
-		$files = array( get_post_meta( $args[0], '_wp_attached_file', true ) );
+		$files         = array();
+		$attached_file = get_post_meta( $args[0], '_wp_attached_file', true );
+
+		if ( ! empty( $attached_file ) ) {
+			$files[] = $attached_file;
+		}
 
 		$meta_data = wp_get_attachment_metadata( $args[0] );
 
@@ -117,10 +122,6 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 		foreach ( $files as $file ) {
 			if ( file_exists( $path = $old_upload_dir['basedir'] . '/' . $file ) ) {
-				if ( is_dir( $path ) ) {
-					continue;
-				}
-
 				if ( ! copy( $path, $upload_dir['basedir'] . '/' . $file ) ) {
 					WP_CLI::line( sprintf( 'Failed to moved %s to S3', $file ) );
 				} else {
