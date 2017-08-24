@@ -117,6 +117,9 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 		foreach ( $files as $file ) {
 			if ( file_exists( $path = $old_upload_dir['basedir'] . '/' . $file ) ) {
+				if ( is_dir( $path ) ) {
+					continue;
+				}
 
 				if ( ! copy( $path, $upload_dir['basedir'] . '/' . $file ) ) {
 					WP_CLI::line( sprintf( 'Failed to moved %s to S3', $file ) );
