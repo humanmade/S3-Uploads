@@ -401,8 +401,8 @@ class TreeCompiler
             $this->write('$value = !Utils::isEqual(%s, %s);', $a, $b);
         } else {
             $this->write(
-                '$value = is_int(%s) && is_int(%s) && %s %s %s;',
-                $a, $b, $a, $node['value'], $b
+                '$value = (is_int(%s) || is_float(%s)) && (is_int(%s) || is_float(%s)) && %s %s %s;',
+                $a, $a, $b, $b, $a, $node['value'], $b
             );
         }
 

@@ -27,6 +27,30 @@ class MessageValidator
     private static $defaultHostPattern
         = '/^sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?$/';
 
+    private static function isLambdaStyle(Message $message)
+    {
+        return isset($message['SigningCertUrl']);
+    }
+
+    private static function convertLambdaMessage(Message $lambdaMessage)
+    {
+        $keyReplacements = [
+            'SigningCertUrl' => 'SigningCertURL',
+            'SubscribeUrl' => 'SubscribeURL',
+            'UnsubscribeUrl' => 'UnsubscribeURL',
+        ];
+
+        $message = clone $lambdaMessage;
+        foreach ($keyReplacements as $lambdaKey => $canonicalKey) {
+            if (isset($message[$lambdaKey])) {
+                $message[$canonicalKey] = $message[$lambdaKey];
+                unset($message[$lambdaKey]);
+            }
+        }
+
+        return $message;
+    }
+
     /**
      * Constructs the Message Validator object and ensures that openssl is
      * installed.
@@ -55,6 +79,10 @@ class MessageValidator
      */
     public function validate(Message $message)
     {
+        if (self::isLambdaStyle($message)) {
+            $message = self::convertLambdaMessage($message);
+        }
+
         // Get the certificate.
         $this->validateUrl($message['SigningCertURL']);
         $certificate = call_user_func($this->certClient, $message['SigningCertURL']);
@@ -70,7 +98,7 @@ class MessageValidator
         // Verify the signature of the message.
         $content = $this->getStringToSign($message);
         $signature = base64_decode($message['Signature']);
-        if (!openssl_verify($content, $signature, $key, OPENSSL_ALGO_SHA1)) {
+        if (openssl_verify($content, $signature, $key, OPENSSL_ALGO_SHA1) != 1) {
             throw new InvalidSnsMessageException(
                 'The message signature is invalid.'
             );

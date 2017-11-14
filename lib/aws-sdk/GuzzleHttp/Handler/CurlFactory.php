@@ -16,7 +16,7 @@ use Psr\Http\Message\RequestInterface;
 class CurlFactory implements CurlFactoryInterface
 {
     /** @var array */
-    private $handles;
+    private $handles = [];
 
     /** @var int Total number of idle handles to keep in cache */
     private $maxHandles;
@@ -163,7 +163,7 @@ class CurlFactory implements CurlFactoryInterface
         // If an exception was encountered during the onHeaders event, then
         // return a rejected promise that wraps that exception.
         if ($easy->onHeadersException) {
-            return new RejectedPromise(
+            return \GuzzleHttp\Promise\rejection_for(
                 new RequestException(
                     'An error was encountered during the on_headers event',
                     $easy->request,
@@ -186,7 +186,7 @@ class CurlFactory implements CurlFactoryInterface
             ? new ConnectException($message, $easy->request, null, $ctx)
             : new RequestException($message, $easy->request, $easy->response, null, $ctx);
 
-        return new RejectedPromise($error);
+        return \GuzzleHttp\Promise\rejection_for($error);
     }
 
     private function getDefaultConf(EasyHandle $easy)
@@ -194,7 +194,7 @@ class CurlFactory implements CurlFactoryInterface
         $conf = [
             '_headers'             => $easy->request->getHeaders(),
             CURLOPT_CUSTOMREQUEST  => $easy->request->getMethod(),
-            CURLOPT_URL            => (string) $easy->request->getUri(),
+            CURLOPT_URL            => (string) $easy->request->getUri()->withFragment(''),
             CURLOPT_RETURNTRANSFER => false,
             CURLOPT_HEADER         => false,
             CURLOPT_CONNECTTIMEOUT => 150,
@@ -326,11 +326,19 @@ class CurlFactory implements CurlFactoryInterface
                 $conf[CURLOPT_SSL_VERIFYHOST] = 2;
                 $conf[CURLOPT_SSL_VERIFYPEER] = true;
                 if (is_string($options['verify'])) {
-                    $conf[CURLOPT_CAINFO] = $options['verify'];
+                    // Throw an error if the file/folder/link path is not valid or doesn't exist.
                     if (!file_exists($options['verify'])) {
                         throw new \InvalidArgumentException(
                             "SSL CA bundle not found: {$options['verify']}"
                         );
+                    }
+                    // If it's a directory or a link to a directory use CURLOPT_CAPATH.
+                    // If not, it's probably a file, or a link to a file, so use CURLOPT_CAINFO.
+                    if (is_dir($options['verify']) ||
+                        (is_link($options['verify']) && is_dir(readlink($options['verify'])))) {
+                        $conf[CURLOPT_CAPATH] = $options['verify'];
+                    } else {
+                        $conf[CURLOPT_CAINFO] = $options['verify'];
                     }
                 }
             }
@@ -370,13 +378,28 @@ class CurlFactory implements CurlFactoryInterface
             $conf[CURLOPT_FILE] = fopen('php://temp', 'w+');
             $easy->sink = Psr7\stream_for($conf[CURLOPT_FILE]);
         }
-
+        $timeoutRequiresNoSignal = false;
         if (isset($options['timeout'])) {
+            $timeoutRequiresNoSignal |= $options['timeout'] < 1;
             $conf[CURLOPT_TIMEOUT_MS] = $options['timeout'] * 1000;
         }
 
+        // CURL default value is CURL_IPRESOLVE_WHATEVER
+        if (isset($options['force_ip_resolve'])) {
+            if ('v4' === $options['force_ip_resolve']) {
+                $conf[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
+            } else if ('v6' === $options['force_ip_resolve']) {
+                $conf[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V6;
+            }
+        }
+
         if (isset($options['connect_timeout'])) {
+            $timeoutRequiresNoSignal |= $options['connect_timeout'] < 1;
             $conf[CURLOPT_CONNECTTIMEOUT_MS] = $options['connect_timeout'] * 1000;
+        }
+
+        if ($timeoutRequiresNoSignal && strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+            $conf[CURLOPT_NOSIGNAL] = true;
         }
 
         if (isset($options['proxy'])) {
@@ -495,12 +518,14 @@ class CurlFactory implements CurlFactoryInterface
 
     private function createHeaderFn(EasyHandle $easy)
     {
-        if (!isset($easy->options['on_headers'])) {
-            $onHeaders = null;
-        } elseif (!is_callable($easy->options['on_headers'])) {
-            throw new \InvalidArgumentException('on_headers must be callable');
-        } else {
+        if (isset($easy->options['on_headers'])) {
             $onHeaders = $easy->options['on_headers'];
+
+            if (!is_callable($onHeaders)) {
+                throw new \InvalidArgumentException('on_headers must be callable');
+            }
+        } else {
+            $onHeaders = null;
         }
 
         return function ($ch, $h) use (
@@ -512,7 +537,7 @@ class CurlFactory implements CurlFactoryInterface
             if ($value === '') {
                 $startingResponse = true;
                 $easy->createResponse();
-                if ($onHeaders) {
+                if ($onHeaders !== null) {
                     try {
                         $onHeaders($easy->response);
                     } catch (\Exception $e) {

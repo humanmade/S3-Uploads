@@ -5,6 +5,7 @@ use Aws\AwsClient;
 use Aws\CommandInterface;
 use Aws\Sqs\Exception\SqsException;
 use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Psr7\UriResolver;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -30,6 +31,8 @@ use Psr\Http\Message\RequestInterface;
  * @method \GuzzleHttp\Promise\Promise getQueueUrlAsync(array $args = [])
  * @method \Aws\Result listDeadLetterSourceQueues(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listDeadLetterSourceQueuesAsync(array $args = [])
+ * @method \Aws\Result listQueueTags(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listQueueTagsAsync(array $args = [])
  * @method \Aws\Result listQueues(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listQueuesAsync(array $args = [])
  * @method \Aws\Result purgeQueue(array $args = [])
@@ -44,6 +47,10 @@ use Psr\Http\Message\RequestInterface;
  * @method \GuzzleHttp\Promise\Promise sendMessageBatchAsync(array $args = [])
  * @method \Aws\Result setQueueAttributes(array $args = [])
  * @method \GuzzleHttp\Promise\Promise setQueueAttributesAsync(array $args = [])
+ * @method \Aws\Result tagQueue(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise tagQueueAsync(array $args = [])
+ * @method \Aws\Result untagQueue(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise untagQueueAsync(array $args = [])
  */
 class SqsClient extends AwsClient
 {
@@ -65,13 +72,19 @@ class SqsClient extends AwsClient
      */
     public function getQueueArn($queueUrl)
     {
-        return strtr($queueUrl, array(
+        $queueArn = strtr($queueUrl, array(
             'http://'        => 'arn:aws:',
             'https://'       => 'arn:aws:',
             '.amazonaws.com' => '',
             '/'              => ':',
             '.'              => ':',
         ));
+
+        // Cope with SQS' .fifo / :fifo arn inconsistency
+        if (substr($queueArn, -5) === ':fifo') {
+            $queueArn = substr_replace($queueArn, '.fifo', -5);
+        }
+        return $queueArn;
     }
 
     /**
@@ -87,8 +100,10 @@ class SqsClient extends AwsClient
                 RequestInterface $r = null
             ) use ($handler) {
                 if ($c->hasParam('QueueUrl')) {
-                    $uri = Uri::resolve($r->getUri(), $c['QueueUrl']);
-                    $r = $r->withUri($uri);
+                    $r = $r->withUri(UriResolver::resolve(
+                        $r->getUri(),
+                        new Uri($c['QueueUrl'])
+                    ));
                 }
                 return $handler($c, $r);
             };
@@ -96,7 +111,74 @@ class SqsClient extends AwsClient
     }
 
     /**
-     * Validates ReceiveMessage body MD5s
+     * Calculates the expected md5 hash of message attributes according to the encoding
+     * scheme detailed in SQS documentation.
+     *
+     * @param array $message Message containing attributes for validation.
+     *                       Retrieved when using MessageAttributeNames on
+     *                       ReceiveMessage.
+     *
+     * @return string|null The md5 hash of the message attributes according to
+     *                     the encoding scheme. Returns null when there are no
+     *                     attributes.
+     * @link http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-attributes.html#message-attributes-items-validation
+     */
+    private static function calculateMessageAttributesMd5($message)
+    {
+        if (empty($message['MessageAttributes'])
+            || !is_array($message['MessageAttributes'])
+        ) {
+            return null;
+        }
+
+        ksort($message['MessageAttributes']);
+        $attributeValues = "";
+        foreach ($message['MessageAttributes'] as $name => $details) {
+            $attributeValues .= self::getEncodedStringPiece($name);
+            $attributeValues .= self::getEncodedStringPiece($details['DataType']);
+            if (substr($details['DataType'], 0, 6) === 'Binary') {
+                $attributeValues .= pack('c', 0x02);
+                $attributeValues .= self::getEncodedBinaryPiece(
+                    $details['BinaryValue']
+                );
+            } else {
+                $attributeValues .= pack('c', 0x01);
+                $attributeValues .= self::getEncodedStringPiece(
+                    $details['StringValue']
+                );
+            }
+        }
+
+        return md5($attributeValues);
+    }
+
+    private static function calculateBodyMd5($message)
+    {
+        return md5($message['Body']);
+    }
+
+    private static function getEncodedStringPiece($piece)
+    {
+        $utf8Piece = iconv(
+            mb_detect_encoding($piece, mb_detect_order(), true),
+            "UTF-8",
+            $piece
+        );
+        return self::getFourBytePieceLength($utf8Piece) . $utf8Piece;
+    }
+
+    private static function getEncodedBinaryPiece($piece)
+    {
+        return self::getFourBytePieceLength($piece) . $piece;
+    }
+
+    private static function getFourBytePieceLength($piece)
+    {
+        return pack('N', (int)strlen($piece));
+    }
+
+    /**
+     * Validates ReceiveMessage body and message attribute MD5s.
      *
      * @return callable
      */
@@ -115,14 +197,47 @@ class SqsClient extends AwsClient
                     ->then(
                         function ($result) use ($c, $r) {
                             foreach ((array) $result['Messages'] as $msg) {
+                                $bodyMd5 = self::calculateBodyMd5($msg);
                                 if (isset($msg['MD5OfBody'])
-                                    && md5($msg['Body']) !== $msg['MD5OfBody']
+                                    && $bodyMd5 !== $msg['MD5OfBody']
                                 ) {
                                     throw new SqsException(
                                         sprintf(
                                             'MD5 mismatch. Expected %s, found %s',
                                             $msg['MD5OfBody'],
-                                            md5($msg['Body'])
+                                            $bodyMd5
+                                        ),
+                                        $c,
+                                        [
+                                            'code' => 'ClientChecksumMismatch',
+                                            'request' => $r
+                                        ]
+                                    );
+                                }
+
+                                if (isset($msg['MD5OfMessageAttributes'])) {
+                                    $messageAttributesMd5 = self::calculateMessageAttributesMd5($msg);
+                                    if ($messageAttributesMd5 !== $msg['MD5OfMessageAttributes']) {
+                                        throw new SqsException(
+                                            sprintf(
+                                                'Attribute MD5 mismatch. Expected %s, found %s',
+                                                $msg['MD5OfMessageAttributes'],
+                                                $messageAttributesMd5
+                                                    ? $messageAttributesMd5
+                                                    : 'No Attributes'
+                                            ),
+                                            $c,
+                                            [
+                                                'code' => 'ClientChecksumMismatch',
+                                                'request' => $r
+                                            ]
+                                        );
+                                    }
+                                } else if (isset($msg['MessageAttributes'])) {
+                                    throw new SqsException(
+                                        sprintf(
+                                            'No Attribute MD5 found. Expected %s',
+                                            self::calculateMessageAttributesMd5($msg)
                                         ),
                                         $c,
                                         [
