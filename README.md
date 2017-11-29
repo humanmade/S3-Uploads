@@ -37,8 +37,9 @@ Once you have `git clone`d the repo, or added it as a Git Submodule, add the fol
 define( 'S3_UPLOADS_BUCKET', 'my-bucket' );
 define( 'S3_UPLOADS_KEY', '' );
 define( 'S3_UPLOADS_SECRET', '' );
-define( 'S3_UPLOADS_REGION', '' ); // the s3 bucket region, required for Frankfurt and Beijing.
+define( 'S3_UPLOADS_REGION', '' ); // the s3 bucket region, required for Frankfurt, Beijing & Sydney.
 ```
+Please refer to this region list http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region for the S3_UPLOADS_REGION values.
 
 You must then enable the plugin. To do this via WP-CLI use command:
 
@@ -137,7 +138,7 @@ define( 'S3_UPLOADS_AUTOENABLE', false );
 ```
 
 To then enable S3 Uploads rewriting, use the wp-cli command: `wp s3-uploads enable` / `wp s3-uploads disable`
-to toggle the behaviour. 
+to toggle the behaviour.
 
 URL Rewrites
 =======
@@ -147,6 +148,26 @@ By default, S3 Uploads will use the canonical S3 URIs for referencing the upload
 // Define the base bucket URL (without trailing slash)
 define( 'S3_UPLOADS_BUCKET_URL', 'https://your.origin.url.example/path' );
 ```
+S3 Uploads' URL rewriting feature can be disabled if the current website does not require it, nginx proxy to s3 etc. In this case the plugin will only upload files to the S3 bucket.
+```PHP
+// disable URL rewriting alltogether
+define( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL', true );
+```
+
+S3 Object Permissions
+=======
+
+The object permission of files uploaded to S3 by this plugin can be controlled by setting the `S3_UPLOADS_OBJECT_ACL`
+constant. The default setting if not specified is `public-read` to allow objects to be read by anyone. If you don't
+want the uploads to be publicly readable then you can define `S3_UPLOADS_OBJECT_ACL` as one of `private` or `authenticated-read` 
+in you wp-config file:
+
+```PHP
+// Set the S3 object permission to private
+define('S3_UPLOADS_OBJECT_ACL', 'private');
+```
+
+For more information on S3 permissions please see the Amazon S3 permissions documentation.
 
 Offline Development
 =======
