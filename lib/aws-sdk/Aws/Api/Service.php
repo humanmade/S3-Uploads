@@ -46,7 +46,8 @@ class Service extends AbstractModel
             'endpointPrefix'   => null,
             'signingName'      => null,
             'signatureVersion' => null,
-            'protocol'         => null
+            'protocol'         => null,
+            'uid'              => null
         ];
 
         $definition += $defaults;
@@ -54,7 +55,13 @@ class Service extends AbstractModel
         $this->definition = $definition;
         $this->apiProvider = $provider;
         parent::__construct($definition, new ShapeMap($definition['shapes']));
-        $this->serviceName = $this->getEndpointPrefix();
+
+        if (isset($definition['metadata']['serviceIdentifier'])) {
+            $this->serviceName = $this->getServiceName();
+        } else {
+            $this->serviceName = $this->getEndpointPrefix();
+        }
+
         $this->apiVersion = $this->getApiVersion();
     }
 
@@ -184,6 +191,16 @@ class Service extends AbstractModel
     }
 
     /**
+     * Get the service name.
+     *
+     * @return string
+     */
+    public function getServiceName()
+    {
+        return $this->definition['metadata']['serviceIdentifier'];
+    }
+
+    /**
      * Get the default signature version of the service.
      *
      * Note: this method assumes "v4" when not specified in the model.
@@ -203,6 +220,16 @@ class Service extends AbstractModel
     public function getProtocol()
     {
         return $this->definition['metadata']['protocol'];
+    }
+
+    /**
+     * Get the uid string used by the service
+     *
+     * @return string
+     */
+    public function getUid()
+    {
+        return $this->definition['metadata']['uid'];
     }
 
     /**

@@ -5,6 +5,7 @@ use Aws\AwsClient;
 use Aws\Api\Service;
 use Aws\Api\DocModel;
 use Aws\Api\ApiProvider;
+use Aws\PresignUrlMiddleware;
 
 /**
  * Client used to interact with Amazon EC2.
@@ -235,6 +236,8 @@ use Aws\Api\ApiProvider;
  * @method \GuzzleHttp\Promise\Promise describeScheduledInstanceAvailabilityAsync(array $args = [])
  * @method \Aws\Result describeScheduledInstances(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeScheduledInstancesAsync(array $args = [])
+ * @method \Aws\Result describeSecurityGroupReferences(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeSecurityGroupReferencesAsync(array $args = [])
  * @method \Aws\Result describeSecurityGroups(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeSecurityGroupsAsync(array $args = [])
  * @method \Aws\Result describeSnapshotAttribute(array $args = [])
@@ -253,6 +256,8 @@ use Aws\Api\ApiProvider;
  * @method \GuzzleHttp\Promise\Promise describeSpotInstanceRequestsAsync(array $args = [])
  * @method \Aws\Result describeSpotPriceHistory(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeSpotPriceHistoryAsync(array $args = [])
+ * @method \Aws\Result describeStaleSecurityGroups(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise describeStaleSecurityGroupsAsync(array $args = [])
  * @method \Aws\Result describeSubnets(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeSubnetsAsync(array $args = [])
  * @method \Aws\Result describeTags(array $args = [])
@@ -311,6 +316,8 @@ use Aws\Api\ApiProvider;
  * @method \GuzzleHttp\Promise\Promise enableVpcClassicLinkDnsSupportAsync(array $args = [])
  * @method \Aws\Result getConsoleOutput(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getConsoleOutputAsync(array $args = [])
+ * @method \Aws\Result getConsoleScreenshot(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise getConsoleScreenshotAsync(array $args = [])
  * @method \Aws\Result getPasswordData(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getPasswordDataAsync(array $args = [])
  * @method \Aws\Result importImage(array $args = [])
@@ -411,6 +418,84 @@ use Aws\Api\ApiProvider;
  * @method \GuzzleHttp\Promise\Promise unassignPrivateIpAddressesAsync(array $args = [])
  * @method \Aws\Result unmonitorInstances(array $args = [])
  * @method \GuzzleHttp\Promise\Promise unmonitorInstancesAsync(array $args = [])
+ * @method \Aws\Result describeHostReservationOfferings(array $args = []) (supported in versions 2016-04-01, 2016-09-15, 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise describeHostReservationOfferingsAsync(array $args = []) (supported in versions 2016-04-01, 2016-09-15, 2016-11-15)
+ * @method \Aws\Result describeHostReservations(array $args = []) (supported in versions 2016-04-01, 2016-09-15, 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise describeHostReservationsAsync(array $args = []) (supported in versions 2016-04-01, 2016-09-15, 2016-11-15)
+ * @method \Aws\Result describeIdentityIdFormat(array $args = []) (supported in versions 2016-04-01, 2016-09-15, 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise describeIdentityIdFormatAsync(array $args = []) (supported in versions 2016-04-01, 2016-09-15, 2016-11-15)
+ * @method \Aws\Result getHostReservationPurchasePreview(array $args = []) (supported in versions 2016-04-01, 2016-09-15, 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise getHostReservationPurchasePreviewAsync(array $args = []) (supported in versions 2016-04-01, 2016-09-15, 2016-11-15)
+ * @method \Aws\Result modifyIdentityIdFormat(array $args = []) (supported in versions 2016-04-01, 2016-09-15, 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise modifyIdentityIdFormatAsync(array $args = []) (supported in versions 2016-04-01, 2016-09-15, 2016-11-15)
+ * @method \Aws\Result purchaseHostReservation(array $args = []) (supported in versions 2016-04-01, 2016-09-15, 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise purchaseHostReservationAsync(array $args = []) (supported in versions 2016-04-01, 2016-09-15, 2016-11-15)
+ * @method \Aws\Result acceptReservedInstancesExchangeQuote(array $args = []) (supported in versions 2016-09-15, 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise acceptReservedInstancesExchangeQuoteAsync(array $args = []) (supported in versions 2016-09-15, 2016-11-15)
+ * @method \Aws\Result getReservedInstancesExchangeQuote(array $args = []) (supported in versions 2016-09-15, 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise getReservedInstancesExchangeQuoteAsync(array $args = []) (supported in versions 2016-09-15, 2016-11-15)
+ * @method \Aws\Result assignIpv6Addresses(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise assignIpv6AddressesAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result associateIamInstanceProfile(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise associateIamInstanceProfileAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result associateSubnetCidrBlock(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise associateSubnetCidrBlockAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result associateVpcCidrBlock(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise associateVpcCidrBlockAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result copyFpgaImage(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise copyFpgaImageAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result createDefaultSubnet(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise createDefaultSubnetAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result createDefaultVpc(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise createDefaultVpcAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result createEgressOnlyInternetGateway(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise createEgressOnlyInternetGatewayAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result createFpgaImage(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise createFpgaImageAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result createNetworkInterfacePermission(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise createNetworkInterfacePermissionAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result deleteEgressOnlyInternetGateway(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise deleteEgressOnlyInternetGatewayAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result deleteFpgaImage(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise deleteFpgaImageAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result deleteNetworkInterfacePermission(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise deleteNetworkInterfacePermissionAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result describeEgressOnlyInternetGateways(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise describeEgressOnlyInternetGatewaysAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result describeElasticGpus(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise describeElasticGpusAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result describeFpgaImageAttribute(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise describeFpgaImageAttributeAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result describeFpgaImages(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise describeFpgaImagesAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result describeIamInstanceProfileAssociations(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise describeIamInstanceProfileAssociationsAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result describeNetworkInterfacePermissions(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise describeNetworkInterfacePermissionsAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result describeVolumesModifications(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise describeVolumesModificationsAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result disassociateIamInstanceProfile(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise disassociateIamInstanceProfileAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result disassociateSubnetCidrBlock(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise disassociateSubnetCidrBlockAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result disassociateVpcCidrBlock(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise disassociateVpcCidrBlockAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result modifyFpgaImageAttribute(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise modifyFpgaImageAttributeAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result modifyVolume(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise modifyVolumeAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result modifyVpcTenancy(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise modifyVpcTenancyAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result replaceIamInstanceProfileAssociation(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise replaceIamInstanceProfileAssociationAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result resetFpgaImageAttribute(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise resetFpgaImageAttributeAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result unassignIpv6Addresses(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise unassignIpv6AddressesAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result updateSecurityGroupRuleDescriptionsEgress(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise updateSecurityGroupRuleDescriptionsEgressAsync(array $args = []) (supported in versions 2016-11-15)
+ * @method \Aws\Result updateSecurityGroupRuleDescriptionsIngress(array $args = []) (supported in versions 2016-11-15)
+ * @method \GuzzleHttp\Promise\Promise updateSecurityGroupRuleDescriptionsIngressAsync(array $args = []) (supported in versions 2016-11-15)
  */
 class Ec2Client extends AwsClient
 {
@@ -418,9 +503,16 @@ class Ec2Client extends AwsClient
     {
         $args['with_resolved'] = function (array $args) {
             $this->getHandlerList()->appendInit(
-                CopySnapshotMiddleware::wrap(
+                PresignUrlMiddleware::wrap(
                     $this,
-                    $args['endpoint_provider']
+                    $args['endpoint_provider'],
+                    [
+                        'operations' => [
+                            'CopySnapshot',
+                        ],
+                        'service' => 'ec2',
+                        'presign_param' => 'PresignedUrl',
+                    ]
                 ),
                 'ec2.copy_snapshot'
             );

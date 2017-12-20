@@ -109,10 +109,13 @@ class SignatureProvider
     {
         return function ($version, $service, $region) {
             switch ($version) {
+                case 's3v4':
                 case 'v4':
                     return $service === 's3'
                         ? new S3SignatureV4($service, $region)
                         : new SignatureV4($service, $region);
+                case 'v4-unsigned-body':
+                    return new SignatureV4($service, $region, ['unsigned-body' => 'true']);
                 case 'anonymous':
                     return new AnonymousSignature();
                 default:
