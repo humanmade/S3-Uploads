@@ -172,6 +172,10 @@ class S3_Uploads {
 			$params['region']    = $this->region;
 		}
 
+		if ( defined( 'S3_UPLOADS_ENDPOINT' ) ) {
+			$params['endpoint'] = S3_UPLOADS_ENDPOINT;
+		}
+
 		if ( defined( 'WP_PROXY_HOST' ) && defined( 'WP_PROXY_PORT' ) ) {
 			$proxy_auth    = '';
 			$proxy_address = WP_PROXY_HOST . ':' . WP_PROXY_PORT;
