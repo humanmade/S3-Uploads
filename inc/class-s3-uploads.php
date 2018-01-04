@@ -243,7 +243,6 @@ class S3_Uploads {
 	 *
 	 * @param $hints
 	 * @param $relation_type
-	 *
 	 * @return array
 	 */
 	function wp_filter_resource_hints( $hints, $relation_type ) {
