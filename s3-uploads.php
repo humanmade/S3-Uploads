@@ -4,7 +4,7 @@
 Plugin Name: S3 Uploads
 Description: Store uploads in S3
 Author: Human Made Limited
-Version: 2.0.0-beta2
+Version: 2.0.0-beta3
 Author URI: http://hmn.md
 */
 
@@ -84,7 +84,14 @@ function s3_uploads_enabled() {
 	// Make sure the plugin is enabled when autoenable is on
 	$constant_autoenable_off = ( defined( 'S3_UPLOADS_AUTOENABLE' ) && false === S3_UPLOADS_AUTOENABLE );
 
-	if ( $constant_autoenable_off && 'enabled' !== get_option( 's3_uploads_enabled' ) ) {                         // If the plugin is not enabled, skip
+	$s3_uploads_enabled = '';
+	if ( is_multisite() ) {
+		$s3_uploads_enabled = get_site_option( 's3_uploads_enabled' );
+	} else {
+		$s3_uploads_enabled = get_option( 's3_uploads_enabled' );
+	}
+
+	if ( $constant_autoenable_off && 'enabled' !==  $s3_uploads_enabled) {                         // If the plugin is not enabled, skip
 		return false;
 	}
 

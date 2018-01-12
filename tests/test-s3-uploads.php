@@ -49,10 +49,18 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 
 		$this->assertTrue( s3_uploads_enabled() );
 
-		update_option( 's3_uploads_enabled', 'enabled' );
+		if ( is_multisite() ) {
+			update_site_option( 's3_uploads_enabled', 'enabled' );
+		} else {
+			update_option( 's3_uploads_enabled', 'enabled' );
+		}
 		$this->assertTrue( s3_uploads_enabled() );
 
-		delete_option( 's3_uploads_enabled' );
+		if ( is_multisite() ) {
+			delete_site_option( 's3_uploads_enabled' );
+		} else {
+			delete_option( 's3_uploads_enabled' );
+		}
 		define( 'S3_UPLOADS_AUTOENABLE', false );
 
 		$this->assertFalse( s3_uploads_enabled() );
