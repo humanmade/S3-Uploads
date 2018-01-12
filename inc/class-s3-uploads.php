@@ -129,7 +129,7 @@ class S3_Uploads {
 		$dir = wp_upload_dir();
 
 		// When `wp_delete_file()` is called directly, it expects an absolute path.
-		if ( $file_path === $this->original_file ) {
+		if ( ! $this->original_file || $file_path === $this->original_file ) {
 			return $file_path;
 		}
 
