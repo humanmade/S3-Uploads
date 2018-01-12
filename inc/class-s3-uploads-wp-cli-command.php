@@ -378,7 +378,11 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * Ensable the auto-rewriting of media links to S3
 	 */
 	public function enable( $args, $assoc_args ) {
-		update_option( 's3_uploads_enabled', 'enabled' );
+		if ( is_multisite() ) {
+			update_site_option( 's3_uploads_enabled', 'enabled' );
+		} else {
+			update_option( 's3_uploads_enabled', 'enabled' );
+		}
 
 		WP_CLI::success( 'Media URL rewriting enabled.' );
 	}
@@ -387,7 +391,11 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * Disable the auto-rewriting of media links to S3
 	 */
 	public function disable( $args, $assoc_args ) {
-		delete_option( 's3_uploads_enabled' );
+		if ( is_multisite() ) {
+			delete_site_option( 's3_uploads_enabled' );
+		} else {
+			delete_option( 's3_uploads_enabled' );
+		}
 
 		WP_CLI::success( 'Media URL rewriting disabled.' );
 	}
