@@ -38,7 +38,6 @@ class S3_Uploads {
 		$this->region     = $region;
 	}
 
-
 	/**
 	 * Setup the hooks, urls filtering etc for S3 Uploads
 	 */
@@ -50,7 +49,7 @@ class S3_Uploads {
 		add_filter( 'wp_delete_file', array( $this, 'wp_filter_delete_file' ) );
 		add_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), 10, 2 );
 
-		add_filter( 'wp_calculate_image_srcset', array( $this, 'rewrite_srcset' ) );
+		add_filter( 'wp_calculate_image_srcset', array( $this, 'change_srcset' );
 
 		remove_filter( 'admin_notices', 'wpthumb_errors' );
 
@@ -67,11 +66,6 @@ class S3_Uploads {
 		remove_filter( 'wp_image_editors', array( $this, 'filter_editors' ), 9 );
 		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
 		remove_filter( 'wp_delete_file', array( $this, 'wp_filter_delete_file' ) );
-		remove_filter( 'wp_calculate_image_srcset', array( $this, 'rewrite_srcset' ) );
-	}
-
-	public function rewrite_srcset($sources) {
-		var_dump($this->get_s3_url());
 	}
 
 	/**
