@@ -49,8 +49,6 @@ class S3_Uploads {
 		add_filter( 'wp_delete_file', array( $this, 'wp_filter_delete_file' ) );
 		add_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), 10, 2 );
 
-		add_filter( 'wp_calculate_image_srcset', array( $this, 'change_srcset' );
-
 		remove_filter( 'admin_notices', 'wpthumb_errors' );
 
 		add_action( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
