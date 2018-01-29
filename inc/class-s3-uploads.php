@@ -125,8 +125,14 @@ class S3_Uploads {
 
 		$bucket = strtok( $this->bucket, '/' );
 		$path   = substr( $this->bucket, strlen( $bucket ) );
+		
+		if ( defined( 'S3_CLOUDFRONT_DOMAIN_URI' ) && S3_CLOUDFRONT_DOMAIN_URI ) {
+			$path_beg = S3_CLOUDFRONT_DOMAIN_URI;
+		} else {
+			$path_beg = 'https://' . $bucket . '.s3.amazonaws.com';
+		}
 
-		return apply_filters( 's3_uploads_bucket_url', 'https://' . $bucket . '.s3.amazonaws.com' . $path );
+		return apply_filters( 's3_uploads_bucket_url', $path_beg . $path );
 	}
 
 	/**
