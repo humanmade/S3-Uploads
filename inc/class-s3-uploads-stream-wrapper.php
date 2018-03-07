@@ -159,6 +159,7 @@ class S3_Uploads_Stream_Wrapper
 					try {
 						$p = $this->params;
 						$p['Body'] = '';
+						$p = apply_filters( 's3_uploads_putObject_params', $p );
 						$this->getClient()->putObject($p);
 					} catch (Exception $e) {
 						return $this->triggerError($e->getMessage());
@@ -212,7 +213,7 @@ class S3_Uploads_Stream_Wrapper
 		 * Theses are the parameters passed to S3Client::putObject()
 		 * See; http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_putObject
 		 *
-		 * @param array $params S3Client::putObject paramteres.
+		 * @param array $params S3Client::putObject parameters.
 		 */
 		$params = apply_filters( 's3_uploads_putObject_params',  $params );
 
@@ -223,7 +224,7 @@ class S3_Uploads_Stream_Wrapper
 			/**
 			 * Action when a new object has been uploaded to s3.
 			 *
-			 * @param array  $params S3Client::putObject paramteres.
+			 * @param array  $params S3Client::putObject parameters.
 			 */
 			do_action( 's3_uploads_putObject', $params );
 

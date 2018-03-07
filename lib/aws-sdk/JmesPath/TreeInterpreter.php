@@ -220,7 +220,7 @@ class TreeInterpreter
      */
     private static function relativeCmp($left, $right, $cmp)
     {
-        if (!is_int($left) || !is_int($right)) {
+        if (!(is_int($left) || is_float($left)) || !(is_int($right) || is_float($right))) {
             return false;
         }
 

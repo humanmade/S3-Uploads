@@ -7,6 +7,7 @@ use Aws\PhpHash;
 use Aws\ResultInterface;
 use GuzzleHttp\Psr7;
 use Psr\Http\Message\StreamInterface as Stream;
+use Aws\S3\Exception\S3MultipartUploadException;
 
 /**
  * Encapsulates the execution of a multipart upload to S3 or Glacier.
@@ -40,6 +41,11 @@ class MultipartUploader extends AbstractUploader
      * - concurrency: (int, default=int(5)) Maximum number of concurrent
      *   `UploadPart` operations allowed during the multipart upload.
      * - key: (string, required) Key to use for the object being uploaded.
+     * - params: (array) An array of key/value parameters that will be applied
+     *   to each of the sub-commands run by the uploader as a base.
+     *   Auto-calculated options will override these parameters. If you need
+     *   more granularity over parameters to each sub-command, use the before_*
+     *   options detailed above to update the commands directly.
      * - part_size: (int, default=int(5242880)) Part size, in bytes, to use when
      *   doing a multipart upload. This must between 5 MB and 5 GB, inclusive.
      * - state: (Aws\Multipart\UploadState) An object that represents the state
@@ -59,6 +65,7 @@ class MultipartUploader extends AbstractUploader
         parent::__construct($client, $source, array_change_key_case($config) + [
             'bucket' => null,
             'key'    => null,
+            'exception_class' => S3MultipartUploadException::class,
         ]);
     }
 
@@ -82,7 +89,16 @@ class MultipartUploader extends AbstractUploader
     protected function createPart($seekable, $number)
     {
         // Initialize the array of part data that will be returned.
-        $data = ['PartNumber' => $number];
+        $data = [];
+
+        // Apply custom params to UploadPart data
+        $config = $this->getConfig();
+        $params = isset($config['params']) ? $config['params'] : [];
+        foreach ($params as $k => $v) {
+            $data[$k] = $v;
+        }
+
+        $data['PartNumber'] = $number;
 
         // Read from the source to create the body stream.
         if ($seekable) {
@@ -96,16 +112,18 @@ class MultipartUploader extends AbstractUploader
             $source = $this->decorateWithHashes($source, $data);
             $body = Psr7\stream_for();
             Psr7\copy_to_stream($source, $body);
-            $data['ContentLength'] = $body->getSize();
         }
 
+        $contentLength = $body->getSize();
+
         // Do not create a part if the body size is zero.
-        if ($body->getSize() === 0) {
+        if ($contentLength === 0) {
             return false;
         }
 
         $body->seek(0);
         $data['Body'] = $body;
+        $data['ContentLength'] = $contentLength;
 
         return $data;
     }

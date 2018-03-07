@@ -4,6 +4,7 @@ namespace GuzzleHttp\Psr7;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -68,8 +69,8 @@ function uri_for($uri)
  * - metadata: Array of custom metadata.
  * - size: Size of the stream.
  *
- * @param resource|int|string|float|bool|StreamInterface $resource Entity body data
- * @param array                                          $options  Additional options
+ * @param resource|string|null|int|float|bool|StreamInterface|callable $resource Entity body data
+ * @param array                                                        $options  Additional options
  *
  * @return Stream
  * @throws \InvalidArgumentException if the $resource arg is not valid.
@@ -236,6 +237,19 @@ function modify_request(RequestInterface $request, array $changes)
         $uri = $uri->withQuery($changes['query']);
     }
 
+    if ($request instanceof ServerRequestInterface) {
+        return new ServerRequest(
+            isset($changes['method']) ? $changes['method'] : $request->getMethod(),
+            $uri,
+            $headers,
+            isset($changes['body']) ? $changes['body'] : $request->getBody(),
+            isset($changes['version'])
+                ? $changes['version']
+                : $request->getProtocolVersion(),
+            $request->getServerParams()
+        );
+    }
+
     return new Request(
         isset($changes['method']) ? $changes['method'] : $request->getMethod(),
         $uri,
@@ -357,25 +371,24 @@ function copy_to_stream(
     StreamInterface $dest,
     $maxLen = -1
 ) {
+    $bufferSize = 8192;
+
     if ($maxLen === -1) {
         while (!$source->eof()) {
-            if (!$dest->write($source->read(1048576))) {
+            if (!$dest->write($source->read($bufferSize))) {
                 break;
             }
         }
-        return;
-    }
-
-    $bytes = 0;
-    while (!$source->eof()) {
-        $buf = $source->read($maxLen - $bytes);
-        if (!($len = strlen($buf))) {
-            break;
-        }
-        $bytes += $len;
-        $dest->write($buf);
-        if ($bytes == $maxLen) {
-            break;
+    } else {
+        $remaining = $maxLen;
+        while ($remaining > 0 && !$source->eof()) {
+            $buf = $source->read(min($bufferSize, $remaining));
+            $len = strlen($buf);
+            if (!$len) {
+                break;
+            }
+            $remaining -= $len;
+            $dest->write($buf);
         }
     }
 }
@@ -432,7 +445,7 @@ function readline(StreamInterface $stream, $maxLength = null)
         }
         $buffer .= $byte;
         // Break when a new line is found or the max length - 1 is reached
-        if ($byte == PHP_EOL || ++$size == $maxLength - 1) {
+        if ($byte === "\n" || ++$size === $maxLength - 1) {
             break;
         }
     }
@@ -478,7 +491,10 @@ function parse_request($message)
 function parse_response($message)
 {
     $data = _parse_message($message);
-    if (!preg_match('/^HTTP\/.* [0-9]{3} .*/', $data['start-line'])) {
+    // According to https://tools.ietf.org/html/rfc7230#section-3.1.2 the space
+    // between status-code and reason-phrase is required. But browsers accept
+    // responses without space and reason as well.
+    if (!preg_match('/^HTTP\/.* [0-9]{3}( .*|$)/', $data['start-line'])) {
         throw new \InvalidArgumentException('Invalid response string');
     }
     $parts = explode(' ', $data['start-line'], 3);
@@ -545,7 +561,7 @@ function parse_query($str, $urlEncoding = true)
 /**
  * Build a query string from an array of key value pairs.
  *
- * This function can use the return value of parseQuery() to build a query
+ * This function can use the return value of parse_query() to build a query
  * string. This function does not modify the provided keys when an array is
  * encountered (like http_build_query would).
  *
@@ -563,9 +579,9 @@ function build_query(array $params, $encoding = PHP_QUERY_RFC3986)
 
     if ($encoding === false) {
         $encoder = function ($str) { return $str; };
-    } elseif ($encoding == PHP_QUERY_RFC3986) {
+    } elseif ($encoding === PHP_QUERY_RFC3986) {
         $encoder = 'rawurlencode';
-    } elseif ($encoding == PHP_QUERY_RFC1738) {
+    } elseif ($encoding === PHP_QUERY_RFC1738) {
         $encoder = 'urlencode';
     } else {
         throw new \InvalidArgumentException('Invalid type');

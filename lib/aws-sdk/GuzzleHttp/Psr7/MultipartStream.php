@@ -27,7 +27,7 @@ class MultipartStream implements StreamInterface
      */
     public function __construct(array $elements = [], $boundary = null)
     {
-        $this->boundary = $boundary ?: uniqid();
+        $this->boundary = $boundary ?: sha1(uniqid('', true));
         $this->stream = $this->createStream($elements);
     }
 
@@ -108,7 +108,7 @@ class MultipartStream implements StreamInterface
     /**
      * @return array
      */
-    private function createElement($name, $stream, $filename, array $headers)
+    private function createElement($name, StreamInterface $stream, $filename, array $headers)
     {
         // Set a default content-disposition header if one was no provided
         $disposition = $this->getHeader($headers, 'content-disposition');

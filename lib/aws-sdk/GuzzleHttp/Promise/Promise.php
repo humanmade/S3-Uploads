@@ -95,6 +95,8 @@ class Promise implements PromiseInterface
             $this->cancelFn = null;
             try {
                 $fn();
+            } catch (\Throwable $e) {
+                $this->reject($e);
             } catch (\Exception $e) {
                 $this->reject($e);
             }
@@ -206,6 +208,8 @@ class Promise implements PromiseInterface
                 // Forward rejections down the chain.
                 $promise->reject($value);
             }
+        } catch (\Throwable $reason) {
+            $promise->reject($reason);
         } catch (\Exception $reason) {
             $promise->reject($reason);
         }
@@ -259,10 +263,17 @@ class Promise implements PromiseInterface
         $this->waitList = null;
 
         foreach ($waitList as $result) {
-            $result->waitIfPending();
-            while ($result->result instanceof Promise) {
-                $result = $result->result;
+            while (true) {
                 $result->waitIfPending();
+
+                if ($result->result instanceof Promise) {
+                    $result = $result->result;
+                } else {
+                    if ($result->result instanceof PromiseInterface) {
+                        $result->result->wait(false);
+                    }
+                    break;
+                }
             }
         }
     }

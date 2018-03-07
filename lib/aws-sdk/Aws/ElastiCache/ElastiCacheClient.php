@@ -72,6 +72,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise modifyCacheSubnetGroupAsync(array $args = [])
  * @method \Aws\Result modifyReplicationGroup(array $args = [])
  * @method \GuzzleHttp\Promise\Promise modifyReplicationGroupAsync(array $args = [])
+ * @method \Aws\Result modifyReplicationGroupShardConfiguration(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise modifyReplicationGroupShardConfigurationAsync(array $args = [])
  * @method \Aws\Result purchaseReservedCacheNodesOffering(array $args = [])
  * @method \GuzzleHttp\Promise\Promise purchaseReservedCacheNodesOfferingAsync(array $args = [])
  * @method \Aws\Result rebootCacheCluster(array $args = [])
@@ -82,5 +84,7 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise resetCacheParameterGroupAsync(array $args = [])
  * @method \Aws\Result revokeCacheSecurityGroupIngress(array $args = [])
  * @method \GuzzleHttp\Promise\Promise revokeCacheSecurityGroupIngressAsync(array $args = [])
+ * @method \Aws\Result testFailover(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise testFailoverAsync(array $args = [])
  */
 class ElastiCacheClient extends AwsClient {}
