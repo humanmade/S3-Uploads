@@ -185,7 +185,7 @@ class S3_Uploads_Stream_Wrapper
 			$this->body->seek(0);
 		}
 		$params = $this->getOptions(true);
-		$params['Body'] = (string) $this->body;
+		$params['Body'] = $this->body;
 
 		// Attempt to guess the ContentType of the upload based on the
 		// file extension of the key. Added by Joe Hoyle
