@@ -187,10 +187,16 @@ class S3_Uploads_Stream_Wrapper
 		$params = $this->getOptions(true);
 		$params['Body'] = $this->body;
 
+		//Added by EveryUP Srl
+		$objectKey = $params['Key'];
+		if(pathinfo($objectKey, PATHINFO_EXTENSION) == 'tmp') {
+			$objectKey = substr($objectKey, 0, -4);
+		}
+
 		// Attempt to guess the ContentType of the upload based on the
 		// file extension of the key. Added by Joe Hoyle
 		if (!isset($params['ContentType']) &&
-			($type = Psr7\mimetype_from_filename($params['Key']))
+			($type = Psr7\mimetype_from_filename($objectKey))
 		) {
 			$params['ContentType'] = $type;
 		}
