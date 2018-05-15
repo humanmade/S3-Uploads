@@ -7,14 +7,14 @@ notifications:
   email: false
 
 php:
-  - 5.5
+  - 7.0
 
 env:
   - WP_VERSION=latest WP_MULTISITE=0
 
 matrix:
   include:
-    - php: 5.5
+    - php: 7.0
       env: WP_VERSION=latest WP_MULTISITE=1
 
 # Clones WordPress and configures our testing environment.
