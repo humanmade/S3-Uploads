@@ -43,6 +43,15 @@ function s3_uploads_init() {
 
 	$instance = S3_Uploads::get_instance();
 	$instance->setup();
+
+	// Include newer version of getID3, as the one bundled with WordPress Core is too old that it
+	// breaks with s3:// file paths. This is less than ideal for performance, but there's no
+	// reliable WordPress hooks we can use to load this only when we need. Most infuriating is
+	// WordPress does class_exists( 'getID3', false ) so we can't use an autoloader to override
+	// the version being loaded.
+	if ( ! class_exists( 'getID3' ) ) {
+		require_once dirname( __FILE__ ) . '/lib/getid3/getid3.php';
+	}
 }
 
 /**

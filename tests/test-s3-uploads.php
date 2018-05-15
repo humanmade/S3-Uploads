@@ -94,6 +94,23 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		$this->assertTrue( file_exists( $wp_upload_dir['path'] . '/sunflower-150x150.jpg' ) );
 	}
 
+	public function test_generate_attachment_metadata_for_mp4() {
+		S3_Uploads::get_instance()->setup();
+		$upload_dir = wp_upload_dir();
+		copy( dirname( __FILE__ ) . '/data/video.m4v', $upload_dir['path'] . '/video.m4v' );
+		$test_file = $upload_dir['path'] . '/video.m4v';
+		$attachment_id = $this->factory->attachment->create_object( $test_file, 0, array(
+			'post_mime_type' => 'video/mp4',
+			'post_excerpt'   => 'A sample caption',
+		) );
+
+		$meta_data = wp_generate_attachment_metadata( $attachment_id, $test_file );
+		$this->assertEquals( 'video/mp4', $meta_data['mime_type'] );
+		$this->assertEquals( 'quicktime', $meta_data['dataformat'] );
+		$this->assertEquals( 320, $meta_data['width'] );
+		$this->assertEquals( 240, $meta_data['height'] );
+	}
+
 	public function test_image_sizes_are_deleted_on_attachment_delete() {
 		S3_Uploads::get_instance()->setup();
 		$upload_dir = wp_upload_dir();
