@@ -14,6 +14,14 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 add_action( 'plugins_loaded', 's3_uploads_init' );
 
+// Add filters to "wrap" the wp_privacy_personal_data_export_file function call as we need to
+// switch out the personal_data directory to a local temp folder, and then upload after it's
+// complete, as Core tries to write directly to the ZipArchive which won't work with the
+// S3 streamWrapper.
+add_action( 'wp_privacy_personal_data_export_file', 's3_uploads_before_export_personal_data', 9 );
+add_action( 'wp_privacy_personal_data_export_file', 's3_uploads_after_export_personal_data', 11 );
+add_action( 'wp_privacy_personal_data_export_file_created', 's3_uplodas_move_temp_peronal_data_to_s3' );
+
 function s3_uploads_init() {
 	// Ensure the AWS SDK can be loaded.
 	if ( ! class_exists( '\\Aws\\S3\\S3Client' ) ) {
@@ -122,3 +130,57 @@ function s3_uploads_autoload( $class_name ) {
 }
 
 spl_autoload_register( 's3_uploads_autoload' );
+
+/**
+ * Setup the filters for wp_privacy_exports_dir to use a temp folder location.
+ */
+function s3_uploads_before_export_personal_data() {
+	add_filter( 'wp_privacy_exports_dir', 's3_uploads_set_wp_privacy_exports_dir' );
+}
+
+/**
+ * Remove the filters for wp_privacy_exports_dir as we only want it added in some cases.
+ */
+function s3_uploads_after_export_personal_data() {
+	remove_filter( 'wp_privacy_exports_dir', 's3_uploads_set_wp_privacy_exports_dir' );
+}
+
+/**
+ * Override the wp_privacy_exports_dir location
+ *
+ * We don't want to use the default uploads folder location, as with S3 Uploads this is
+ * going to the a s3:// custom URL handler, which is going to fail with the use of ZipArchive.
+ * Instgead we set to to sys_get_temp_dir and move the fail in the wp_privacy_personal_data_export_file_created
+ * hook.
+ *
+ * @param string $dir
+ * @return string
+ */
+function s3_uploads_set_wp_privacy_exports_dir( $dir ) {
+	if ( strpos( $dir, 's3://' ) !== 0 ) {
+		return $dir;
+	}
+	$dir = sys_get_temp_dir() . '/wp_privacy_exports_dir/';
+	if ( ! is_dir( $dir ) ) {
+		mkdir( $dir );
+		file_put_contents( '', $dir . 'index.html' );
+	}
+	return $dir;
+}
+
+/**
+ * Move the tmp personal data file to the true uploads location
+ *
+ * Once a personal data file has been written, move it from the overriden "temp"
+ * location to the S3 location where it should have been stored all along, and where
+ * the "natural" Core URL is going to be pointing to.
+ */
+function s3_uplodas_move_temp_peronal_data_to_s3( $archive_pathname ) {
+	if ( strpos( $archive_pathname, sys_get_temp_dir() ) !== 0 ) {
+		return;
+	}
+	$upload_dir  = wp_upload_dir();
+	$exports_dir = trailingslashit( $upload_dir['basedir'] ) . 'wp-personal-data-exports/';
+	copy( $archive_pathname, $exports_dir . pathinfo( $archive_pathname, PATHINFO_FILENAME ) . '.' . pathinfo( $archive_pathname, PATHINFO_EXTENSION ) );
+	unlink( $archive_pathname );
+}
