@@ -20,7 +20,7 @@ add_action( 'plugins_loaded', 's3_uploads_init' );
 // S3 streamWrapper.
 add_action( 'wp_privacy_personal_data_export_file', 's3_uploads_before_export_personal_data', 9 );
 add_action( 'wp_privacy_personal_data_export_file', 's3_uploads_after_export_personal_data', 11 );
-add_action( 'wp_privacy_personal_data_export_file_created', 's3_uplodas_move_temp_peronal_data_to_s3' );
+add_action( 'wp_privacy_personal_data_export_file_created', 's3_uplodas_move_temp_personal_data_to_s3' );
 
 function s3_uploads_init() {
 	// Ensure the AWS SDK can be loaded.
@@ -175,7 +175,7 @@ function s3_uploads_set_wp_privacy_exports_dir( $dir ) {
  * location to the S3 location where it should have been stored all along, and where
  * the "natural" Core URL is going to be pointing to.
  */
-function s3_uplodas_move_temp_peronal_data_to_s3( $archive_pathname ) {
+function s3_uplodas_move_temp_personal_data_to_s3( $archive_pathname ) {
 	if ( strpos( $archive_pathname, sys_get_temp_dir() ) !== 0 ) {
 		return;
 	}
