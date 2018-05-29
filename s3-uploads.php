@@ -181,6 +181,7 @@ function s3_uplodas_move_temp_personal_data_to_s3( $archive_pathname ) {
 	}
 	$upload_dir  = wp_upload_dir();
 	$exports_dir = trailingslashit( $upload_dir['basedir'] ) . 'wp-personal-data-exports/';
-	copy( $archive_pathname, $exports_dir . pathinfo( $archive_pathname, PATHINFO_FILENAME ) . '.' . pathinfo( $archive_pathname, PATHINFO_EXTENSION ) );
+	$destination = $exports_dir . pathinfo( $archive_pathname, PATHINFO_FILENAME ) . '.' . pathinfo( $archive_pathname, PATHINFO_EXTENSION );
+	copy( $archive_pathname, $destination );
 	unlink( $archive_pathname );
 }
