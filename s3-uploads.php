@@ -14,14 +14,6 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 add_action( 'plugins_loaded', 's3_uploads_init' );
 
-// Add filters to "wrap" the wp_privacy_personal_data_export_file function call as we need to
-// switch out the personal_data directory to a local temp folder, and then upload after it's
-// complete, as Core tries to write directly to the ZipArchive which won't work with the
-// S3 streamWrapper.
-add_action( 'wp_privacy_personal_data_export_file', 's3_uploads_before_export_personal_data', 9 );
-add_action( 'wp_privacy_personal_data_export_file', 's3_uploads_after_export_personal_data', 11 );
-add_action( 'wp_privacy_personal_data_export_file_created', 's3_uplodas_move_temp_personal_data_to_s3', 1000 );
-
 function s3_uploads_init() {
 	// Ensure the AWS SDK can be loaded.
 	if ( ! class_exists( '\\Aws\\S3\\S3Client' ) ) {
@@ -60,6 +52,14 @@ function s3_uploads_init() {
 	if ( ! class_exists( 'getID3' ) ) {
 		require_once dirname( __FILE__ ) . '/lib/getid3/getid3.php';
 	}
+
+	// Add filters to "wrap" the wp_privacy_personal_data_export_file function call as we need to
+	// switch out the personal_data directory to a local temp folder, and then upload after it's
+	// complete, as Core tries to write directly to the ZipArchive which won't work with the
+	// S3 streamWrapper.
+	add_action( 'wp_privacy_personal_data_export_file', 's3_uploads_before_export_personal_data', 9 );
+	add_action( 'wp_privacy_personal_data_export_file', 's3_uploads_after_export_personal_data', 11 );
+	add_action( 'wp_privacy_personal_data_export_file_created', 's3_uplodas_move_temp_personal_data_to_s3', 1000 );
 }
 
 /**
