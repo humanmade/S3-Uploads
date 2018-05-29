@@ -163,7 +163,7 @@ function s3_uploads_set_wp_privacy_exports_dir( $dir ) {
 	$dir = sys_get_temp_dir() . '/wp_privacy_exports_dir/';
 	if ( ! is_dir( $dir ) ) {
 		mkdir( $dir );
-		file_put_contents( '', $dir . 'index.html' );
+		file_put_contents( $dir . 'index.html', '' );
 	}
 	return $dir;
 }
