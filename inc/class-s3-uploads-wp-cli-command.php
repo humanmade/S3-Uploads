@@ -59,17 +59,16 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 */
 	public function migrate_attachments_to_s3( $args, $args_assoc ) {
 
-		$attachments = new WP_Query( array(
+		$attachments = new WP_Query( [
 			'post_type'      => 'attachment',
 			'posts_per_page' => -1,
 			'post_status'    => 'all',
-		));
+		]);
 
 		WP_CLI::line( sprintf( 'Attempting to move %d attachments to S3', $attachments->found_posts ) );
 
 		foreach ( $attachments->posts as $attachment ) {
-
-			$this->migrate_attachment_to_s3( array( $attachment->ID ), $args_assoc );
+			$this->migrate_attachment_to_s3( [ $attachment->ID ], $args_assoc );
 		}
 
 		WP_CLI::success( 'Moved all attachments to S3. If you wish to update references in your database run: ' );
@@ -103,9 +102,9 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		}
 
 		$old_upload_dir = $instance->get_original_upload_dir();
-		$upload_dir = wp_upload_dir();
+		$upload_dir     = wp_upload_dir();
 
-		$files         = array();
+		$files         = [];
 		$attached_file = get_post_meta( $args[0], '_wp_attached_file', true );
 
 		if ( ! empty( $attached_file ) ) {
@@ -147,9 +146,9 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 */
 	public function create_iam_user( $args, $args_assoc ) {
 
-		$args_assoc = wp_parse_args( $args_assoc, array(
+		$args_assoc = wp_parse_args( $args_assoc, [
 			'format' => 'table',
-		) );
+		]);
 		if ( empty( $args_assoc['username'] ) ) {
 			$username = 's3-uploads-' . sanitize_title( home_url() );
 		} else {
@@ -157,33 +156,33 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		}
 
 		try {
-			$iam = new \Aws\Iam\IamClient( [
-					'profile' => 'default',
-    			'region'  => S3_UPLOADS_REGION,
-    			'version' => 'latest',
-			] );
+			$iam = new \Aws\Iam\IamClient([
+				'profile' => 'default',
+				'region'  => S3_UPLOADS_REGION,
+				'version' => 'latest',
+			]);
 
-			$iam->createUser( array(
+			$iam->createUser([
 				'UserName' => $username,
-			));
+			]);
 
-			$credentials = $iam->createAccessKey( array(
+			$credentials = $iam->createAccessKey( [
 				'UserName' => $username,
-			));
+			]);
 
 			$credentials = $credentials['AccessKey'];
 
-			$iam->putUserPolicy( array(
+			$iam->putUserPolicy( [
 				'UserName'       => $username,
 				'PolicyName'     => $username . '-policy',
 				'PolicyDocument' => $this->get_iam_policy(),
-			));
+			]);
 
 		} catch ( Exception $e ) {
 			WP_CLI::error( $e->getMessage() );
 		}
 
-		WP_CLI\Utils\format_items( $args_assoc['format'], array( (object) $credentials ), array( 'AccessKeyId', 'SecretAccessKey' ) );
+		WP_CLI\Utils\format_items( $args_assoc['format'], [ (object) $credentials ], [ 'AccessKeyId', 'SecretAccessKey' ] );
 
 	}
 
@@ -198,37 +197,37 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		}
 
 		return '{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "Stmt1392016154000",
-      "Effect": "Allow",
-      "Action": [
-        "s3:AbortMultipartUpload",
-        "s3:DeleteObject",
-        "s3:GetBucketAcl",
-        "s3:GetBucketLocation",
-        "s3:GetBucketPolicy",
-        "s3:GetObject",
-        "s3:GetObjectAcl",
-        "s3:ListBucket",
-        "s3:ListBucketMultipartUploads",
-        "s3:ListMultipartUploadParts",
-        "s3:PutObject",
-        "s3:PutObjectAcl"
-      ],
-      "Resource": [
-        "arn:aws:s3:::' . S3_UPLOADS_BUCKET . '/*"
-      ]
-    },
-    {
-      "Sid": "AllowRootAndHomeListingOfBucket",
-      "Action": ["s3:ListBucket"],
-      "Effect": "Allow",
-      "Resource": ["arn:aws:s3:::' . $bucket . '"],
-      "Condition":{"StringLike":{"s3:prefix":["' . ( $path ? $path . '/' : '' ) . '*"]}}
-    }
-  ]
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "Stmt1392016154000",
+			"Effect": "Allow",
+			"Action": [
+				"s3:AbortMultipartUpload",
+				"s3:DeleteObject",
+				"s3:GetBucketAcl",
+				"s3:GetBucketLocation",
+				"s3:GetBucketPolicy",
+				"s3:GetObject",
+				"s3:GetObjectAcl",
+				"s3:ListBucket",
+				"s3:ListBucketMultipartUploads",
+				"s3:ListMultipartUploadParts",
+				"s3:PutObject",
+				"s3:PutObjectAcl"
+			],
+			"Resource": [
+				"arn:aws:s3:::' . S3_UPLOADS_BUCKET . '/*"
+			]
+		},
+		{
+			"Sid": "AllowRootAndHomeListingOfBucket",
+			"Action": ["s3:ListBucket"],
+			"Effect": "Allow",
+			"Resource": ["arn:aws:s3:::' . $bucket . '"],
+			"Condition":{"StringLike":{"s3:prefix":["' . ( $path ? $path . '/' : '' ) . '*"]}}
+		}
+	]
 }';
 	}
 
@@ -267,10 +266,10 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		}
 
 		try {
-			$objects = $s3->getIterator('ListObjects', array(
+			$objects = $s3->getIterator('ListObjects', [
 				'Bucket' => strtok( S3_UPLOADS_BUCKET, '/' ),
 				'Prefix' => $prefix,
-			));
+			]);
 			foreach ( $objects as $object ) {
 				WP_CLI::line( str_replace( $prefix, '', $object['Key'] ) );
 			}
@@ -288,7 +287,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	public function cp( $args ) {
 
 		$from = $args[0];
-		$to = $args[1];
+		$to   = $args[1];
 
 		if ( is_dir( $from ) ) {
 			$this->recurse_copy( $from, $to );
@@ -308,12 +307,12 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	public function upload_directory( $args, $args_assoc ) {
 
 		$from = $args[0];
-		$to = '';
+		$to   = '';
 		if ( isset( $args[1] ) ) {
 			$to = $args[1];
 		}
 
-		$s3 = S3_Uploads::get_instance()->s3();
+		$s3     = S3_Uploads::get_instance()->s3();
 		$bucket = strtok( S3_UPLOADS_BUCKET, '/' );
 		$prefix = '';
 
@@ -326,10 +325,10 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 				$from,
 				$bucket,
 				$prefix . $to,
-				array(
+				[
 					'debug'       => true,
 					'concurrency' => ! empty( $args_assoc['concurrency'] ) ? $args_assoc['concurrency'] : 5,
-				)
+				]
 			);
 		} catch ( Exception $e ) {
 			WP_CLI::error( $e->getMessage() );
@@ -346,7 +345,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		$s3 = S3_Uploads::get_instance()->s3();
 
 		$prefix = '';
-		$regex = isset( $args_assoc['regex'] ) ? $args_assoc['regex'] : '';
+		$regex  = isset( $args_assoc['regex'] ) ? $args_assoc['regex'] : '';
 
 		if ( strpos( S3_UPLOADS_BUCKET, '/' ) ) {
 			$prefix = trailingslashit( str_replace( strtok( S3_UPLOADS_BUCKET, '/' ) . '/', '', S3_UPLOADS_BUCKET ) );
@@ -365,12 +364,12 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 				strtok( S3_UPLOADS_BUCKET, '/' ),
 				$prefix,
 				$regex,
-				array(
+				[
 					'before_delete',
 					function() {
 						WP_CLI::line( sprintf( 'Deleting file' ) );
 					},
-				)
+				]
 			);
 
 		} catch ( Exception $e ) {
