@@ -20,6 +20,11 @@
 	"type": "wordpress-plugin",
 	"require": {
 		"composer/installers": "~1.0",
-		"aws/aws-sdk-php": "~3.18"
-	 }
+		"aws/aws-sdk-php": "*"
+	 },
+	 "autoload": {
+    "classmap": [
+      "inc/"
+      ]
+  }
 }

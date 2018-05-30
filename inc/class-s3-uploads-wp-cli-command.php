@@ -157,7 +157,11 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		}
 
 		try {
-			$iam = Aws\Common\Aws::factory( array( 'key' => $args_assoc['admin-key'], 'secret' => $args_assoc['admin-secret'] ) )->get( 'iam' );
+			$iam = new \Aws\Iam\IamClient( [
+					'profile' => 'default',
+    			'region'  => S3_UPLOADS_REGION,
+    			'version' => 'latest',
+			] );
 
 			$iam->createUser( array(
 				'UserName' => $username,
@@ -324,9 +328,6 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 				$prefix . $to,
 				array(
 					'debug'       => true,
-					'params'      => array( 'ACL' => 'public-read' ),
-					'builder'     => new S3_Uploads_UploadSyncBuilder( ! empty( $args_assoc['dry-run'] ) ),
-					'force'       => empty( $args_assoc['sync'] ),
 					'concurrency' => ! empty( $args_assoc['concurrency'] ) ? $args_assoc['concurrency'] : 5,
 				)
 			);

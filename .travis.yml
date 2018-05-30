@@ -1,7 +1,20 @@
 # Travis CI Configuration File
 
 # Tell Travis CI we're using PHP
+sudo: false
+dist: trusty
+
 language: php
+
+before_install:
+  - phpenv config-rm xdebug.ini
+
+cache:
+  apt: true
+  directories:
+    - vendor
+    - composer
+    - $HOME/.composer/cache
 
 notifications:
   email: false
@@ -13,12 +26,22 @@ env:
   - WP_VERSION=latest WP_MULTISITE=0
 
 matrix:
+  fast_finish: true
   include:
     - php: 5.5
+      env: WP_VERSION=latest WP_MULTISITE=1
+    - php: 7.0
+      env: WP_VERSION=latest WP_MULTISITE=1
+    - php: 7.1
+      env: WP_VERSION=latest WP_MULTISITE=1
+    - php: 7.2
       env: WP_VERSION=latest WP_MULTISITE=1
 
 # Clones WordPress and configures our testing environment.
 before_script:
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - composer install --no-dev --no-scripts
+  - composer -o dump-autoload
   - bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION
   - printf "\n" | pecl install imagick
 
