@@ -754,12 +754,23 @@ $mapping = array(
 
 spl_autoload_register(function ($class) use ($mapping) {
     if (isset($mapping[$class])) {
-        require $mapping[$class];
+        require_once $mapping[$class];
     }
 }, true);
 
-require __DIR__ . '/Aws/functions.php';
-require __DIR__ . '/GuzzleHttp/functions.php';
-require __DIR__ . '/GuzzleHttp/Psr7/functions.php';
-require __DIR__ . '/GuzzleHttp/Promise/functions.php';
-require __DIR__ . '/JmesPath/JmesPath.php';
+require_once __DIR__ . '/Aws/functions.php';
+
+// Loads GuzzleHttp functions if not loaded elsewhere
+if (!function_exists('GuzzleHttp\uri_template')) {
+    require_once __DIR__ . '/GuzzleHttp/functions.php';
+}
+
+if (!function_exists('GuzzleHttp\Psr7\str')) {
+    require_once __DIR__ . '/GuzzleHttp/Psr7/functions.php';
+}
+
+if (!function_exists('GuzzleHttp\Promise\queue')) {
+    require_once __DIR__ . '/GuzzleHttp/Promise/functions.php';
+}
+
+require_once __DIR__ . '/JmesPath/JmesPath.php';
