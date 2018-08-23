@@ -278,6 +278,9 @@ class S3_Uploads {
 	 * @return string
 	 */
 	public function copy_image_from_s3( $file ) {
+		if ( ! function_exists( 'wp_tempnam' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		}
 		$temp_filename = wp_tempnam( $file );
 		copy( $file, $temp_filename );
 		return $temp_filename;
