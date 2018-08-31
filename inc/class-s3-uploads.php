@@ -10,6 +10,10 @@ class S3_Uploads {
 
 	public $original_upload_dir;
 	public $original_file;
+    /**
+     * Default WordPress filter/action hook priority
+     */
+	const DEFAULT_HOOK_PRIORITY = 10;
 
 	/**
 	 *
@@ -45,12 +49,12 @@ class S3_Uploads {
 	public function setup() {
 		$this->register_stream_wrapper();
 
-		add_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
+		add_filter( 'upload_dir', array( $this, 'filter_upload_dir' ), defined('S3_UPLOADS_RENAME_FOLDER_PRIORITY') ? S3_UPLOADS_RENAME_FOLDER_PRIORITY : self::DEFAULT_HOOK_PRIORITY  );
 		add_filter( 'wp_image_editors', array( $this, 'filter_editors' ), 9 );
 		add_action( 'delete_attachment', array( $this, 'set_original_file' ) );
 		add_filter( 'wp_delete_file', array( $this, 'wp_filter_delete_file' ) );
-		add_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), 10, 2 );
-		add_filter( 'wp_resource_hints', array( $this, 'wp_filter_resource_hints' ), 10, 2 );
+		add_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), self::DEFAULT_HOOK_PRIORITY, 2 );
+		add_filter( 'wp_resource_hints', array( $this, 'wp_filter_resource_hints' ), self::DEFAULT_HOOK_PRIORITY, 2 );
 		remove_filter( 'admin_notices', 'wpthumb_errors' );
 
 		add_action( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
@@ -248,10 +252,10 @@ class S3_Uploads {
 	 * @return array|bool
 	 */
 	public function wp_filter_read_image_metadata( $meta, $file ) {
-		remove_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), 10 );
+		remove_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), self::DEFAULT_HOOK_PRIORITY );
 		$temp_file = $this->copy_image_from_s3( $file );
 		$meta      = wp_read_image_metadata( $temp_file );
-		add_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), 10, 2 );
+		add_filter( 'wp_read_image_metadata', array( $this, 'wp_filter_read_image_metadata' ), self::DEFAULT_HOOK_PRIORITY, 2 );
 		unlink( $temp_file );
 		return $meta;
 	}

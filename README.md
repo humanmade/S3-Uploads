@@ -153,7 +153,10 @@ S3 Uploads' URL rewriting feature can be disabled if the current website does no
 // disable URL rewriting alltogether
 define( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL', true );
 ```
-
+Sometimes due to conflicts with other plugins, you may want to have the URL Rewrite functionality to be executed using a different hook priority. For that you can specify it by setting the constant `S3_UPLOADS_RENAME_FOLDER_PRIORITY` in your configurations file. The default priority value is 10.
+```
+define('S3_UPLOADS_RENAME_FOLDER_PRIORITY', 10);
+```
 S3 Object Permissions
 =======
 
