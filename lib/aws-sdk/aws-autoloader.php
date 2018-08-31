@@ -759,7 +759,7 @@ spl_autoload_register(function ($class) use ($mapping) {
 }, true);
 
 require __DIR__ . '/Aws/functions.php';
-require __DIR__ . '/GuzzleHttp/functions.php';
-require __DIR__ . '/GuzzleHttp/Psr7/functions.php';
-require __DIR__ . '/GuzzleHttp/Promise/functions.php';
+require __DIR__ . '/GuzzleHttp/functions_include.php';
+require __DIR__ . '/GuzzleHttp/Psr7/functions_include.php';
+require __DIR__ . '/GuzzleHttp/Promise/functions_include.php';
 require __DIR__ . '/JmesPath/JmesPath.php';
