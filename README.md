@@ -62,7 +62,29 @@ wp s3-uploads create-iam-user --admin-key=<key> --admin-secret=<secret>
 
 This will provide you with a new Access Key and Secret Key which you can configure S3-Uploads with. Paste the values in the `wp-config.php`. Once you have migrated your media to S3 with any of the below methods, you'll want to enable S3 Uploads: `wp s3-uploads enable`.
 
-If you want to create your IAM user yourself, or attach the neccessary permissions to an existing user, you can output the policy via `wp s3-uploads generate-iam-policy`
+If you want to create your IAM user yourself, or attach the neccessary permissions to an existing user, you can output the policy via `wp s3-uploads generate-iam-policy`. Here is a sample IAM policy that is generated:
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "s3:PutObject",
+                "s3:PutObjectAcl",
+                "s3:PutObjectAclVersion",
+                "s3:AbortMultipartUpload",
+                "s3:ListBucket",
+                "s3:GetObject"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+	    	"arn:aws:s3:::bucketname-here",
+		"arn:aws:s3:::bucketname-here/*"
+	    ]
+        }
+}
+```
 
 Migrating your Media to S3
 ==========
