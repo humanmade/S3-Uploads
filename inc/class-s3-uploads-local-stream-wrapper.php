@@ -168,6 +168,18 @@ class S3_Uploads_Local_Stream_Wrapper {
 	}
 
 	/**
+	 * Support for chmod(), chown(), etc.
+	 *
+	 * @return bool
+	 *   Returns TRUE on success or FALSE on failure.
+	 *
+	 * @see http://php.net/manual/streamwrapper.stream-metadata.php
+	 */
+	public function stream_metadata() {
+		return true;
+	}
+
+	/**
 	 * Support for flock().
 	 *
 	 * @param int $operation
