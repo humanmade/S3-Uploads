@@ -63,13 +63,14 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 			'post_type'      => 'attachment',
 			'posts_per_page' => -1,
 			'post_status'    => 'all',
+			'fields'	 => 'ids'
 		));
 
-		WP_CLI::line( sprintf( 'Attempting to move %d attachments to S3', $attachments->found_posts ) );
+		WP_CLI::line( sprintf( 'Attempting to move %d attachments to S3', count($attachments->posts) ) );
 
-		foreach ( $attachments->posts as $attachment ) {
+		foreach ( $attachments->posts as $attachmentID ) {
 
-			$this->migrate_attachment_to_s3( array( $attachment->ID ), $args_assoc );
+			$this->migrate_attachment_to_s3( array( $attachmentID ), $args_assoc );
 		}
 
 		WP_CLI::success( 'Moved all attachments to S3. If you wish to update references in your database run: ' );
