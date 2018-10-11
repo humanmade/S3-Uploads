@@ -41,6 +41,12 @@ define( 'S3_UPLOADS_REGION', '' ); // the s3 bucket region, required for Frankfu
 ```
 Please refer to this region list http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region for the S3_UPLOADS_REGION values.
 
+Use of path prefix after the bucket name is allowed and is optional. For example, if you want to upload all files to 'my-folder' inside a bucket called 'my-bucket', you can use: 
+
+```PHP
+define( 'S3_UPLOADS_BUCKET', 'my-bucket/my-folder' );
+```
+
 You must then enable the plugin. To do this via WP-CLI use command:
 
 ```
