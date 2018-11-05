@@ -324,8 +324,8 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 				$prefix . $to,
 				array(
 					'debug'       => true,
-					'params'      => function(\AWS\Command $command) {
-						$command['ACL'] = 'public-read';
+					'before'      => function(\AWS\Command $command) {
+						$command['ACL'] = defined('S3_UPLOAD_OBJECT_ACL') ? S3_UPLOAD_OBJECT_ACL : 'public-read';
 					},
 					'builder'     => new S3_Uploads_UploadSyncBuilder( ! empty( $args_assoc['dry-run'] ) ),
 					'force'       => empty( $args_assoc['sync'] ),
