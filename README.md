@@ -53,6 +53,13 @@ You must then enable the plugin. To do this via WP-CLI use command:
 wp plugin activate S3-Uploads
 ```
 
+The plugin name must match the directory you have cloned S3 Uploads into; 
+If you're using Composer, use 
+```
+wp plugin activate s3-uploads
+```
+
+
 The next thing that you should do is to verify your setup. You can do this using the `verify` command
 like so:
 
