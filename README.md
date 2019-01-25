@@ -31,7 +31,7 @@ It's focused on providing a highly robust S3 interface with no "bells and whistl
 Getting Set Up
 ==========
 
-Once you have `git clone`d the repo, or added it as a Git Submodule, add the following constants to your `wp-config.php`:
+Once you have `git cloned` the repo, or added it as a Git Submodule, add the following constants to your `wp-config.php`:
 
 ```PHP
 define( 'S3_UPLOADS_BUCKET', 'my-bucket' );
