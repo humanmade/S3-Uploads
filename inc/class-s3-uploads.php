@@ -5,6 +5,7 @@ class S3_Uploads {
 	private static $instance;
 	private        $bucket;
 	private        $bucket_url;
+    private        $endpoint_url;
 	private        $key;
 	private        $secret;
 
@@ -23,21 +24,23 @@ class S3_Uploads {
 				defined( 'S3_UPLOADS_KEY' ) ? S3_UPLOADS_KEY : null,
 				defined( 'S3_UPLOADS_SECRET' ) ? S3_UPLOADS_SECRET : null,
 				defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null,
-				S3_UPLOADS_REGION
+				S3_UPLOADS_REGION,
+                defined( 'S3_UPLOADS_BUCKET_ENDPOINT_URL' ) ? S3_UPLOADS_BUCKET_ENDPOINT_URL : null
 			);
 		}
 
 		return self::$instance;
 	}
 
-	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null ) {
+	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null, $endpoint_url = null ) {
 
-		$this->bucket     = $bucket;
-		$this->key        = $key;
-		$this->secret     = $secret;
-		$this->bucket_url = $bucket_url;
-		$this->region     = $region;
-	}
+		$this->bucket       = $bucket;
+		$this->key          = $key;
+		$this->secret       = $secret;
+		$this->bucket_url   = $bucket_url;
+		$this->region       = $region;
+        $this->endpoint_url = $endpoint_url;
+    }
 
 	/**
 	 * Setup the hooks, urls filtering etc for S3 Uploads
@@ -145,7 +148,16 @@ class S3_Uploads {
 		$bucket = strtok( $this->bucket, '/' );
 		$path   = substr( $this->bucket, strlen( $bucket ) );
 
-		return apply_filters( 's3_uploads_bucket_url', 'https://' . $bucket . '.s3.amazonaws.com' . $path );
+        $protocol = 'https';
+        $domain   = 's3.amazonaws.com';
+
+        if ($this->endpoint_url) {
+            $url      = parse_url($this->endpoint_url);
+            $protocol = $url['scheme'];
+            $domain   = $url['host'];
+        }
+
+        return apply_filters( 's3_uploads_bucket_url', $protocol . '://' . $bucket . '.' . $domain . $path );
 	}
 
 	/**
@@ -201,6 +213,10 @@ class S3_Uploads {
 
 			$params['request.options']['proxy'] = $proxy_auth . $proxy_address;
 		}
+
+        if ($this->endpoint_url) {
+            $params['endpoint'] = $this->endpoint_url;
+        }
 
 		$params   = apply_filters( 's3_uploads_s3_client_params', $params );
 		$this->s3 = Aws\S3\S3Client::factory( $params );

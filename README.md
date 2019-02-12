@@ -167,6 +167,20 @@ S3 Uploads' URL rewriting feature can be disabled if the current website does no
 define( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL', true );
 ```
 
+Changing URL for Uploads
+=======
+
+By default, your files will be uploaded to the URL `https://[bucket name].s3.amazonaws.com`.
+You can change this behavior by defining `S3_UPLOADS_BUCKET_ENDPOINT_URL` in your `wp-settings.php`:
+
+```PHP
+// e.g. for Scaleway
+define( 'S3_UPLOADS_BUCKET_ENDPOINT_URL', 'https://s3.nl-ams.scw.cloud' );
+```
+
+When defining this constant, it will automatically configure the URL rewriting (unless it has been configured manually) for your uploads.
+Given the previous example, your uploads will be loaded from `https://[bucket name].s3.nl-ams.scw.cloud`.
+
 S3 Object Permissions
 =======
 

@@ -171,4 +171,23 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		$this->assertEquals( 'hmn-uploads', $uploads->get_s3_bucket() );
 	}
 
+	function test_s3_custom_endpoint() {
+	    $uploads = new S3_Uploads('my-bucket', S3_UPLOADS_KEY, S3_UPLOADS_SECRET, null, S3_UPLOADS_REGION, 'https://s3.nl-ams.scw.cloud');
+
+        $endpoint = $uploads->s3()->getEndpoint();
+	    $this->assertEquals('https', $endpoint->getScheme());
+	    $this->assertEquals('s3.nl-ams.scw.cloud', $endpoint->getHost());
+
+	    $this->assertEquals('https://my-bucket.s3.nl-ams.scw.cloud', $uploads->get_s3_url());
+    }
+
+	function test_s3_custom_endpoint_with_defined_bucket_url() {
+	    $uploads = new S3_Uploads('my-bucket', S3_UPLOADS_KEY, S3_UPLOADS_SECRET, 'https://my-url.com', S3_UPLOADS_REGION, 'https://s3.nl-ams.scw.cloud');
+
+        $endpoint = $uploads->s3()->getEndpoint();
+	    $this->assertEquals('https', $endpoint->getScheme());
+	    $this->assertEquals('s3.nl-ams.scw.cloud', $endpoint->getHost());
+
+	    $this->assertEquals('https://my-url.com', $uploads->get_s3_url());
+    }
 }
