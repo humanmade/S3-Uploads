@@ -182,6 +182,22 @@ define('S3_UPLOADS_OBJECT_ACL', 'private');
 
 For more information on S3 permissions please see the Amazon S3 permissions documentation.
 
+Custom Endpoints
+=======
+
+Depending on your requirements you may wish to use an alternative S3 compatible object storage system such as Minio, Ceph,
+Digital Ocean Spaces, Scaleway and others. You can configure the endpoint using the following code:
+
+```php
+// Filter S3 Uploads params.
+add_filter( 's3_uploads_s3_client_params', function ( $params ) {
+	$params['endpoint'] = 'https://your.endpoint.com;
+	$params['use_path_style_endpoint'] = true;
+	$params['debug'] = false; // Set to true if uploads are failing.
+	return $params;
+} );
+```
+
 Offline Development
 =======
 
