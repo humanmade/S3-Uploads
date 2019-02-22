@@ -191,9 +191,22 @@ Digital Ocean Spaces, Scaleway and others. You can configure the endpoint using 
 ```php
 // Filter S3 Uploads params.
 add_filter( 's3_uploads_s3_client_params', function ( $params ) {
-	$params['endpoint'] = 'https://your.endpoint.com;
+	$params['endpoint'] = 'https://your.endpoint.com';
 	$params['use_path_style_endpoint'] = true;
 	$params['debug'] = false; // Set to true if uploads are failing.
+	return $params;
+} );
+```
+
+Temporary Session Tokens
+=======
+
+If your S3 access is configured to require a temporary session token in addition to the access key and secret, you should configure the credentials using the following code:
+
+```php
+// Filter S3 Uploads params.
+add_filter( 's3_uploads_s3_client_params', function ( $params ) {
+	$params['credentials']['token'] = 'your session token here';
 	return $params;
 } );
 ```
