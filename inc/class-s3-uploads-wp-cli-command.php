@@ -1,5 +1,7 @@
 <?php
 
+use Aws\S3\Transfer;
+
 class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 	/**
@@ -237,7 +239,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 			},
 		];
 		try {
-			$manager = new \Aws\S3\Transfer( $s3, $from, 's3://' . S3_UPLOADS_BUCKET . '/' . $to, $transfer_args );
+			$manager = new Transfer( $s3, $from, 's3://' . S3_UPLOADS_BUCKET . '/' . $to, $transfer_args );
 			$manager->transfer();
 		} catch ( Exception $e ) {
 			WP_CLI::error( $e->getMessage() );
