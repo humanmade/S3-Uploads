@@ -186,9 +186,12 @@ Custom Endpoints
 =======
 
 Depending on your requirements you may wish to use an alternative S3 compatible object storage system such as Minio, Ceph,
-Digital Ocean Spaces, Scaleway and others. You can configure the endpoint using the following code:
+Digital Ocean Spaces, Scaleway and others.
+
+You can configure the endpoint by adding the following code to a file in the `wp-content/mu-plugins/` directory, for example `wp-content/mu-plugins/s3-endpoint.php`:
 
 ```php
+<?php
 // Filter S3 Uploads params.
 add_filter( 's3_uploads_s3_client_params', function ( $params ) {
 	$params['endpoint'] = 'https://your.endpoint.com';
