@@ -1,5 +1,7 @@
 <?php
 
+use Aws\S3\Transfer;
+
 class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 	/**
@@ -51,92 +53,6 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		WP_CLI::print_value( 'File deleted from S3 successfully.' );
 
 		WP_CLI::success( 'Looks like your configuration is correct.' );
-	}
-
-	/**
-	 * @subcommand migrate-attachments
-	 * @synopsis [--delete-local]
-	 */
-	public function migrate_attachments_to_s3( $args, $args_assoc ) {
-
-		$attachments = new WP_Query( array(
-			'post_type'      => 'attachment',
-			'posts_per_page' => -1,
-			'post_status'    => 'all',
-		));
-
-		WP_CLI::line( sprintf( 'Attempting to move %d attachments to S3', $attachments->found_posts ) );
-
-		foreach ( $attachments->posts as $attachment ) {
-
-			$this->migrate_attachment_to_s3( array( $attachment->ID ), $args_assoc );
-		}
-
-		WP_CLI::success( 'Moved all attachments to S3. If you wish to update references in your database run: ' );
-		WP_CLI::line( '' );
-
-		// Ensure things are active
-		$instance = S3_Uploads::get_instance();
-
-		if ( ! s3_uploads_enabled() ) {
-			$instance->setup();
-		}
-
-		$old_upload_dir = $instance->get_original_upload_dir();
-		$upload_dir = wp_upload_dir();
-
-		WP_CLI::Line( sprintf( 'wp search-replace "%s" "%s"', $old_upload_dir['baseurl'], $upload_dir['baseurl'] ) );
-	}
-
-	/**
-	 * Migrate a single attachment's files to S3
-	 *
-	 * @subcommand migrate-attachment
-	 * @synopsis <attachment-id> [--delete-local]
-	 */
-	public function migrate_attachment_to_s3( $args, $args_assoc ) {
-
-		// Ensure things are active
-		$instance = S3_Uploads::get_instance();
-		if ( ! s3_uploads_enabled() ) {
-			$instance->setup();
-		}
-
-		$old_upload_dir = $instance->get_original_upload_dir();
-		$upload_dir = wp_upload_dir();
-
-		$files         = array();
-		$attached_file = get_post_meta( $args[0], '_wp_attached_file', true );
-
-		if ( ! empty( $attached_file ) ) {
-			$files[] = $attached_file;
-		}
-
-		$meta_data = wp_get_attachment_metadata( $args[0] );
-
-		if ( ! empty( $meta_data['sizes'] ) ) {
-			foreach ( $meta_data['sizes'] as $file ) {
-				$files[] = path_join( dirname( $meta_data['file'] ), $file['file'] );
-			}
-		}
-
-		foreach ( $files as $file ) {
-			if ( file_exists( $path = $old_upload_dir['basedir'] . '/' . $file ) ) {
-
-				if ( ! copy( $path, $upload_dir['basedir'] . '/' . $file ) ) {
-					WP_CLI::line( sprintf( 'Failed to moved %s to S3', $file ) );
-				} else {
-					if ( ! empty( $args_assoc['delete-local'] ) ) {
-						unlink( $path );
-					}
-					WP_CLI::success( sprintf( 'Moved file %s to S3', $file ) );
-
-				}
-			} else {
-				WP_CLI::line( sprintf( 'Already moved to %s S3', $file ) );
-			}
-		}
-
 	}
 
 	/**
@@ -299,7 +215,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * Upload a directory to S3
 	 *
 	 * @subcommand upload-directory
-	 * @synopsis <from> [<to>] [--sync] [--dry-run] [--concurrency=<concurrency>]
+	 * @synopsis <from> [<to>] [--concurrency=<concurrency>] [--verbose]
 	 */
 	public function upload_directory( $args, $args_assoc ) {
 
@@ -310,26 +226,21 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		}
 
 		$s3 = S3_Uploads::get_instance()->s3();
-		$bucket = strtok( S3_UPLOADS_BUCKET, '/' );
-		$prefix = '';
+		$args_assoc = wp_parse_args( $args_assoc, [ 'concurrency' => 5, 'verbose' => false ] );
 
-		if ( strpos( S3_UPLOADS_BUCKET, '/' ) ) {
-			$prefix = trailingslashit( str_replace( strtok( S3_UPLOADS_BUCKET, '/' ) . '/', '', S3_UPLOADS_BUCKET ) );
-		}
-
+		$transfer_args = [
+			'concurrency' => $args_assoc['concurrency'],
+			'debug'       => (bool) $args_assoc['verbose'],
+			'before'      => function ( AWS\Command $command ) {
+				if ( in_array( $command->getName(), [ 'PutObject', 'CreateMultipartUpload' ], true ) ) {
+					$acl = defined( 'S3_UPLOADS_OBJECT_ACL' ) ? S3_UPLOADS_OBJECT_ACL : 'public-read';
+					$command['ACL'] = $acl;
+				}
+			},
+		];
 		try {
-			$s3->uploadDirectory(
-				$from,
-				$bucket,
-				$prefix . $to,
-				array(
-					'debug'       => true,
-					'params'      => array( 'ACL' => 'public-read' ),
-					'builder'     => new S3_Uploads_UploadSyncBuilder( ! empty( $args_assoc['dry-run'] ) ),
-					'force'       => empty( $args_assoc['sync'] ),
-					'concurrency' => ! empty( $args_assoc['concurrency'] ) ? $args_assoc['concurrency'] : 5,
-				)
-			);
+			$manager = new Transfer( $s3, $from, 's3://' . S3_UPLOADS_BUCKET . '/' . $to, $transfer_args );
+			$manager->transfer();
 		} catch ( Exception $e ) {
 			WP_CLI::error( $e->getMessage() );
 		}
