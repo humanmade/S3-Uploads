@@ -83,6 +83,7 @@ If you want to create your IAM user yourself, or attach the neccessary permissio
 		"arn:aws:s3:::bucketname-here/*"
 	    ]
         }
+    ]
 }
 ```
 
