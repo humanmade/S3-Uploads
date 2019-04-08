@@ -5,6 +5,48 @@ class S3_Uploads_Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 	protected $temp_file_to_cleanup = null;
 
 	/**
+	 * Hold on to a reference of all temp local files.
+	 *
+	 * These are cleaned up on __destruct.
+	 *
+	 * @var array
+	 */
+	protected $temp_files_to_cleanup = array();
+
+	/**
+	 * Loads image from $this->file into new Imagick Object.
+	 *
+	 * @return true|WP_Error True if loaded; WP_Error on failure.
+	 */
+	public function load() {
+		if ( $this->image instanceof Imagick ) {
+			return true;
+		}
+
+		if ( ! is_file( $this->file ) && ! preg_match( '|^https?://|', $this->file ) ) {
+			return new WP_Error( 'error_loading_image', __( 'File doesn&#8217;t exist?' ), $this->file );
+		}
+
+		$upload_dir = wp_upload_dir();
+
+		if ( strpos( $this->file, $upload_dir['basedir'] ) !== 0 ) {
+			return parent::load();
+		}
+
+		$temp_filename = tempnam( get_temp_dir(), 's3-uploads' );
+		$this->temp_files_to_cleanup[] = $temp_filename;
+
+		copy( $this->file, $temp_filename );
+		$this->remote_filename = $this->file;
+		$this->file = $temp_filename;
+
+		$result = parent::load();
+
+		$this->file = $this->remote_filename;
+		return $result;
+	}
+
+	/**
 	 * Imagick by default can't handle s3:// paths
 	 * for saving images. We have instead save it to a file file,
 	 * then copy it to the s3:// path as a workaround.
@@ -47,40 +89,8 @@ class S3_Uploads_Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 		);
 	}
 
-	public function load() {
-		$result = parent::load();
-
-		// `load` can call pdf_setup() which has to copy the file to a temp local copy.
-		// In this event we want to clean it up once `load` has been completed.
-		if ( $this->temp_file_to_cleanup ) {
-			unlink( $this->temp_file_to_cleanup );
-			$this->temp_file_to_cleanup = null;
-		}
-		return $result;
-	}
-
-	/**
-	 * Sets up Imagick for PDF processing.
-	 * Increases rendering DPI and only loads first page.
-	 *
-	 * @since 4.7.0
-	 *
-	 * @return string|WP_Error File to load or WP_Error on failure.
-	 */
-	protected function pdf_setup() {
-		$temp_filename = tempnam( get_temp_dir(), 's3-uploads' );
-		$this->temp_file_to_cleanup = $temp_filename;
-		copy( $this->file, $temp_filename );
-
-		try {
-			// By default, PDFs are rendered in a very low resolution.
-			// We want the thumbnail to be readable, so increase the rendering DPI.
-			$this->image->setResolution( 128, 128 );
-
-			// Only load the first page.
-			return $temp_filename . '[0]';
-		} catch ( Exception $e ) {
-			return new WP_Error( 'pdf_setup_failed', $e->getMessage(), $this->file );
-		}
+	public function __destruct() {
+		array_map( 'unlink', $this->temp_files_to_cleanup );
+		parent::__destruct();
 	}
 }
