@@ -31,7 +31,21 @@ It's focused on providing a highly robust S3 interface with no "bells and whistl
 Getting Set Up
 ==========
 
-Once you have `git clone`d the repo, or added it as a Git Submodule, add the following constants to your `wp-config.php`:
+**Install Using Composer**
+
+```
+composer require humanmade/s3-uploads
+```
+
+**Install Manually**
+
+If you do not use Composer to manage plugins or other dependencies, you can install the plugin manually. Download the `manual-install.zip` file from the [Releases page](https://github.com/humanmade/S3-Uploads/releases) and extract the ZIP file to your `plugins` directory.
+
+You can also `git clone` this repository, and run `compsoer install` in the plugin folder to pull in it's dependencies.
+
+---
+
+Once you've installed the plugin, add the following constants to your `wp-config.php`:
 
 ```PHP
 define( 'S3_UPLOADS_BUCKET', 'my-bucket' );
