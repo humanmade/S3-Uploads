@@ -20,20 +20,25 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 
 		// Create a path in the base directory, with a random file name to avoid potentially overwriting existing data.
 		$upload_dir = wp_upload_dir();
-		$s3_path    = $upload_dir['basedir'] . '/' . mt_rand() . '.jpg';
+		$s3_path    = $upload_dir['basedir'] . '/' . mt_rand() . '.txt';
 
-		// Attempt to copy the local Canola test file to the generated path on S3.
 		WP_CLI::print_value( 'Attempting to upload file ' . $s3_path );
 
+		// Create a temporary file.
+		$temp_file = wp_tempnam( 'tmp.txt' );
+		file_put_contents( $temp_file, 'S3 Uploads Test' );
+
+		// Copy file to S3.
 		$copy = copy(
-			dirname( dirname( __FILE__ ) ) . '/tests/data/sunflower.jpg',
+			$temp_file,
 			$s3_path
 		);
+
+		unlink( $temp_file );
 
 		// Check that the copy worked.
 		if ( ! $copy ) {
 			WP_CLI::error( 'Failed to copy / write to S3 - check your policy?' );
-
 			return;
 		}
 
