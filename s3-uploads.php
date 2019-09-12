@@ -71,12 +71,12 @@ function s3_uploads_check_requirements() {
 	if ( version_compare( '5.5.0', PHP_VERSION, '>' ) ) {
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
 			add_action( 'admin_notices', 's3_uploads_outdated_php_version_notice' );
+			return false;
 		}
 
-		return false;
+		return true;
 	}
 
-	return true;
 }
 
 /**
