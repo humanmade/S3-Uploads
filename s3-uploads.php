@@ -85,7 +85,7 @@ function s3_uploads_check_requirements() {
  * This has to be a named function for compatibility with PHP 5.2.
  */
 function s3_uploads_outdated_php_version_notice() {
-	printf( '<div class="error"><p>The S3 Uploads plugin requires PHP version 5.5.0 or higher. Your server is running PHP version %s.</p></div>',
+	printf( '<div class="notice notice-error"><p>The S3 Uploads plugin requires PHP version 5.5.0 or higher. Your server is running PHP version %s.</p></div>',
 		PHP_VERSION
 	);
 }
