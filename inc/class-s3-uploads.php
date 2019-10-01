@@ -122,11 +122,11 @@ class S3_Uploads {
 		if ( ! empty( $meta['sizes'] ) ) {
 			foreach ( $meta['sizes'] as $sizeinfo ) {
 				$intermediate_file = str_replace( basename( $file ), $sizeinfo['file'], $file );
-				unlink( $intermediate_file );
+				wp_delete_file( $intermediate_file );
 			}
 		}
 
-		unlink( $file );
+		wp_delete_file( $file );
 	}
 
 	public function get_s3_url() {
