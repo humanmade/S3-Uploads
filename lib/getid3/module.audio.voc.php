@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.audio.voc.php                                        //
@@ -62,7 +61,7 @@ class getid3_voc extends getid3_handler
 
 			$BlockOffset    = $this->ftell();
 			$BlockData      = $this->fread(4);
-			$BlockType      = ord($BlockData{0});
+			$BlockType      = ord($BlockData[0]);
 			$BlockSize      = getid3_lib::LittleEndian2Int(substr($BlockData, 1, 3));
 			$ThisBlock      = array();
 

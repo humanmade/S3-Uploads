@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // write.id3v1.php                                             //
@@ -69,16 +68,16 @@ class getid3_write_id3v1
 				} else {
 					fseek($fp_source, 0, SEEK_END);    // append new ID3v1 tag
 				}
-				$this->tag_data['track'] = (isset($this->tag_data['track']) ? $this->tag_data['track'] : (isset($this->tag_data['track_number']) ? $this->tag_data['track_number'] : (isset($this->tag_data['tracknumber']) ? $this->tag_data['tracknumber'] : '')));
+				$this->tag_data['track_number'] = (isset($this->tag_data['track_number']) ? $this->tag_data['track_number'] : '');
 
 				$new_id3v1_tag_data = getid3_id3v1::GenerateID3v1Tag(
-														(isset($this->tag_data['title']  ) ? $this->tag_data['title']   : ''),
-														(isset($this->tag_data['artist'] ) ? $this->tag_data['artist']  : ''),
-														(isset($this->tag_data['album']  ) ? $this->tag_data['album']   : ''),
-														(isset($this->tag_data['year']   ) ? $this->tag_data['year']    : ''),
-														(isset($this->tag_data['genreid']) ? $this->tag_data['genreid'] : ''),
-														(isset($this->tag_data['comment']) ? $this->tag_data['comment'] : ''),
-														(isset($this->tag_data['track']  ) ? $this->tag_data['track']   : ''));
+														(isset($this->tag_data['title']       ) ? $this->tag_data['title']        : ''),
+														(isset($this->tag_data['artist']      ) ? $this->tag_data['artist']       : ''),
+														(isset($this->tag_data['album']       ) ? $this->tag_data['album']        : ''),
+														(isset($this->tag_data['year']        ) ? $this->tag_data['year']         : ''),
+														(isset($this->tag_data['genreid']     ) ? $this->tag_data['genreid']      : ''),
+														(isset($this->tag_data['comment']     ) ? $this->tag_data['comment']      : ''),
+														(isset($this->tag_data['track_number']) ? $this->tag_data['track_number'] : ''));
 				fwrite($fp_source, $new_id3v1_tag_data, 128);
 				fclose($fp_source);
 				return true;

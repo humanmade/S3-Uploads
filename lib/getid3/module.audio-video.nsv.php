@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.audio.nsv.php                                        //
@@ -52,7 +51,6 @@ class getid3_nsv extends getid3_handler
 			default:
 				$this->error('Expecting "NSVs" or "NSVf" at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes($NSVheader).'"');
 				return false;
-				break;
 		}
 
 		if (!isset($info['nsv']['NSVf'])) {

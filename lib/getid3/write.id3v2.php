@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 ///                                                            //
 // write.id3v2.php                                             //
@@ -25,7 +24,7 @@ class getid3_write_id3v2
 	public $filename;
 
 	/**
-	 * @var array
+	 * @var array|null
 	 */
 	public $tag_data;
 
@@ -326,7 +325,6 @@ class getid3_write_id3v2
 
 			default:
 				return false;
-				break;
 		}
 		return chr(bindec($flag));
 	}
@@ -346,7 +344,7 @@ class getid3_write_id3v2
 	public function GenerateID3v2FrameFlags($TagAlter=false, $FileAlter=false, $ReadOnly=false, $Compression=false, $Encryption=false, $GroupingIdentity=false, $Unsynchronisation=false, $DataLengthIndicator=false) {
 		$flag1 = null;
 		$flag2 = null;
-	    switch ($this->majorversion) {
+		switch ($this->majorversion) {
 			case 4:
 				// %0abc0000 %0h00kmnp
 				$flag1  = '0';
@@ -379,7 +377,6 @@ class getid3_write_id3v2
 
 			default:
 				return false;
-				break;
 
 		}
 		return chr(bindec($flag1)).chr(bindec($flag2));
@@ -853,7 +850,7 @@ class getid3_write_id3v2
 						$this->errors[] = 'Invalid Text Encoding in '.$frame_name.' ('.$source_data_array['encodingid'].') for ID3v2.'.$this->majorversion;
 					} elseif (!$this->ID3v2IsValidAPICpicturetype($source_data_array['picturetypeid'])) {
 						$this->errors[] = 'Invalid Picture Type byte in '.$frame_name.' ('.$source_data_array['picturetypeid'].') for ID3v2.'.$this->majorversion;
-					} elseif (($this->majorversion >= 3) && (!$this->ID3v2IsValidAPICimageformat($source_data_array['mime']))) {
+					} elseif ((!$this->ID3v2IsValidAPICimageformat($source_data_array['mime']))) {
 						$this->errors[] = 'Invalid MIME Type in '.$frame_name.' ('.$source_data_array['mime'].') for ID3v2.'.$this->majorversion;
 					} elseif (($source_data_array['mime'] == '-->') && (!$this->IsValidURL($source_data_array['data'], false))) {
 						//$this->errors[] = 'Invalid URL in '.$frame_name.' ('.$source_data_array['data'].')';
@@ -1096,7 +1093,6 @@ class getid3_write_id3v2
 						$this->errors[] = 'Invalid MIME Type in '.$frame_name.' ('.$source_data_array['mime'].')';
 					} else {
 						$framedata .= chr($source_data_array['encodingid']);
-						unset($pricestring);
 						$pricestrings = array();
 						foreach ($source_data_array['price'] as $key => $val) {
 							if ($this->ID3v2IsValidPriceString($key.$val['value'])) {
@@ -1234,9 +1230,9 @@ class getid3_write_id3v2
 					break;
 
 				default:
-					if ((($this->majorversion == 2) && (strlen($frame_name) != 3)) || (($this->majorversion > 2) && (strlen($frame_name) != 4))) {
+					if (/*(($this->majorversion == 2) && (strlen($frame_name) != 3)) || (($this->majorversion > 2) && (*/strlen($frame_name) != 4/*))*/) {
 						$this->errors[] = 'Invalid frame name "'.$frame_name.'" for ID3v2.'.$this->majorversion;
-					} elseif ($frame_name{0} == 'T') {
+					} elseif ($frame_name[0] == 'T') {
 						// 4.2. T???  Text information frames
 						// Text encoding                $xx
 						// Information                  <text string(s) according to encoding>
@@ -1247,7 +1243,7 @@ class getid3_write_id3v2
 							$framedata .= chr($source_data_array['encodingid']);
 							$framedata .= $source_data_array['data'];
 						}
-					} elseif ($frame_name{0} == 'W') {
+					} elseif ($frame_name[0] == 'W') {
 						// 4.3. W???  URL link frames
 						// URL              <text string>
 						if (!$this->IsValidURL($source_data_array['data'], false)) {
@@ -1403,7 +1399,7 @@ class getid3_write_id3v2
 					break;
 
 				default:
-					if (($frame_name{0} != 'T') && ($frame_name{0} != 'W')) {
+					if (($frame_name[0] != 'T') && ($frame_name[0] != 'W')) {
 						$this->errors[] = 'Frame not allowed in ID3v2.'.$this->majorversion.': '.$frame_name;
 					}
 					break;
@@ -1526,7 +1522,7 @@ class getid3_write_id3v2
 					break;
 
 				default:
-					if (($frame_name{0} != 'T') && ($frame_name{0} != 'W')) {
+					if (($frame_name[0] != 'T') && ($frame_name[0] != 'W')) {
 						$this->errors[] = 'Frame not allowed in ID3v2.'.$this->majorversion.': '.$frame_name;
 					}
 					break;
@@ -1618,7 +1614,7 @@ class getid3_write_id3v2
 					break;
 
 				default:
-					if (($frame_name{0} != 'T') && ($frame_name{0} != 'W')) {
+					if (($frame_name[0] != 'T') && ($frame_name[0] != 'W')) {
 						$this->errors[] = 'Frame not allowed in ID3v2.'.$this->majorversion.': '.$frame_name;
 					}
 					break;
@@ -1689,18 +1685,18 @@ class getid3_write_id3v2
 							if ($noerrorsonly) {
 								return false;
 							} else {
-								unset($frame_name);
+								$frame_name = null;
 							}
 						}
 					} else {
 						// ignore any invalid frame names, including 'title', 'header', etc
 						$this->warnings[] = 'Ignoring invalid ID3v2 frame type: "'.$frame_name.'"';
-						unset($frame_name);
+						$frame_name = null;
 						unset($frame_length);
 						unset($frame_flags);
 						unset($frame_data);
 					}
-					if (isset($frame_name) && isset($frame_length) && isset($frame_flags) && isset($frame_data)) {
+					if (null !== $frame_name && isset($frame_length) && isset($frame_flags) && isset($frame_data)) {
 						$tagstring .= $frame_name.$frame_length.$frame_flags.$frame_data;
 					}
 				}
@@ -1724,7 +1720,7 @@ class getid3_write_id3v2
 			}
 
 			$footer = false; // ID3v2 footers not yet supported in getID3()
-			if (!$footer && ($this->paddedlength > (strlen($tagstring) + getid3_id3v2::ID3v2HeaderLength($this->majorversion)))) {
+			if (/*!$footer && */($this->paddedlength > (strlen($tagstring) + getid3_id3v2::ID3v2HeaderLength($this->majorversion)))) {
 				// pad up to $paddedlength bytes if unpadded tag is shorter than $paddedlength
 				// "Furthermore it MUST NOT have any padding when a tag footer is added to the tag."
 				if (($this->paddedlength - strlen($tagstring) - getid3_id3v2::ID3v2HeaderLength($this->majorversion)) > 0) {
@@ -1792,11 +1788,9 @@ class getid3_write_id3v2
 		switch ($framename) {
 			case 'RGAD':
 				return false;
-				break;
 
 			default:
 				return false;
-				break;
 		}
 	}
 
@@ -1959,10 +1953,10 @@ class getid3_write_id3v2
 		$unsyncheddata = '';
 		$datalength = strlen($data);
 		for ($i = 0; $i < $datalength; $i++) {
-			$thischar = $data{$i};
+			$thischar = $data[$i];
 			$unsyncheddata .= $thischar;
 			if ($thischar == "\xFF") {
-				$nextchar = ord($data{$i + 1});
+				$nextchar = ord($data[$i + 1]);
 				if (($nextchar & 0xE0) == 0xE0) {
 					// previous byte = 11111111, this byte = 111?????
 					$unsyncheddata .= "\x00";
@@ -2317,6 +2311,7 @@ class getid3_write_id3v2
 			$ID3v2ShortFrameNameLookup[4]['performer_sort_order']              = 'TSOP';
 			$ID3v2ShortFrameNameLookup[4]['title_sort_order']                  = 'TSOT';
 			$ID3v2ShortFrameNameLookup[4]['set_subtitle']                      = 'TSST';
+			$ID3v2ShortFrameNameLookup[4]['year']                              = 'TDRC'; // subset of ISO 8601: valid timestamps are yyyy, yyyy-MM, yyyy-MM-dd, yyyy-MM-ddTHH, yyyy-MM-ddTHH:mm and yyyy-MM-ddTHH:mm:ss. All time stamps are UTC
 		}
 		return (isset($ID3v2ShortFrameNameLookup[$majorversion][strtolower($long_description)]) ? $ID3v2ShortFrameNameLookup[$majorversion][strtolower($long_description)] : '');
 

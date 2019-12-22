@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.audio.dss.php                                        //
@@ -27,8 +26,8 @@ class getid3_dss extends getid3_handler
 		$this->fseek($info['avdataoffset']);
 		$DSSheader  = $this->fread(1540);
 
-		if (!preg_match('#^[\\x02-\\x06]ds[s2]#', $DSSheader)) {
-			$this->error('Expecting "[02-06] 64 73 [73|32]" at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes(substr($DSSheader, 0, 4)).'"');
+		if (!preg_match('#^[\\x02-\\x08]ds[s2]#', $DSSheader)) {
+			$this->error('Expecting "[02-08] 64 73 [73|32]" at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes(substr($DSSheader, 0, 4)).'"');
 			return false;
 		}
 
@@ -47,7 +46,7 @@ class getid3_dss extends getid3_handler
 		// 32-37 = "FE FF FE FF F7 FF" in all the sample files I've seen
 		$info['dss']['date_create_unix']   = $this->DSSdateStringToUnixDate(substr($DSSheader,   38,  12));
 		$info['dss']['date_complete_unix'] = $this->DSSdateStringToUnixDate(substr($DSSheader,   50,  12));
-		$info['dss']['playtime_sec']       = intval((substr($DSSheader,  62, 2) * 3600) + (substr($DSSheader,  64, 2) * 60) + substr($DSSheader,  66, 2)); // approximate file playtime in HHMMSS
+		$info['dss']['playtime_sec']       = ((int) substr($DSSheader, 62, 2) * 3600) + ((int) substr($DSSheader, 64, 2) * 60) + (int) substr($DSSheader, 66, 2); // approximate file playtime in HHMMSS
 		if ($info['dss']['version'] <= 3) {
 			$info['dss']['playtime_ms']        =   getid3_lib::LittleEndian2Int(substr($DSSheader,  512,   4)); // exact file playtime in milliseconds. Has also been observed at offset 530 in one sample file, with something else (unknown) at offset 512
 			$info['dss']['priority']           =                            ord(substr($DSSheader,  793,   1));
@@ -80,7 +79,7 @@ class getid3_dss extends getid3_handler
 	 * @return int|false
 	 */
 	public function DSSdateStringToUnixDate($datestring) {
-		$y = substr($datestring,  0, 2);
+		$y = (int) substr($datestring,  0, 2);
 		$m = substr($datestring,  2, 2);
 		$d = substr($datestring,  4, 2);
 		$h = substr($datestring,  6, 2);

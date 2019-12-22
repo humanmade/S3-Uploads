@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.archive.tar.php                                      //
@@ -45,13 +44,13 @@ class getid3_tar extends getid3_handler
 			// check the block
 			$checksum = 0;
 			for ($i = 0; $i < 148; $i++) {
-				$checksum += ord($buffer{$i});
+				$checksum += ord($buffer[$i]);
 			}
 			for ($i = 148; $i < 156; $i++) {
 				$checksum += ord(' ');
 			}
 			for ($i = 156; $i < 512; $i++) {
-				$checksum += ord($buffer{$i});
+				$checksum += ord($buffer[$i]);
 			}
 			$attr    = unpack($unpack_header, $buffer);
 			$name    =       (isset($attr['fname']  ) ? trim($attr['fname']  ) : '');

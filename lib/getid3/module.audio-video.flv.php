@@ -1,15 +1,21 @@
 <?php
-
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
+/////////////////////////////////////////////////////////////////
+//                                                             //
+// module.audio-video.flv.php                                  //
+// module for analyzing Shockwave Flash Video files            //
+// dependencies: NONE                                          //
+//                                                             //
+/////////////////////////////////////////////////////////////////
 //                                                             //
 //  FLV module by Seth Kaufman <sethØwhirl-i-gig*com>          //
 //                                                             //
 //  * version 0.1 (26 June 2005)                               //
-//                                                             //
 //                                                             //
 //  * version 0.1.1 (15 July 2005)                             //
 //  minor modifications by James Heinrich <info@getid3.org>    //
@@ -44,12 +50,6 @@
 //  handle GETID3_FLV_VIDEO_VP6FLV_ALPHA                       //
 //  improved AVCSequenceParameterSetReader::readData()         //
 //    by Xander Schouwerwou <schouwerwouØgmail*com>            //
-//                                                             //
-/////////////////////////////////////////////////////////////////
-//                                                             //
-// module.audio-video.flv.php                                  //
-// module for analyzing Shockwave Flash Video files            //
-// dependencies: NONE                                          //
 //                                                            ///
 /////////////////////////////////////////////////////////////////
 
@@ -597,7 +597,6 @@ class AMFReader
 			// null
 			case 6:
 				return null;
-				break;
 
 			// Mixed array
 			case 8:

@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.misc.iso.php                                         //
@@ -30,7 +29,7 @@ class getid3_iso extends getid3_handler
 			$this->fseek(2048 * $i);
 			$ISOheader = $this->fread(2048);
 			if (substr($ISOheader, 1, 5) == 'CD001') {
-				switch (ord($ISOheader{0})) {
+				switch (ord($ISOheader[0])) {
 					case 1:
 						$info['iso']['primary_volume_descriptor']['offset'] = 2048 * $i;
 						$this->ParsePrimaryVolumeDescriptor($ISOheader);
@@ -297,9 +296,9 @@ class getid3_iso extends getid3_handler
 		$DirectoryRecordData = $this->fread(1);
 		$DirectoryRecord = array();
 
-		while (ord($DirectoryRecordData{0}) > 33) {
+		while (ord($DirectoryRecordData[0]) > 33) {
 
-			$DirectoryRecordData .= $this->fread(ord($DirectoryRecordData{0}) - 1);
+			$DirectoryRecordData .= $this->fread(ord($DirectoryRecordData[0]) - 1);
 
 			$ThisDirectoryRecord = array();
 
@@ -390,13 +389,13 @@ class getid3_iso extends getid3_handler
 		// 6: second of the minute from 0 to 59
 		// 7: Offset from Greenwich Mean Time in number of 15 minute intervals from -48 (West) to +52 (East)
 
-		$UNIXyear   = ord($ISOtime{0}) + 1900;
-		$UNIXmonth  = ord($ISOtime{1});
-		$UNIXday    = ord($ISOtime{2});
-		$UNIXhour   = ord($ISOtime{3});
-		$UNIXminute = ord($ISOtime{4});
-		$UNIXsecond = ord($ISOtime{5});
-		$GMToffset  = $this->TwosCompliment2Decimal(ord($ISOtime{5}));
+		$UNIXyear   = ord($ISOtime[0]) + 1900;
+		$UNIXmonth  = ord($ISOtime[1]);
+		$UNIXday    = ord($ISOtime[2]);
+		$UNIXhour   = ord($ISOtime[3]);
+		$UNIXminute = ord($ISOtime[4]);
+		$UNIXsecond = ord($ISOtime[5]);
+		$GMToffset  = $this->TwosCompliment2Decimal(ord($ISOtime[5]));
 
 		return gmmktime($UNIXhour, $UNIXminute, $UNIXsecond, $UNIXmonth, $UNIXday, $UNIXyear);
 	}

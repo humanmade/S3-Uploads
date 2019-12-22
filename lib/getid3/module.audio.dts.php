@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.audio.dts.php                                        //
@@ -52,18 +51,18 @@ class getid3_dts extends getid3_handler
 
 		// check syncword
 		$sync = substr($DTSheader, 0, 4);
-        if (($encoding = array_search($sync, self::$syncwords)) !== false) {
+		if (($encoding = array_search($sync, self::$syncwords)) !== false) {
 
-        	$info['dts']['raw']['magic'] = $sync;
+			$info['dts']['raw']['magic'] = $sync;
 			$this->readBinDataOffset = 32;
 
-        } elseif ($this->isDependencyFor('matroska')) {
+		} elseif ($this->isDependencyFor('matroska')) {
 
 			// Matroska contains DTS without syncword encoded as raw big-endian format
 			$encoding = 0;
 			$this->readBinDataOffset = 0;
 
-        } else {
+		} else {
 
 			unset($info['fileformat']);
 			return $this->error('Expecting "'.implode('| ', array_map('getid3_lib::PrintHexBytes', self::$syncwords)).'" at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes($sync).'"');
@@ -150,7 +149,7 @@ class getid3_dts extends getid3_handler
 	 * @param string $bin
 	 * @param int $length
 	 *
-	 * @return float|int
+	 * @return int
 	 */
 	private function readBinData($bin, $length) {
 		$data = substr($bin, $this->readBinDataOffset, $length);
@@ -253,36 +252,28 @@ class getid3_dts extends getid3_handler
 		switch ($index) {
 			case 0:
 				return 1;
-				break;
 			case 1:
 			case 2:
 			case 3:
 			case 4:
 				return 2;
-				break;
 			case 5:
 			case 6:
 				return 3;
-				break;
 			case 7:
 			case 8:
 				return 4;
-				break;
 			case 9:
 				return 5;
-				break;
 			case 10:
 			case 11:
 			case 12:
 				return 6;
-				break;
 			case 13:
 				return 7;
-				break;
 			case 14:
 			case 15:
 				return 8;
-				break;
 		}
 		return false;
 	}
@@ -324,10 +315,8 @@ class getid3_dts extends getid3_handler
 		switch ($version) {
 			case 7:
 				return 0 - $index;
-				break;
 			case 6:
 				return 0 - 16 - $index;
-				break;
 		}
 		return false;
 	}

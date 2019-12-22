@@ -8,15 +8,16 @@
 //  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
-// module.misc.msoffice.php                                    //
-// module for analyzing MS Office (.doc, .xls, etc) files      //
+// module.archive.xz.php                                       //
+// module for analyzing XZ files                               //
 // dependencies: NONE                                          //
 //                                                            ///
 /////////////////////////////////////////////////////////////////
 
 
-class getid3_msoffice extends getid3_handler
+class getid3_xz extends getid3_handler
 {
+
 	/**
 	 * @return bool
 	 */
@@ -24,15 +25,16 @@ class getid3_msoffice extends getid3_handler
 		$info = &$this->getid3->info;
 
 		$this->fseek($info['avdataoffset']);
-		$DOCFILEheader = $this->fread(8);
-		$magic = "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1";
-		if (substr($DOCFILEheader, 0, 8) != $magic) {
-			$this->error('Expecting "'.getid3_lib::PrintHexBytes($magic).'" at '.$info['avdataoffset'].', found '.getid3_lib::PrintHexBytes(substr($DOCFILEheader, 0, 8)).' instead.');
+		$xzheader = $this->fread(6);
+
+		// https://tukaani.org/xz/xz-file-format-1.0.4.txt
+		$info['xz']['stream_header']['magic'] = substr($xzheader, 0, 6);
+		if ($info['xz']['stream_header']['magic'] != "\xFD".'7zXZ'."\x00") {
+			$this->error('Invalid XZ stream header magic (expecting FD 37 7A 58 5A 00, found '.getid3_lib::PrintHexBytes($info['xz']['stream_header']['magic']).') at offset '.$info['avdataoffset']);
 			return false;
 		}
-		$info['fileformat'] = 'msoffice';
-
-		$this->error('MS Office (.doc, .xls, etc) parsing not enabled in this version of getID3() ['.$this->getid3->version().']');
+		$info['fileformat'] = 'xz';
+		$this->error('XZ parsing not enabled in this version of getID3() ['.$this->getid3->version().']');
 		return false;
 
 	}

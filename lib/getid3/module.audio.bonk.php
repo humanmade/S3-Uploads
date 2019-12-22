@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.audio.la.php                                         //
@@ -45,7 +44,7 @@ class getid3_bonk extends getid3_handler
 				$this->fseek(0 - $BonkTagSize, SEEK_CUR);
 				$BonkTagOffset = $this->ftell();
 				$TagHeaderTest = $this->fread(5);
-				if (($TagHeaderTest{0} != "\x00") || (substr($PossibleBonkTag, 4, 4) != strtolower(substr($PossibleBonkTag, 4, 4)))) {
+				if (($TagHeaderTest[0] != "\x00") || (substr($PossibleBonkTag, 4, 4) != strtolower(substr($PossibleBonkTag, 4, 4)))) {
 					$this->error('Expecting "'.getid3_lib::PrintHexBytes("\x00".strtoupper(substr($PossibleBonkTag, 4, 4))).'" at offset '.$BonkTagOffset.', found "'.getid3_lib::PrintHexBytes($TagHeaderTest).'"');
 					return false;
 				}

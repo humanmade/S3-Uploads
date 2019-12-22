@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.audio.midi.php                                       //
@@ -244,9 +243,9 @@ class getid3_midi extends getid3_handler
 								break;
 
 							case 0x58: // Time signature
-								$timesig_numerator   = getid3_lib::BigEndian2Int($METAeventData{0});
-								$timesig_denominator = pow(2, getid3_lib::BigEndian2Int($METAeventData{1})); // $02 -> x/4, $03 -> x/8, etc
-								$timesig_32inqnote   = getid3_lib::BigEndian2Int($METAeventData{2});         // number of 32nd notes to the quarter note
+								$timesig_numerator   = getid3_lib::BigEndian2Int($METAeventData[0]);
+								$timesig_denominator = pow(2, getid3_lib::BigEndian2Int($METAeventData[1])); // $02 -> x/4, $03 -> x/8, etc
+								$timesig_32inqnote   = getid3_lib::BigEndian2Int($METAeventData[2]);         // number of 32nd notes to the quarter note
 								//$thisfile_midi_raw['events'][$tracknumber][$eventid]['timesig_32inqnote']   = $timesig_32inqnote;
 								//$thisfile_midi_raw['events'][$tracknumber][$eventid]['timesig_numerator']   = $timesig_numerator;
 								//$thisfile_midi_raw['events'][$tracknumber][$eventid]['timesig_denominator'] = $timesig_denominator;
@@ -255,13 +254,13 @@ class getid3_midi extends getid3_handler
 								break;
 
 							case 0x59: // Keysignature
-								$keysig_sharpsflats = getid3_lib::BigEndian2Int($METAeventData{0});
+								$keysig_sharpsflats = getid3_lib::BigEndian2Int($METAeventData[0]);
 								if ($keysig_sharpsflats & 0x80) {
 									// (-7 -> 7 flats, 0 ->key of C, 7 -> 7 sharps)
 									$keysig_sharpsflats -= 256;
 								}
 
-								$keysig_majorminor  = getid3_lib::BigEndian2Int($METAeventData{1}); // 0 -> major, 1 -> minor
+								$keysig_majorminor  = getid3_lib::BigEndian2Int($METAeventData[1]); // 0 -> major, 1 -> minor
 								$keysigs = array(-7=>'Cb', -6=>'Gb', -5=>'Db', -4=>'Ab', -3=>'Eb', -2=>'Bb', -1=>'F', 0=>'C', 1=>'G', 2=>'D', 3=>'A', 4=>'E', 5=>'B', 6=>'F#', 7=>'C#');
 								//$thisfile_midi_raw['events'][$tracknumber][$eventid]['keysig_sharps'] = (($keysig_sharpsflats > 0) ? abs($keysig_sharpsflats) : 0);
 								//$thisfile_midi_raw['events'][$tracknumber][$eventid]['keysig_flats']  = (($keysig_sharpsflats < 0) ? abs($keysig_sharpsflats) : 0);

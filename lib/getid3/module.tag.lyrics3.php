@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 ///                                                            //
 // module.tag.lyrics3.php                                      //
@@ -33,7 +32,7 @@ class getid3_lyrics3 extends getid3_handler
 
 		$this->fseek((0 - 128 - 9 - 6), SEEK_END);          // end - ID3v1 - "LYRICSEND" - [Lyrics3size]
 		$lyrics3_id3v1 = $this->fread(128 + 9 + 6);
-		$lyrics3lsz    = substr($lyrics3_id3v1,  0,   6); // Lyrics3size
+		$lyrics3lsz    = (int) substr($lyrics3_id3v1, 0, 6); // Lyrics3size
 		$lyrics3end    = substr($lyrics3_id3v1,  6,   9); // LYRICSEND or LYRICS200
 		$id3v1tag      = substr($lyrics3_id3v1, 15, 128); // ID3v1
 
@@ -241,7 +240,6 @@ class getid3_lyrics3 extends getid3_handler
 			default:
 				$this->error('Cannot process Lyrics3 version '.$version.' (only v1 and v2)');
 				return false;
-				break;
 		}
 
 

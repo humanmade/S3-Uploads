@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.tag.xmp.php                                          //
@@ -115,7 +114,7 @@ class Image_XMP
 		$data = fread($filehnd, 2);
 
 		// Check that the third character is 0xFF (Start of first segment header)
-		if ($data{0} != "\xFF")
+		if ($data[0] != "\xFF")
 		{
 			// NO FF found - close file and return - JPEG is probably corrupted
 			fclose($filehnd);
@@ -125,16 +124,16 @@ class Image_XMP
 		// Flag that we havent yet hit the compressed image data
 		$hit_compressed_image_data = false;
 
-        $headerdata = array();
+		$headerdata = array();
 		// Cycle through the file until, one of: 1) an EOI (End of image) marker is hit,
 		//                                       2) we have hit the compressed image data (no more headers are allowed after data)
 		//                                       3) or end of file is hit
 
-		while (($data{1} != "\xD9") && (!$hit_compressed_image_data) && (!feof($filehnd)))
+		while (($data[1] != "\xD9") && (!$hit_compressed_image_data) && (!feof($filehnd)))
 		{
 			// Found a segment to look at.
 			// Check that the segment marker is not a Restart marker - restart markers don't have size or data after them
-			if ((ord($data{1}) < 0xD0) || (ord($data{1}) > 0xD7))
+			if ((ord($data[1]) < 0xD0) || (ord($data[1]) > 0xD7))
 			{
 				// Segment isn't a Restart marker
 				// Read the next two bytes (size)
@@ -151,15 +150,15 @@ class Image_XMP
 
 				// Store the segment information in the output array
 				$headerdata[] = array(
-					'SegType'      => ord($data{1}),
-					'SegName'      => $GLOBALS['JPEG_Segment_Names'][ord($data{1})],
+					'SegType'      => ord($data[1]),
+					'SegName'      => $GLOBALS['JPEG_Segment_Names'][ord($data[1])],
 					'SegDataStart' => $segdatastart,
 					'SegData'      => $segdata,
 				);
 			}
 
 			// If this is a SOS (Start Of Scan) segment, then there is no more header data - the compressed image data follows
-			if ($data{1} == "\xDA")
+			if ($data[1] == "\xDA")
 			{
 				// Flag that we have hit the compressed image data - exit loop as no more headers available.
 				$hit_compressed_image_data = true;
@@ -170,7 +169,7 @@ class Image_XMP
 				$data = fread($filehnd, 2);
 
 				// Check that the first byte of the two is 0xFF as it should be for a marker
-				if ($data{0} != "\xFF")
+				if ($data[0] != "\xFF")
 				{
 					// NO FF found - close file and return - JPEG is probably corrupted
 					fclose($filehnd);
@@ -306,11 +305,11 @@ class Image_XMP
 								{
 									// Check whether we want this details from this attribute
 //									if (in_array($key, $GLOBALS['XMP_tag_captions']))
-									if (true)
-									{
+//									if (true)
+//									{
 										// Attribute wanted
 										$xmp_array[$key] = $xml_elem['attributes'][$key];
-									}
+//									}
 								}
 							}
 							break;
@@ -366,8 +365,8 @@ class Image_XMP
 				default:
 					// Check whether we want the details from this attribute
 //					if (in_array($xml_elem['tag'], $GLOBALS['XMP_tag_captions']))
-					if (true)
-					{
+//					if (true)
+//					{
 						switch ($xml_elem['type'])
 						{
 							case 'open':
@@ -389,7 +388,7 @@ class Image_XMP
 								// ignore
 								break;
 						}
-					}
+//					}
 					break;
 			}
 

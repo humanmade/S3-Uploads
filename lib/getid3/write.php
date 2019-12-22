@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 ///                                                            //
 // write.php                                                   //
@@ -149,6 +148,20 @@ class getid3_writetags
 			$this->errors[] = 'tagformats must be an array in getid3_writetags';
 			return false;
 		}
+		// prevent duplicate tag formats
+		$this->tagformats = array_unique($this->tagformats);
+
+		// prevent trying to specify more than one version of ID3v2 tag to write simultaneously
+		$id3typecounter = 0;
+		foreach ($this->tagformats as $tagformat) {
+			if (substr(strtolower($tagformat), 0, 6) == 'id3v2.') {
+				$id3typecounter++;
+			}
+		}
+		if ($id3typecounter > 1) {
+			$this->errors[] = 'tagformats must not contain more than one version of ID3v2';
+			return false;
+		}
 
 		$TagFormatsToRemove = array();
 		$AllowedTagFormats = array();
@@ -192,14 +205,12 @@ class getid3_writetags
 							//$AllowedTagFormats = array('metaflac');
 							$this->errors[] = 'metaflac is not (yet) compatible with OggFLAC files';
 							return false;
-							break;
 						case 'vorbis':
 							$AllowedTagFormats = array('vorbiscomment');
 							break;
 						default:
 							$this->errors[] = 'metaflac is not (yet) compatible with Ogg files other than OggVorbis';
 							return false;
-							break;
 					}
 					break;
 
@@ -269,7 +280,6 @@ class getid3_writetags
 				default:
 					$this->errors[] = 'unknown tag format "'.$tagformat.'" in $tagformats in WriteTags()';
 					return false;
-					break;
 			}
 
 		}
@@ -298,9 +308,9 @@ class getid3_writetags
 			}
 		}
 
-		// Convert "TRACK" to "TRACKNUMBER" (if needed) for compatability with all formats
-		if (isset($this->tag_data['TRACK']) && !isset($this->tag_data['TRACKNUMBER'])) {
-			$this->tag_data['TRACKNUMBER'] = $this->tag_data['TRACK'];
+		// Convert "TRACK" to "TRACK_NUMBER" (if needed) for compatability with all formats
+		if (isset($this->tag_data['TRACK']) && !isset($this->tag_data['TRACK_NUMBER'])) {
+			$this->tag_data['TRACK_NUMBER'] = $this->tag_data['TRACK'];
 			unset($this->tag_data['TRACK']);
 		}
 
@@ -395,7 +405,6 @@ class getid3_writetags
 				default:
 					$this->errors[] = 'Invalid tag format to write: "'.$tagformat.'"';
 					return false;
-					break;
 			}
 			if (!$success) {
 				return false;
@@ -473,7 +482,6 @@ class getid3_writetags
 				default:
 					$this->errors[] = 'Invalid tag format to delete: "'.$DeleteTagFormat.'"';
 					return false;
-					break;
 			}
 			if (!$success) {
 				return false;
@@ -495,10 +503,10 @@ class getid3_writetags
 			// do nothing - ignore previous data
 		} else {
 			throw new Exception('$this->overwrite_tags=false is known to be buggy in this version of getID3. Check http://github.com/JamesHeinrich/getID3 for a newer version.');
-			if (!isset($this->ThisFileInfo['tags'][$TagFormat])) {
-				return false;
-			}
-			$tag_data = array_merge_recursive($tag_data, $this->ThisFileInfo['tags'][$TagFormat]);
+//			if (!isset($this->ThisFileInfo['tags'][$TagFormat])) {
+//				return false;
+//			}
+//			$tag_data = array_merge_recursive($tag_data, $this->ThisFileInfo['tags'][$TagFormat]);
 		}
 		return true;
 	}
@@ -546,14 +554,14 @@ class getid3_writetags
 				}
 			}
 		}
-		$tag_data_id3v1['title']   =        getid3_lib::iconv_fallback($this->tag_encoding, 'ISO-8859-1', implode(' ', (isset($this->tag_data['TITLE']      ) ? $this->tag_data['TITLE']       : array())));
-		$tag_data_id3v1['artist']  =        getid3_lib::iconv_fallback($this->tag_encoding, 'ISO-8859-1', implode(' ', (isset($this->tag_data['ARTIST']     ) ? $this->tag_data['ARTIST']      : array())));
-		$tag_data_id3v1['album']   =        getid3_lib::iconv_fallback($this->tag_encoding, 'ISO-8859-1', implode(' ', (isset($this->tag_data['ALBUM']      ) ? $this->tag_data['ALBUM']       : array())));
-		$tag_data_id3v1['year']    =        getid3_lib::iconv_fallback($this->tag_encoding, 'ISO-8859-1', implode(' ', (isset($this->tag_data['YEAR']       ) ? $this->tag_data['YEAR']        : array())));
-		$tag_data_id3v1['comment'] =        getid3_lib::iconv_fallback($this->tag_encoding, 'ISO-8859-1', implode(' ', (isset($this->tag_data['COMMENT']    ) ? $this->tag_data['COMMENT']     : array())));
-		$tag_data_id3v1['track']   = intval(getid3_lib::iconv_fallback($this->tag_encoding, 'ISO-8859-1', implode(' ', (isset($this->tag_data['TRACKNUMBER']) ? $this->tag_data['TRACKNUMBER'] : array()))));
-		if ($tag_data_id3v1['track'] <= 0) {
-			$tag_data_id3v1['track'] = '';
+		$tag_data_id3v1['title']        =        getid3_lib::iconv_fallback($this->tag_encoding, 'ISO-8859-1', implode(' ', (isset($this->tag_data['TITLE']       ) ? $this->tag_data['TITLE']        : array())));
+		$tag_data_id3v1['artist']       =        getid3_lib::iconv_fallback($this->tag_encoding, 'ISO-8859-1', implode(' ', (isset($this->tag_data['ARTIST']      ) ? $this->tag_data['ARTIST']       : array())));
+		$tag_data_id3v1['album']        =        getid3_lib::iconv_fallback($this->tag_encoding, 'ISO-8859-1', implode(' ', (isset($this->tag_data['ALBUM']       ) ? $this->tag_data['ALBUM']        : array())));
+		$tag_data_id3v1['year']         =        getid3_lib::iconv_fallback($this->tag_encoding, 'ISO-8859-1', implode(' ', (isset($this->tag_data['YEAR']        ) ? $this->tag_data['YEAR']         : array())));
+		$tag_data_id3v1['comment']      =        getid3_lib::iconv_fallback($this->tag_encoding, 'ISO-8859-1', implode(' ', (isset($this->tag_data['COMMENT']     ) ? $this->tag_data['COMMENT']      : array())));
+		$tag_data_id3v1['track_number'] = intval(getid3_lib::iconv_fallback($this->tag_encoding, 'ISO-8859-1', implode(' ', (isset($this->tag_data['TRACK_NUMBER']) ? $this->tag_data['TRACK_NUMBER'] : array()))));
+		if ($tag_data_id3v1['track_number'] <= 0) {
+			$tag_data_id3v1['track_number'] = '';
 		}
 
 		$this->MergeExistingTagData('id3v1', $tag_data_id3v1);
@@ -652,7 +660,7 @@ class getid3_writetags
 								// note: some software, notably Windows Media Player and iTunes are broken and treat files tagged with UTF-16BE (with BOM) as corrupt
 								// therefore we force data to UTF-16LE and manually prepend the BOM
 								$ID3v2_tag_data_converted = false;
-								if (!$ID3v2_tag_data_converted && ($this->tag_encoding == 'ISO-8859-1')) {
+								if (/*!$ID3v2_tag_data_converted && */($this->tag_encoding == 'ISO-8859-1')) {
 									// great, leave data as-is for minimum compatability problems
 									$tag_data_id3v2[$ID3v2_framename][$key]['encodingid'] = 0;
 									$tag_data_id3v2[$ID3v2_framename][$key]['data']       = $value;
@@ -662,7 +670,7 @@ class getid3_writetags
 									do {
 										// if UTF-8 string does not include any characters above chr(127) then it is identical to ISO-8859-1
 										for ($i = 0; $i < strlen($value); $i++) {
-											if (ord($value{$i}) > 127) {
+											if (ord($value[$i]) > 127) {
 												break 2;
 											}
 										}

@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.audio.tta.php                                        //
@@ -42,7 +41,7 @@ class getid3_tta extends getid3_handler
 			return false;
 		}
 
-		switch ($ttaheader{3}) {
+		switch ($ttaheader[3]) {
 			case "\x01": // TTA v1.x
 			case "\x02": // TTA v1.x
 			case "\x03": // TTA v1.x
@@ -50,7 +49,7 @@ class getid3_tta extends getid3_handler
 				$info['tta']['major_version'] = 1;
 				$info['avdataoffset'] += 16;
 
-				$info['tta']['compression_level']   = ord($ttaheader{3});
+				$info['tta']['compression_level']   = ord($ttaheader[3]);
 				$info['tta']['channels']            = getid3_lib::LittleEndian2Int(substr($ttaheader,  4,  2));
 				$info['tta']['bits_per_sample']     = getid3_lib::LittleEndian2Int(substr($ttaheader,  6,  2));
 				$info['tta']['sample_rate']         = getid3_lib::LittleEndian2Int(substr($ttaheader,  8,  4));
@@ -93,9 +92,8 @@ class getid3_tta extends getid3_handler
 				break;
 
 			default:
-				$this->error('This version of getID3() ['.$this->getid3->version().'] only knows how to handle TTA v1 and v2 - it may not work correctly with this file which appears to be TTA v'.$ttaheader{3});
+				$this->error('This version of getID3() ['.$this->getid3->version().'] only knows how to handle TTA v1 and v2 - it may not work correctly with this file which appears to be TTA v'.$ttaheader[3]);
 				return false;
-				break;
 		}
 
 		$info['audio']['encoder']         = 'TTA v'.$info['tta']['major_version'];

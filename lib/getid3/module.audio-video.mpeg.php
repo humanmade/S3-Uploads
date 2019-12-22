@@ -2,11 +2,10 @@
 
 /////////////////////////////////////////////////////////////////
 /// getID3() by James Heinrich <info@getid3.org>               //
-//  available at http://getid3.sourceforge.net                 //
+//  available at https://github.com/JamesHeinrich/getID3       //
 //            or https://www.getid3.org                        //
-//          also https://github.com/JamesHeinrich/getID3       //
-/////////////////////////////////////////////////////////////////
-// See readme.txt for more details                             //
+//            or http://getid3.sourceforge.net                 //
+//  see readme.txt for more details                            //
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.audio-video.mpeg.php                                 //
@@ -91,11 +90,9 @@ class getid3_mpeg extends getid3_handler
 					break;
 
 				case 0xB3: // sequence_header_code
-					/*
-					Note: purposely doing the less-pretty (and probably a bit slower) method of using string of bits rather than bitwise operations.
-					      Mostly because PHP 32-bit doesn't handle unsigned integers well for bitwise operation.
-					      Also the MPEG stream is designed as a bitstream and often doesn't align nicely with byte boundaries.
-					*/
+					// Note: purposely doing the less-pretty (and probably a bit slower) method of using string of bits rather than bitwise operations.
+					// Mostly because PHP 32-bit doesn't handle unsigned integers well for bitwise operation.
+					// Also the MPEG stream is designed as a bitstream and often doesn't align nicely with byte boundaries.
 					$info['video']['codec'] = 'MPEG-1'; // will be updated if extension_start_code found
 
 					$bitstream = getid3_lib::BigEndian2Bin(substr($MPEGstreamData, $StartCodeOffset + 4, 8));
@@ -522,7 +519,7 @@ echo 'average_File_bitrate = '.number_format(array_sum($vbr_bitrates) / count($v
 	 * @param int    $bits_to_read
 	 * @param bool $return_singlebit_as_boolean
 	 *
-	 * @return bool|float|int
+	 * @return bool|int
 	 */
 	private function readBitsFromStream(&$bitstream, &$bitstreamoffset, $bits_to_read, $return_singlebit_as_boolean=true) {
 		$return = bindec(substr($bitstream, $bitstreamoffset, $bits_to_read));
@@ -602,6 +599,9 @@ echo 'average_File_bitrate = '.number_format(array_sum($vbr_bitrates) / count($v
 
 	/**
 	 * @param int $rawaspectratio
+	 * @param int $mpeg_version
+	 * @param int $width
+	 * @param int $height
 	 *
 	 * @return float
 	 */
@@ -620,6 +620,7 @@ echo 'average_File_bitrate = '.number_format(array_sum($vbr_bitrates) / count($v
 
 	/**
 	 * @param int $rawaspectratio
+	 * @param int $mpeg_version
 	 *
 	 * @return string
 	 */
