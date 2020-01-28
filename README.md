@@ -5,8 +5,8 @@
 			Lightweight "drop-in" for storing WordPress uploads on Amazon S3 instead of the local filesystem.
 		</td>
 		<td align="right" width="20%">
-			<a href="https://travis-ci.org/humanmade/S3-Uploads">
-				<img src="https://travis-ci.org/humanmade/S3-Uploads.svg?branch=master" alt="Build status">
+			<a href="https://travis-ci.com/humanmade/S3-Uploads">
+				<img src="https://travis-ci.com/humanmade/S3-Uploads.svg?branch=master" alt="Build status">
 			</a>
 			<a href="http://codecov.io/github/humanmade/S3-Uploads?branch=master">
 				<img src="http://codecov.io/github/humanmade/S3-Uploads/coverage.svg?branch=master" alt="Coverage via codecov.io" />
