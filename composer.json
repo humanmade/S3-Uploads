@@ -20,9 +20,6 @@
 	"type": "wordpress-plugin",
 	"require": {
 		"composer/installers": "~1.0",
-		"a5hleyrich/wp-background-processing": "~1.0",
-		"aws/aws-sdk-php": "~3.18",
-		"wp-media/imagify-php": "^1.1",
-		"rosell-dk/webp-convert": "^2.3"
+		"aws/aws-sdk-php": "~3.18"
 	 }
 }

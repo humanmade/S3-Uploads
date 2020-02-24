@@ -11,7 +11,6 @@ Author URI: http://hmn.md
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once dirname( __FILE__ ) . '/inc/class-s3-uploads-wp-cli-command.php';
 }
-require_once dirname( __FILE__ ) . '/inc/class-s3-uploads_wp_gallery.php';
 
 add_action( 'plugins_loaded', 's3_uploads_init' );
 
@@ -30,7 +29,6 @@ function s3_uploads_init() {
 		return;
 	}
 
-
 	if ( ( ! defined( 'S3_UPLOADS_KEY' ) || ! defined( 'S3_UPLOADS_SECRET' ) ) && ! defined( 'S3_UPLOADS_USE_INSTANCE_PROFILE' ) ) {
 		return;
 	}
@@ -45,8 +43,7 @@ function s3_uploads_init() {
 
 	$instance = S3_Uploads::get_instance();
 	$instance->setup();
-    $imagify = new S3_Uploads_Imagify($instance);
-    $wp_gallery = new S3_Uploads_WP_Gallery();
+
 	// Include newer version of getID3, as the one bundled with WordPress Core is too old that it
 	// breaks with s3:// file paths. This is less than ideal for performance, but there's no
 	// reliable WordPress hooks we can use to load this only when we need. Most infuriating is
