@@ -49,9 +49,14 @@ Once you've installed the plugin, add the following constants to your `wp-config
 
 ```PHP
 define( 'S3_UPLOADS_BUCKET', 'my-bucket' );
+define( 'S3_UPLOADS_REGION', '' ); // the s3 bucket region (excluding the rest of the URL)
+
+// You can set key and secret directly:
 define( 'S3_UPLOADS_KEY', '' );
 define( 'S3_UPLOADS_SECRET', '' );
-define( 'S3_UPLOADS_REGION', '' ); // the s3 bucket region (excluding the rest of the URL)
+
+// Or if using IAM instance profiles, you can use the instance's credentials:
+define( 'S3_UPLOADS_USE_INSTANCE_PROFILE', true );
 ```
 Please refer to this region list http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region for the S3_UPLOADS_REGION values.
 
