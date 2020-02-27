@@ -75,6 +75,14 @@ function s3_uploads_check_requirements() {
 
 		return false;
 	}
+	
+	if ( ! ini_get( 'allow_url_fopen' ) ) {
+		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
+			add_action( 'admin_notices', 's3_uploads_url_fopen_disabled_notice' );
+		}
+
+		return false;
+	}
 
 	return true;
 }
@@ -89,6 +97,18 @@ function s3_uploads_outdated_php_version_notice() {
 		PHP_VERSION
 	);
 }
+
+/**
+ * Print an admin notice when the PHP version is not high enough.
+ *
+ * This has to be a named function for compatibility with PHP 5.2.
+ */
+function s3_uploads_url_fopen_disabled_notice() {
+	printf( '<div class="error"><p>The S3 Uploads plugin requires PHP option allow_url_fopen to be enabled. <a href="%s" target="_blank" rel="noopener noreferrer">Learn more</a>.</p></div>',
+		'https://www.php.net/manual/en/filesystem.configuration.php#ini.allow-url-fopen'
+	);
+}
+
 /**
  * Check if URL rewriting is enabled.
  *
