@@ -146,6 +146,16 @@ define( 'S3_UPLOADS_HTTP_EXPIRES', gmdate( 'D, d M Y H:i:s', time() + (10 * 365 
 	// will expire in 10 years time
 ```
 
+Optimize images with Imagify
+==========
+
+To add imagify optimization you need to define the `S3_UPLOADS_IMAGIFY_KEY` with imagify key. For example, place the following
+in your `wp-config.php`:
+
+```PHP
+define( 'S3_UPLOADS_IMAGIFY_KEY', 'xxxxxxxx' );
+```
+
 Default Behaviour
 ==========
 

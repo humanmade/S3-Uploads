@@ -1,0 +1,10 @@
+<?php
+
+namespace WebPConvert\Exceptions;
+
+use WebPConvert\Exceptions\WebPConvertException;
+
+class SanityException extends WebPConvertException
+{
+    public $description = 'Sanity check failed';
+}
