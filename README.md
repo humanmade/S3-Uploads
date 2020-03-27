@@ -43,6 +43,8 @@ If you do not use Composer to manage plugins or other dependencies, you can inst
 
 You can also `git clone` this repository, and run `composer install` in the plugin folder to pull in it's dependencies.
 
+**S3 Uploads requires WordPress 5.3+**
+
 ---
 
 Once you've installed the plugin, add the following constants to your `wp-config.php`:
