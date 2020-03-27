@@ -115,8 +115,6 @@ If you have an existing media library with attachment files, use the below comma
 wp s3-uploads upload-directory <from> <to> [--verbose]
 ```
 
-Passing `--sync` will only upload files that are newer in `<from>` or that don't exist on S3 already. Use `--dry-run` to test.
-
 For example, to migrate your whole uploads directory to S3, you'd run:
 
 ```
