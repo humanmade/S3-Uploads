@@ -59,9 +59,19 @@ function s3_uploads_init() {
  * @return bool True if the requirements are met, else false.
  */
 function s3_uploads_check_requirements() {
+	global $wp_version;
+
 	if ( version_compare( '5.5.0', PHP_VERSION, '>' ) ) {
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
 			add_action( 'admin_notices', 's3_uploads_outdated_php_version_notice' );
+		}
+
+		return false;
+	}
+	
+	if ( version_compare( '5.3.0', $wp_version, '>' ) ) {
+		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
+			add_action( 'admin_notices', 's3_uploads_outdated_wp_version_notice' );
 		}
 
 		return false;
@@ -76,10 +86,26 @@ function s3_uploads_check_requirements() {
  * This has to be a named function for compatibility with PHP 5.2.
  */
 function s3_uploads_outdated_php_version_notice() {
-	printf( '<div class="error"><p>The S3 Uploads plugin requires PHP version 5.5.0 or higher. Your server is running PHP version %s.</p></div>',
+	printf(
+		'<div class="error"><p>The S3 Uploads plugin requires PHP version 5.5.0 or higher. Your server is running PHP version %s.</p></div>',
 		PHP_VERSION
 	);
 }
+
+/**
+ * Print an admin notice when the WP version is not high enough.
+ *
+ * This has to be a named function for compatibility with PHP 5.2.
+ */
+function s3_uploads_outdated_php_version_notice() {
+	global $wp_version;
+
+	printf(
+		'<div class="error"><p>The S3 Uploads plugin requires WordPress version 5.3 or higher. Your server is running WordPress version %s.</p></div>',
+		$wp_version
+	);
+}
+
 /**
  * Check if URL rewriting is enabled.
  *
