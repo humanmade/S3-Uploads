@@ -61,7 +61,7 @@ function s3_uploads_init() {
 function s3_uploads_check_requirements() {
 	global $wp_version;
 
-	if ( version_compare( '5.5.0', PHP_VERSION, '>' ) ) {
+	if ( version_compare( PHP_VERSION, '5.5.0', '<' ) ) {
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
 			add_action( 'admin_notices', 's3_uploads_outdated_php_version_notice' );
 		}
@@ -69,7 +69,7 @@ function s3_uploads_check_requirements() {
 		return false;
 	}
 	
-	if ( version_compare( '5.3.0', $wp_version, '>' ) ) {
+	if ( version_compare( $wp_version, '5.3.0', '<' ) ) {
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
 			add_action( 'admin_notices', 's3_uploads_outdated_wp_version_notice' );
 		}
