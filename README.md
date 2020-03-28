@@ -29,7 +29,7 @@ It's focused on providing a highly robust S3 interface with no "bells and whistl
 
 ## Requirements
 
-- PHP >= 7.0
+- PHP >= 5.5
 - WordPress >= 5.3
 
 ## Getting Set Up
