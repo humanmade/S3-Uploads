@@ -39,7 +39,7 @@ composer require humanmade/s3-uploads
 
 **Install Manually**
 
-If you do not use Composer to manage plugins or other dependencies, you can install the plugin manually. Download the `manual-install.zip` file from the [Releases page](https://github.com/humanmade/S3-Uploads/releases) and extract the ZIP file to your `plugins` directory.
+If you do not use Composer to manage plugins or other dependencies, you can install the plugin manually. Download the `manual-install.zip` file from the [Releases page](https://github.com/humanmade/S3-Uploads/releases) and extract the ZIP file to your `plugins` directory. You will also need to install any dependencies manually, currently the only dependency is [AWS SDK for PHP](https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_installation.html#installing-by-using-the-zip-file).
 
 You can also `git clone` this repository, and run `composer install` in the plugin folder to pull in it's dependencies.
 
