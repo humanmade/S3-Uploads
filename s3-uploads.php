@@ -68,7 +68,7 @@ function s3_uploads_check_requirements() {
 
 		return false;
 	}
-	
+
 	if ( version_compare( $wp_version, '5.3.0', '<' ) ) {
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
 			add_action( 'admin_notices', 's3_uploads_outdated_wp_version_notice' );
@@ -97,7 +97,7 @@ function s3_uploads_outdated_php_version_notice() {
  *
  * This has to be a named function for compatibility with PHP 5.2.
  */
-function s3_uploads_outdated_php_version_notice() {
+function s3_uploads_outdated_wp_version_notice() {
 	global $wp_version;
 
 	printf(
