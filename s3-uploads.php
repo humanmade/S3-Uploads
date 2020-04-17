@@ -4,7 +4,7 @@
 Plugin Name: S3 Uploads
 Description: Store uploads in S3
 Author: Human Made Limited
-Version: 2.1.1
+Version: 3.0.0-beta
 Author URI: http://hmn.md
 */
 
@@ -44,15 +44,6 @@ function s3_uploads_init() {
 	$instance = S3_Uploads::get_instance();
 	$instance->setup();
 
-	// Include newer version of getID3, as the one bundled with WordPress Core is too old that it
-	// breaks with s3:// file paths. This is less than ideal for performance, but there's no
-	// reliable WordPress hooks we can use to load this only when we need. Most infuriating is
-	// WordPress does class_exists( 'getID3', false ) so we can't use an autoloader to override
-	// the version being loaded.
-	if ( ! class_exists( 'getID3' ) ) {
-		require_once dirname( __FILE__ ) . '/lib/getid3/getid3.php';
-	}
-
 	// Add filters to "wrap" the wp_privacy_personal_data_export_file function call as we need to
 	// switch out the personal_data directory to a local temp folder, and then upload after it's
 	// complete, as Core tries to write directly to the ZipArchive which won't work with the
@@ -68,9 +59,19 @@ function s3_uploads_init() {
  * @return bool True if the requirements are met, else false.
  */
 function s3_uploads_check_requirements() {
-	if ( version_compare( '5.5.0', PHP_VERSION, '>' ) ) {
+	global $wp_version;
+
+	if ( version_compare( PHP_VERSION, '5.5.0', '<' ) ) {
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
 			add_action( 'admin_notices', 's3_uploads_outdated_php_version_notice' );
+		}
+
+		return false;
+	}
+	
+	if ( version_compare( $wp_version, '5.3.0', '<' ) ) {
+		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
+			add_action( 'admin_notices', 's3_uploads_outdated_wp_version_notice' );
 		}
 
 		return false;
@@ -85,10 +86,26 @@ function s3_uploads_check_requirements() {
  * This has to be a named function for compatibility with PHP 5.2.
  */
 function s3_uploads_outdated_php_version_notice() {
-	printf( '<div class="error"><p>The S3 Uploads plugin requires PHP version 5.5.0 or higher. Your server is running PHP version %s.</p></div>',
+	printf(
+		'<div class="error"><p>The S3 Uploads plugin requires PHP version 5.5.0 or higher. Your server is running PHP version %s.</p></div>',
 		PHP_VERSION
 	);
 }
+
+/**
+ * Print an admin notice when the WP version is not high enough.
+ *
+ * This has to be a named function for compatibility with PHP 5.2.
+ */
+function s3_uploads_outdated_php_version_notice() {
+	global $wp_version;
+
+	printf(
+		'<div class="error"><p>The S3 Uploads plugin requires WordPress version 5.3 or higher. Your server is running WordPress version %s.</p></div>',
+		$wp_version
+	);
+}
+
 /**
  * Check if URL rewriting is enabled.
  *
