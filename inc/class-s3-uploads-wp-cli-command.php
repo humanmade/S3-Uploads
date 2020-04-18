@@ -308,6 +308,31 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		WP_CLI::success( 'Media URL rewriting disabled.' );
 	}
 
+	/**
+	 * List all files for a given attachment.
+	 *
+	 * Useful for debugging.
+	 *
+	 * @subcommand get-attachment-files
+	 * @synopsis <attachment-id>
+	 */
+	public function get_attachment_files( $args ) {
+		WP_CLI::print_value( S3_Uploads::get_attachment_files( $args[0] ) );
+	}
+
+	/**
+	 * Update the ACL of all files for an attachment.
+	 *
+	 * Useful for debugging.
+	 *
+	 * @subcommand set-attachment-acl
+	 * @synopsis <attachment-id> <acl>
+	 */
+	public function set_attachment_acl( $args ) {
+		$result = S3_Uploads::get_instance()->set_attachment_files_acl( $args[0], $args[1] );
+		WP_CLI::print_value( $result );
+	}
+
 	private function recurse_copy( $src, $dst ) {
 		$dir = opendir( $src );
 		@mkdir( $dst );

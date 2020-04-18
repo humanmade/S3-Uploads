@@ -82,8 +82,8 @@ class S3_Uploads {
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
 			S3_Uploads_Stream_Wrapper::register( $this->s3() );
-			$objectAcl = defined( 'S3_UPLOADS_OBJECT_ACL' ) ? S3_UPLOADS_OBJECT_ACL : 'public-read';
-			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', $objectAcl );
+			$acl = defined( 'S3_UPLOADS_OBJECT_ACL' ) ? S3_UPLOADS_OBJECT_ACL : 'public-read';
+			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', $acl );
 		}
 
 		stream_context_set_option( stream_context_get_default(), 's3', 'seekable', true );
@@ -194,6 +194,23 @@ class S3_Uploads {
 			'bucket' => $parsed['host'],
 			'key'    => ltrim( $parsed['path'], '/' ),
 			'query'  => $parsed['query'] ?? null,
+		];
+	}
+
+	/**
+	 * Reverse a file url in the uploads directory to the params needed for S3.
+	 *
+	 * @param string $url
+	 * @return array
+	 */
+	public function get_s3_location_for_path( string $path ) : ?array {
+		$parsed = parse_url( $path );
+		if ( $parsed['scheme'] !== 's3' ) {
+			return null;
+		}
+		return [
+			'bucket' => $parsed['host'],
+			'key'    => ltrim( $parsed['path'], '/' ),
 		];
 	}
 
@@ -339,6 +356,68 @@ class S3_Uploads {
 	}
 
 	/**
+	 * Updat the ACL (Access Control List) for an attahments files.
+	 *
+	 * @param integer $attachment_id
+	 * @param string $acl public-read|private
+	 * @return void
+	 */
+	public function set_attachment_files_acl( int $attachment_id, string $acl ) : ?WP_Error {
+		$files = static::get_attachment_files( $attachment_id );
+		$locations = array_map( [ $this, 'get_s3_location_for_path' ], $files );
+		$s3 = $this->s3();
+		$commands = [];
+		foreach ( $locations as $location ) {
+			$commands[] = $s3->getCommand( 'putObjectAcl', [
+				'Bucket' => $location['bucket'],
+				'Key' => $location['key'],
+				'ACL' => $acl,
+			] );
+			try {
+				Aws\CommandPool::batch( $s3, $commands );
+			} catch ( Exception $e ) {
+				return new WP_Error( $e->getCode(), $e->getMessage() );
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get all the files stored for a given attachment.
+	 *
+	 * @param integer $attachment_id
+	 * @return array Array of all full paths to the attachment's files.
+	 */
+	public static function get_attachment_files( int $attachment_id ) : array {
+		$uploadpath = wp_get_upload_dir();
+		$main_file = get_attached_file( $attachment_id );
+		$files = [ $main_file ];
+		$meta = wp_get_attachment_metadata( $attachment_id );
+		if ( isset( $meta['sizes'] ) ) {
+			foreach ( $meta['sizes'] as $size => $sizeinfo ) {
+				$files[] = $uploadpath['basedir'] . $sizeinfo['file'];
+			}
+		}
+
+		$original_image = get_post_meta( $attachment_id, 'original_image', true );
+		if ( $original_image ) {
+			$files[] = $uploadpath['basedir'] . $original_image;
+		}
+
+		$backup_sizes = get_post_meta( $attachment_id, '_wp_attachment_backup_sizes', true );
+		foreach ( $backup_sizes as $size => $sizeinfo ) {
+			// Backup sizes only store the backup filename, which is relative to the
+			// main attached file, unlike the metadata sizes array.
+			$files[] = path_join( dirname( $main_file ), $sizeinfo['file'] );
+		}
+
+		$files = apply_filters( 's3_uploads_get_attachment_files', $files, $attachment_id );
+
+		return $files;
+	}
+
+	/**
 	 * Add the S3 signed params onto an image for for a given attachment.
 	 *
 	 * This function determines whether the attachment needs a signed URL, so is safe to
@@ -357,11 +436,12 @@ class S3_Uploads {
 			'Bucket' => $path['bucket'],
 			'Key' => $path['key'],
 		]);
+		$query = $this->s3()->createPresignedRequest( $cmd, '+24 hours' )->getUri()->getQuery();
 
-		$url = (string) $this->s3()->createPresignedRequest( $cmd, '+10 minutes' )->getUri();
-		if ( $path['query'] ) {
-			$url .= '&' . $path['query'];
-		}
+		// The URL could have query params on it already (such as being an already signed URL),
+		// but query params will mean the S3 signed URL will become corrupt. So, we have to
+		// remove all query params.
+		$url = strtok( $url, '?' ) . '?' . $query;
 
 		return $url;
 	}
