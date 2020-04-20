@@ -446,7 +446,8 @@ class S3_Uploads {
 			'Key' => $path['key'],
 		]);
 
-		$query = $this->s3()->createPresignedRequest( $cmd, '+24 hours' )->getUri()->getQuery();
+		$presigned_url_expires = apply_filters( 's3_uploads_private_attachment_url_expiry', '+24 hours' );
+		$query = $this->s3()->createPresignedRequest( $cmd, $presigned_url_expires )->getUri()->getQuery();
 
 		// The URL could have query params on it already (such as being an already signed URL),
 		// but query params will mean the S3 signed URL will become corrupt. So, we have to

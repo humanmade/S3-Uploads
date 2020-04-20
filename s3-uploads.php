@@ -61,7 +61,7 @@ function s3_uploads_init() {
 function s3_uploads_check_requirements() {
 	global $wp_version;
 
-	if ( version_compare( PHP_VERSION, '5.5.0', '<' ) ) {
+	if ( version_compare( PHP_VERSION, '7.1', '<' ) ) {
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
 			add_action( 'admin_notices', 's3_uploads_outdated_php_version_notice' );
 		}
