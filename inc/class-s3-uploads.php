@@ -176,7 +176,7 @@ class S3_Uploads {
 	 * @param string $url
 	 * @return array
 	 */
-	public function get_s3_location_for_url( string $url ) : array {
+	public function get_s3_location_for_url( string $url ) : ?array {
 		$s3_url = 'https://' . $this->get_s3_bucket() . '.s3.amazonaws.com/';
 		if ( strpos( $url, $s3_url ) === 0 ) {
 			$parsed = parse_url( $url );
@@ -186,8 +186,12 @@ class S3_Uploads {
 				'query'  => $parsed['query'] ?? null,
 			];
 		}
-
 		$upload_dir = wp_upload_dir();
+
+		if ( strpos( $url, $upload_dir['baseurl'] ) === false ) {
+			return null;
+		}
+
 		$path = str_replace( $upload_dir['baseurl'], $upload_dir['basedir'], $url );
 		$parsed = parse_url( $path );
 		return [
@@ -406,10 +410,12 @@ class S3_Uploads {
 		}
 
 		$backup_sizes = get_post_meta( $attachment_id, '_wp_attachment_backup_sizes', true );
-		foreach ( $backup_sizes as $size => $sizeinfo ) {
-			// Backup sizes only store the backup filename, which is relative to the
-			// main attached file, unlike the metadata sizes array.
-			$files[] = path_join( dirname( $main_file ), $sizeinfo['file'] );
+		if ( $backup_sizes ) {
+			foreach ( $backup_sizes as $size => $sizeinfo ) {
+				// Backup sizes only store the backup filename, which is relative to the
+				// main attached file, unlike the metadata sizes array.
+				$files[] = path_join( dirname( $main_file ), $sizeinfo['file'] );
+			}
 		}
 
 		$files = apply_filters( 's3_uploads_get_attachment_files', $files, $attachment_id );
@@ -432,16 +438,21 @@ class S3_Uploads {
 			return $url;
 		}
 		$path = $this->get_s3_location_for_url( $url );
+		if ( ! $path ) {
+			return $url;
+		}
 		$cmd = $this->s3()->getCommand('GetObject', [
 			'Bucket' => $path['bucket'],
 			'Key' => $path['key'],
 		]);
+
 		$query = $this->s3()->createPresignedRequest( $cmd, '+24 hours' )->getUri()->getQuery();
 
 		// The URL could have query params on it already (such as being an already signed URL),
 		// but query params will mean the S3 signed URL will become corrupt. So, we have to
 		// remove all query params.
 		$url = strtok( $url, '?' ) . '?' . $query;
+		$url = apply_filters( 's3_uploads_presigned_url', $url, $post_id );
 
 		return $url;
 	}
