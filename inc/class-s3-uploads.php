@@ -57,6 +57,8 @@ class S3_Uploads {
 		add_action( 'wp_get_attachment_url', array( $this, 'add_s3_signed_params_to_attachment_url' ), 10, 2 );
 		add_action( 'wp_get_attachment_image_src', array( $this, 'add_s3_signed_params_to_attachment_image_src' ), 10, 2 );
 		add_action( 'wp_calculate_image_srcset', array( $this, 'add_s3_signed_params_to_attachment_image_srcset' ), 10, 5 );
+
+		add_filter( 'wp_generate_attachment_metadata', array( $this, 'set_attachment_private_on_generate_attachment_metadata' ), 10, 2 );
 	}
 
 	/**
@@ -69,9 +71,11 @@ class S3_Uploads {
 		remove_filter( 'wp_image_editors', array( $this, 'filter_editors' ), 9 );
 		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
 
-		remove_action( 'wp_get_attachment_url', array( $this, 'add_s3_signed_params_to_attachment_url' ), 10, 2 );
-		remove_action( 'wp_get_attachment_image_src', array( $this, 'add_s3_signed_params_to_attachment_image_src' ), 10, 2 );
-		remove_action( 'wp_calculate_image_srcset', array( $this, 'add_s3_signed_params_to_attachment_image_srcset' ), 10, 5 );
+		remove_action( 'wp_get_attachment_url', array( $this, 'add_s3_signed_params_to_attachment_url' ) );
+		remove_action( 'wp_get_attachment_image_src', array( $this, 'add_s3_signed_params_to_attachment_image_src' ) );
+		remove_action( 'wp_calculate_image_srcset', array( $this, 'add_s3_signed_params_to_attachment_image_srcset' ) );
+
+		remove_filter( 'wp_generate_attachment_metadata', array( $this, 'set_attachment_private_on_generate_attachment_metadata' ) );
 	}
 
 	/**
@@ -202,7 +206,7 @@ class S3_Uploads {
 	}
 
 	/**
-	 * Reverse a file url in the uploads directory to the params needed for S3.
+	 * Reverse a file path in the uploads directory to the params needed for S3.
 	 *
 	 * @param string $url
 	 * @return array
@@ -356,11 +360,17 @@ class S3_Uploads {
 	 * @return boolean
 	 */
 	public function is_private_attachment( int $attachment_id ) : bool {
-		return apply_filters( 's3_uploads_is_attachment_private', true, $attachment_id );
+		/**
+		 * Filters whether an attachment should be private.
+		 *
+		 * @param bool Whether the attachment is private.
+		 * @param int  The attachment ID.
+		 */
+		return apply_filters( 's3_uploads_is_attachment_private', false, $attachment_id );
 	}
 
 	/**
-	 * Updat the ACL (Access Control List) for an attahments files.
+	 * Update the ACL (Access Control List) for an attachments files.
 	 *
 	 * @param integer $attachment_id
 	 * @param string $acl public-read|private
@@ -485,5 +495,20 @@ class S3_Uploads {
 			$source['url'] = $this->add_s3_signed_params_to_attachment_url( $source['url'], $post_id );
 		}
 		return $sources;
+	}
+
+	/**
+	 * Whenever attachment metadata is generated, set the attachment files to private if it's a private attachment.
+	 *
+	 * @param array $metadata    The attachment metadata.
+	 * @param int $attachment_id The attachment ID
+	 * @return array
+	 */
+	public function set_attachment_private_on_generate_attachment_metadata( array $metadata, int $attachment_id ) : array {
+		if ( $this->is_private_attachment( $attachment_id ) ) {
+			$this->set_attachment_files_acl( $attachment_id, 'private' );
+		}
+
+		return $metadata;
 	}
 }
