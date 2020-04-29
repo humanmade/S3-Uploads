@@ -6,11 +6,17 @@ language: php
 notifications:
   email: false
 
+services:
+    - mysql
+
 php:
   - 7.0
 
 env:
-  - WP_VERSION=latest WP_MULTISITE=0
+    global:
+        - WP_DB_USER=wordpress
+        - WP_DB_PASS=wordpress
+        - WP_DB_NAME=wp_tests
 
 matrix:
   include:
@@ -19,12 +25,16 @@ matrix:
 
 # Clones WordPress and configures our testing environment.
 before_script:
-  - bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 $WP_VERSION
-  - printf "\n" | pecl install imagick
-  - composer install
+    - mysql -u root -e "GRANT ALL PRIVILEGES ON ${WP_DB_NAME}.* TO ${WP_DB_USER} IDENTIFIED BY '${WP_DB_PASS}';"
+    - mysql -u root -e "CREATE DATABASE ${WP_DB_NAME};"
+
+install:
+    - composer validate --strict
+    - composer install
+    - composer show
 
 script:
-  - phpunit --coverage-clover clover.xml
+  - composer test
 
 after_script:
   # Push coverage off to Codecov

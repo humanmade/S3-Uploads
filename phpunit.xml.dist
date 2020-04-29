@@ -1,14 +1,14 @@
 <phpunit
-	bootstrap="tests/bootstrap.php"
-	backupGlobals="false"
-	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
-	>
+    bootstrap="tests/bootstrap.php"
+    backupGlobals="false"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    >
 	<testsuites>
 			<!-- Default test suite to run all tests -->
-			<testsuite>
+			<testsuite name="main">
 					<directory prefix="test-" suffix=".php">tests</directory>
 			</testsuite>
 	</testsuites>
@@ -22,4 +22,8 @@
 			</exclude>
 		</whitelist>
 	</filter>
+
+	<php>
+        <env name="WP_PHPUNIT__TESTS_CONFIG" value="tests/wp-config.php" />
+    </php>
 </phpunit>
