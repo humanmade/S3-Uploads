@@ -15,7 +15,7 @@ notifications:
   email: false
 
 php:
-  - 7.0
+  - 7.2
 
 # Clones WordPress and configures our testing environment.
 before_script:
