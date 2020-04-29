@@ -1,6 +1,11 @@
 <?php
 
-class S3_Uploads_Image_Editor_Imagick extends WP_Image_Editor_Imagick {
+namespace S3_Uploads;
+
+use WP_Error;
+use WP_Image_Editor_Imagick;
+
+class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 
 	protected $temp_file_to_cleanup = null;
 
@@ -11,7 +16,7 @@ class S3_Uploads_Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 	 *
 	 * @var array
 	 */
-	protected $temp_files_to_cleanup = array();
+	protected $temp_files_to_cleanup = [];
 
 	/**
 	 * Loads image from $this->file into new Imagick Object.
@@ -80,13 +85,13 @@ class S3_Uploads_Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 			return new WP_Error( 'unable-to-copy-to-s3', 'Unable to copy the temp image to S3' );
 		}
 
-		return array(
+		return [
 			'path'      => $filename,
 			'file'      => wp_basename( apply_filters( 'image_make_intermediate_size', $filename ) ),
 			'width'     => $this->size['width'],
 			'height'    => $this->size['height'],
 			'mime-type' => $mime_type,
-		);
+		];
 	}
 
 	public function __destruct() {

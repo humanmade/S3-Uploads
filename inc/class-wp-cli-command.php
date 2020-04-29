@@ -1,8 +1,10 @@
 <?php
 
+namespace S3_Uploads;
+
 use Aws\S3\Transfer;
 
-class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
+class WP_CLI_Command extends WP_CLI_Command {
 
 	/**
 	 * Verifies the API keys entered will work for writing and deleting from S3.
@@ -16,7 +18,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		}
 
 		// Get S3 Upload instance.
-		$instance = S3_Uploads::get_instance();
+		$instance = Plugin::get_instance();
 
 		// Create a path in the base directory, with a random file name to avoid potentially overwriting existing data.
 		$upload_dir = wp_upload_dir();
@@ -166,7 +168,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 */
 	public function ls( $args ) {
 
-		$s3 = S3_Uploads::get_instance()->s3();
+		$s3 = Plugin::get_instance()->s3();
 
 		$prefix = '';
 
@@ -225,7 +227,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 			$to = $args[1];
 		}
 
-		$s3 = S3_Uploads::get_instance()->s3();
+		$s3 = Plugin::get_instance()->s3();
 		$args_assoc = wp_parse_args( $args_assoc, [ 'concurrency' => 5, 'verbose' => false ] );
 
 		$transfer_args = [
@@ -253,7 +255,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 */
 	public function rm( $args, $args_assoc ) {
 
-		$s3 = S3_Uploads::get_instance()->s3();
+		$s3 = Plugin::get_instance()->s3();
 
 		$prefix = '';
 		$regex = isset( $args_assoc['regex'] ) ? $args_assoc['regex'] : '';
@@ -317,7 +319,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * @synopsis <attachment-id>
 	 */
 	public function get_attachment_files( $args ) {
-		WP_CLI::print_value( S3_Uploads::get_attachment_files( $args[0] ) );
+		WP_CLI::print_value( Plugin::get_attachment_files( $args[0] ) );
 	}
 
 	/**
@@ -329,7 +331,7 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 	 * @synopsis <attachment-id> <acl>
 	 */
 	public function set_attachment_acl( $args ) {
-		$result = S3_Uploads::get_instance()->set_attachment_files_acl( $args[0], $args[1] );
+		$result = Plugin::get_instance()->set_attachment_files_acl( $args[0], $args[1] );
 		WP_CLI::print_value( $result );
 	}
 
@@ -375,5 +377,3 @@ class S3_Uploads_WP_CLI_Command extends WP_CLI_Command {
 		return $all_set;
 	}
 }
-
-WP_CLI::add_command( 's3-uploads', 'S3_Uploads_WP_CLI_Command' );

@@ -1,11 +1,13 @@
 <?php
 
+namespace S3_Uploads;
+
 /**
  * Local streamwrapper that writes files to the upload dir
  *
  * This is for the most part taken from Drupal, with some modifications.
  */
-class S3_Uploads_Local_Stream_Wrapper {
+class Local_Stream_Wrapper {
 	/**
 	 * Stream context resource.
 	 *
@@ -36,7 +38,7 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 *   String specifying the path.
 	 */
 	static function getDirectoryPath() {
-		$upload_dir = S3_Uploads::get_instance()->get_original_upload_dir();
+		$upload_dir = Plugin::get_instance()->get_original_upload_dir();
 		return $upload_dir['basedir'] . '/s3';
 	}
 
