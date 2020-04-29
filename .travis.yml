@@ -34,7 +34,6 @@ install:
 
 script:
   - composer test
-  - phpunit
 
 after_script:
   # Push coverage off to Codecov
