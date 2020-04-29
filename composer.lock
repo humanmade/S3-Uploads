@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f5e9d170118d738a7b84ede7bf077fcc",
+    "content-hash": "d71b69a2ce6d1e55fd0b33d41dc35e7f",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -1486,15 +1486,15 @@
         },
         {
             "name": "roots/wordpress",
-            "version": "5.4",
+            "version": "5.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/WordPress.git",
-                "reference": "5.4"
+                "reference": "5.3.2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/WordPress/zipball/5.4"
+                "url": "https://api.github.com/repos/WordPress/WordPress/zipball/5.3.2"
             },
             "require": {
                 "php": ">=5.3.2",
@@ -1518,7 +1518,7 @@
                 "cms",
                 "wordpress"
             ],
-            "time": "2020-03-31T20:06:05+00:00"
+            "time": "2019-12-18T22:19:57+00:00"
         },
         {
             "name": "roots/wordpress-core-installer",
@@ -2290,16 +2290,16 @@
         },
         {
             "name": "wp-phpunit/wp-phpunit",
-            "version": "5.4.0",
+            "version": "5.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-phpunit/wp-phpunit.git",
-                "reference": "15925e03c8594c08cf2822e24e511af8dc6f779e"
+                "reference": "e52333e5f31108e14bd9fdb5dc73846ec0410012"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-phpunit/wp-phpunit/zipball/15925e03c8594c08cf2822e24e511af8dc6f779e",
-                "reference": "15925e03c8594c08cf2822e24e511af8dc6f779e",
+                "url": "https://api.github.com/repos/wp-phpunit/wp-phpunit/zipball/e52333e5f31108e14bd9fdb5dc73846ec0410012",
+                "reference": "e52333e5f31108e14bd9fdb5dc73846ec0410012",
                 "shasum": ""
             },
             "type": "library",
@@ -2329,7 +2329,7 @@
                 "test",
                 "wordpress"
             ],
-            "time": "2020-04-01T14:35:27+00:00"
+            "time": "2019-12-13T13:23:00+00:00"
         }
     ],
     "aliases": [],
