@@ -10,7 +10,7 @@ services:
     - mysql
 
 php:
-  - 7.1
+  - 7.2
 
 env:
     global:
@@ -20,7 +20,7 @@ env:
 
 matrix:
   include:
-    - php: 7.1
+    - php: 7.2
       env: WP_VERSION=latest WP_MULTISITE=1
 
 # Clones WordPress and configures our testing environment.
