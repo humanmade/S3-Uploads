@@ -30,7 +30,7 @@ class S3_Uploads {
 		return self::$instance;
 	}
 
-	public function __construct( string $bucket, string $key, string $secret, string $bucket_url = null, string $region = null ) {
+	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null ) {
 
 		$this->bucket     = $bucket;
 		$this->key        = $key;
