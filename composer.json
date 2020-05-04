@@ -26,6 +26,6 @@
 		"phpunit/phpunit": "7.5"
 	},
 	"scripts": {
-		"test": "docker run --rm -v $PWD:/code -t humanmade/s3-uploads-tests:latest"
+		"test": "./tests/run-tests.sh"
 	}
 }
