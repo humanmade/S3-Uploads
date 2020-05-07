@@ -156,7 +156,7 @@ function after_export_personal_data() {
  *
  * We don't want to use the default uploads folder location, as with S3 Uploads this is
  * going to the a s3:// custom URL handler, which is going to fail with the use of ZipArchive.
- * Instgead we set to to sys_get_temp_dir and move the fail in the wp_privacy_personal_data_export_file_created
+ * Instead we set to to sys_get_temp_dir and move the fail in the wp_privacy_personal_data_export_file_created
  * hook.
  *
  * @param string $dir
