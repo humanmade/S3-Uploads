@@ -456,7 +456,7 @@ class S3_Uploads {
 			'Key' => $path['key'],
 		]);
 
-		$presigned_url_expires = apply_filters( 's3_uploads_private_attachment_url_expiry', '+24 hours', $post_id );
+		$presigned_url_expires = apply_filters( 's3_uploads_private_attachment_url_expiry', '+6 hours', $post_id );
 		$query = $this->s3()->createPresignedRequest( $cmd, $presigned_url_expires )->getUri()->getQuery();
 
 		// The URL could have query params on it already (such as being an already signed URL),
