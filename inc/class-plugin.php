@@ -262,7 +262,7 @@ class Plugin {
 	public function get_s3_location_for_url( string $url ) : ?array {
 		$s3_url = 'https://' . $this->get_s3_bucket() . '.s3.amazonaws.com/';
 		if ( strpos( $url, $s3_url ) === 0 ) {
-			$parsed = parse_url( $url );
+			$parsed = wp_parse_url( $url );
 			return [
 				'bucket' => $this->get_s3_bucket(),
 				'key'    => ltrim( $parsed['path'], '/' ),
@@ -276,7 +276,7 @@ class Plugin {
 		}
 
 		$path = str_replace( $upload_dir['baseurl'], $upload_dir['basedir'], $url );
-		$parsed = parse_url( $path );
+		$parsed = wp_parse_url( $path );
 		return [
 			'bucket' => $parsed['host'],
 			'key'    => ltrim( $parsed['path'], '/' ),
@@ -291,7 +291,7 @@ class Plugin {
 	 * @return array{key: string, bucket: string}
 	 */
 	public function get_s3_location_for_path( string $path ) : ?array {
-		$parsed = parse_url( $path );
+		$parsed = wp_parse_url( $path );
 		if ( $parsed['scheme'] !== 's3' ) {
 			return null;
 		}
