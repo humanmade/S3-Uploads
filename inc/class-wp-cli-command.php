@@ -3,6 +3,8 @@
 namespace S3_Uploads;
 
 use Aws\S3\Transfer;
+use Exception;
+use WP_CLI;
 
 class WP_CLI_Command extends WP_CLI_Command {
 
@@ -22,7 +24,7 @@ class WP_CLI_Command extends WP_CLI_Command {
 
 		// Create a path in the base directory, with a random file name to avoid potentially overwriting existing data.
 		$upload_dir = wp_upload_dir();
-		$s3_path    = $upload_dir['basedir'] . '/' . mt_rand() . '.txt';
+		$s3_path = $upload_dir['basedir'] . '/' . mt_rand() . '.txt';
 
 		// Attempt to copy the local Canola test file to the generated path on S3.
 		WP_CLI::print_value( 'Attempting to upload file ' . $s3_path );
@@ -63,11 +65,13 @@ class WP_CLI_Command extends WP_CLI_Command {
 	 * @subcommand create-iam-user
 	 * @synopsis --admin-key=<key> --admin-secret=<secret> [--username=<username>] [--format=<format>]
 	 */
-	public function create_iam_user( $args, $args_assoc ) {
+	public function create_iam_user( array $args, array $args_assoc ) {
 
-		$args_assoc = wp_parse_args( $args_assoc, array(
-			'format' => 'table',
-		) );
+		$args_assoc = wp_parse_args(
+			$args_assoc, [
+				'format' => 'table',
+			]
+		);
 		if ( empty( $args_assoc['username'] ) ) {
 			$username = 's3-uploads-' . sanitize_title( home_url() );
 		} else {
@@ -75,33 +79,44 @@ class WP_CLI_Command extends WP_CLI_Command {
 		}
 
 		try {
-			$iam = Aws\Common\Aws::factory( array( 'key' => $args_assoc['admin-key'], 'secret' => $args_assoc['admin-secret'] ) )->get( 'iam' );
+			$iam = Aws\Common\Aws::factory(
+				[
+					'key' => $args_assoc['admin-key'],
+					'secret' => $args_assoc['admin-secret'],
+				]
+			)->get( 'iam' );
 
-			$iam->createUser( array(
-				'UserName' => $username,
-			));
+			$iam->createUser(
+				[
+					'UserName' => $username,
+				]
+			);
 
-			$credentials = $iam->createAccessKey( array(
-				'UserName' => $username,
-			));
+			$credentials = $iam->createAccessKey(
+				[
+					'UserName' => $username,
+				]
+			);
 
 			$credentials = $credentials['AccessKey'];
 
-			$iam->putUserPolicy( array(
-				'UserName'       => $username,
-				'PolicyName'     => $username . '-policy',
-				'PolicyDocument' => $this->get_iam_policy(),
-			));
+			$iam->putUserPolicy(
+				[
+					'UserName'       => $username,
+					'PolicyName'     => $username . '-policy',
+					'PolicyDocument' => $this->get_iam_policy(),
+				]
+			);
 
 		} catch ( Exception $e ) {
 			WP_CLI::error( $e->getMessage() );
 		}
 
-		WP_CLI\Utils\format_items( $args_assoc['format'], array( (object) $credentials ), array( 'AccessKeyId', 'SecretAccessKey' ) );
+		WP_CLI\Utils\format_items( $args_assoc['format'], [ (object) $credentials ], [ 'AccessKeyId', 'SecretAccessKey' ] );
 
 	}
 
-	private function get_iam_policy() {
+	private function get_iam_policy() : string {
 
 		$bucket = strtok( S3_UPLOADS_BUCKET, '/' );
 
@@ -166,7 +181,7 @@ class WP_CLI_Command extends WP_CLI_Command {
 	 *
 	 * @synopsis [<path>]
 	 */
-	public function ls( $args ) {
+	public function ls( array $args ) {
 
 		$s3 = Plugin::get_instance()->s3();
 
@@ -181,10 +196,12 @@ class WP_CLI_Command extends WP_CLI_Command {
 		}
 
 		try {
-			$objects = $s3->getIterator('ListObjects', array(
-				'Bucket' => strtok( S3_UPLOADS_BUCKET, '/' ),
-				'Prefix' => $prefix,
-			));
+			$objects = $s3->getIterator(
+				'ListObjects', [
+					'Bucket' => strtok( S3_UPLOADS_BUCKET, '/' ),
+					'Prefix' => $prefix,
+				]
+			);
 			foreach ( $objects as $object ) {
 				WP_CLI::line( str_replace( $prefix, '', $object['Key'] ) );
 			}
@@ -199,7 +216,7 @@ class WP_CLI_Command extends WP_CLI_Command {
 	 *
 	 * @synopsis <from> <to>
 	 */
-	public function cp( $args ) {
+	public function cp( array $args ) {
 
 		$from = $args[0];
 		$to = $args[1];
@@ -219,7 +236,7 @@ class WP_CLI_Command extends WP_CLI_Command {
 	 * @subcommand upload-directory
 	 * @synopsis <from> [<to>] [--concurrency=<concurrency>] [--verbose]
 	 */
-	public function upload_directory( $args, $args_assoc ) {
+	public function upload_directory( array $args, array $args_assoc ) {
 
 		$from = $args[0];
 		$to = '';
@@ -228,7 +245,12 @@ class WP_CLI_Command extends WP_CLI_Command {
 		}
 
 		$s3 = Plugin::get_instance()->s3();
-		$args_assoc = wp_parse_args( $args_assoc, [ 'concurrency' => 5, 'verbose' => false ] );
+		$args_assoc = wp_parse_args(
+			$args_assoc, [
+				'concurrency' => 5,
+				'verbose' => false,
+			]
+		);
 
 		$transfer_args = [
 			'concurrency' => $args_assoc['concurrency'],
@@ -253,7 +275,7 @@ class WP_CLI_Command extends WP_CLI_Command {
 	 *
 	 * @synopsis <path> [--regex=<regex>]
 	 */
-	public function rm( $args, $args_assoc ) {
+	public function rm( array $args, array $args_assoc ) {
 
 		$s3 = Plugin::get_instance()->s3();
 
@@ -277,12 +299,12 @@ class WP_CLI_Command extends WP_CLI_Command {
 				strtok( S3_UPLOADS_BUCKET, '/' ),
 				$prefix,
 				$regex,
-				array(
+				[
 					'before_delete',
 					function() {
 						WP_CLI::line( sprintf( 'Deleting file' ) );
 					},
-				)
+				]
 			);
 
 		} catch ( Exception $e ) {
@@ -295,7 +317,7 @@ class WP_CLI_Command extends WP_CLI_Command {
 	/**
 	 * Ensable the auto-rewriting of media links to S3
 	 */
-	public function enable( $args, $assoc_args ) {
+	public function enable() {
 		update_option( 's3_uploads_enabled', 'enabled' );
 
 		WP_CLI::success( 'Media URL rewriting enabled.' );
@@ -304,7 +326,7 @@ class WP_CLI_Command extends WP_CLI_Command {
 	/**
 	 * Disable the auto-rewriting of media links to S3
 	 */
-	public function disable( $args, $assoc_args ) {
+	public function disable() {
 		delete_option( 's3_uploads_enabled' );
 
 		WP_CLI::success( 'Media URL rewriting disabled.' );
@@ -318,7 +340,7 @@ class WP_CLI_Command extends WP_CLI_Command {
 	 * @subcommand get-attachment-files
 	 * @synopsis <attachment-id>
 	 */
-	public function get_attachment_files( $args ) {
+	public function get_attachment_files( array $args ) {
 		WP_CLI::print_value( Plugin::get_attachment_files( $args[0] ) );
 	}
 
@@ -330,21 +352,21 @@ class WP_CLI_Command extends WP_CLI_Command {
 	 * @subcommand set-attachment-acl
 	 * @synopsis <attachment-id> <acl>
 	 */
-	public function set_attachment_acl( $args ) {
+	public function set_attachment_acl( array $args ) {
 		$result = Plugin::get_instance()->set_attachment_files_acl( $args[0], $args[1] );
 		WP_CLI::print_value( $result );
 	}
 
-	private function recurse_copy( $src, $dst ) {
+	private function recurse_copy( string $src, string $dst ) {
 		$dir = opendir( $src );
 		@mkdir( $dst );
 		while ( false !== ( $file = readdir( $dir ) ) ) {
 			if ( ( '.' !== $file ) && ( '..' !== $file ) ) {
 				if ( is_dir( $src . '/' . $file ) ) {
-					$this->recurse_copy( $src . '/' . $file,$dst . '/' . $file );
+					$this->recurse_copy( $src . '/' . $file, $dst . '/' . $file );
 				} else {
 					WP_CLI::line( sprintf( 'Copying from %s to %s', $src . '/' . $file, $dst . '/' . $file ) );
-					copy( $src . '/' . $file,$dst . '/' . $file );
+					copy( $src . '/' . $file, $dst . '/' . $file );
 				}
 			}
 		}
