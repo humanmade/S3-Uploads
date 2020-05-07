@@ -185,7 +185,7 @@ function move_temp_personal_data_to_s3( string $archive_pathname ) {
 	if ( strpos( $archive_pathname, sys_get_temp_dir() ) !== 0 ) {
 		return;
 	}
-	$upload_dir  = wp_upload_dir();
+	$upload_dir = wp_upload_dir();
 	$exports_dir = trailingslashit( $upload_dir['basedir'] ) . 'wp-personal-data-exports/';
 	$destination = $exports_dir . pathinfo( $archive_pathname, PATHINFO_FILENAME ) . '.' . pathinfo( $archive_pathname, PATHINFO_EXTENSION );
 	copy( $archive_pathname, $destination );
