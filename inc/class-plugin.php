@@ -48,7 +48,7 @@ class Plugin {
 		return self::$instance;
 	}
 
-	public function __construct( string $bucket, string $key, string $secret, string $bucket_url = null, string $region = null ) {
+	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null ) {
 
 		$this->bucket     = $bucket;
 		$this->key        = $key;
@@ -484,7 +484,7 @@ class Plugin {
 			]
 		);
 
-		$presigned_url_expires = apply_filters( 's3_uploads_private_attachment_url_expiry', '+24 hours', $post_id );
+		$presigned_url_expires = apply_filters( 's3_uploads_private_attachment_url_expiry', '+6 hours', $post_id );
 		$query = $this->s3()->createPresignedRequest( $cmd, $presigned_url_expires )->getUri()->getQuery();
 
 		// The URL could have query params on it already (such as being an already signed URL),
