@@ -114,30 +114,6 @@ function enabled() : bool {
 }
 
 /**
- * Autoload callback.
- *
- * @param $class_name Name of the class to load.
- */
-function autoload( string $class_name ) {
-	/*
-	 * Load plugin classes:
-	 * - Class name: S3_Uploads\Image_Editor_Imagick.
-	 * - File name: class-image-editor-imagick.php.
-	 */
-	if ( strpos( $class_name, 'S3_Uploads\\' ) !== 0 ) {
-		return;
-	}
-	$class_name = substr( $class_name, 11 );
-	$class_file = 'class-' . strtolower( str_replace( '_', '-', $class_name ) ) . '.php';
-	$class_path = dirname( __DIR__ ) . '/inc/' . $class_file;
-	if ( file_exists( $class_path ) ) {
-		require $class_path;
-
-		return;
-	}
-}
-
-/**
  * Setup the filters for wp_privacy_exports_dir to use a temp folder location.
  */
 function before_export_personal_data() {

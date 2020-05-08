@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<psalm requireVoidReturnType="false" totallyTyped="true" resolveFromConfigFile="true">
+    <projectFiles>
+        <directory name="./" />
+    </projectFiles>
+    <stubs>
+        <file name="psalm/stubs/wordpress.php" />
+        <file name="psalm/stubs/overrides.php" />
+        <file name="psalm/stubs/constants.php" />
+    </stubs>
+    <issueHandlers>
+        <MissingFile>
+            <errorLevel type="suppress">
+                <file name="inc/class-plugin.php" />
+            </errorLevel>
+        </MissingFile>
+    </issueHandlers>
+</psalm>

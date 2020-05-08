@@ -6,6 +6,9 @@
 		"wordpress"
 	],
 	"license": "GPL-2.0+",
+	"autoload": {
+		"classmap": [ "./inc" ]
+	},
 	"authors": [
 		{
 			"name":"Human Made Limited",

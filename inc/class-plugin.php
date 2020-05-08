@@ -190,6 +190,9 @@ class Plugin {
 	public function delete_attachment_files( int $post_id ) {
 		$meta = wp_get_attachment_metadata( $post_id );
 		$file = get_attached_file( $post_id );
+		if( ! $file ) {
+			return;
+		}
 
 		if ( ! empty( $meta['sizes'] ) ) {
 			foreach ( $meta['sizes'] as $sizeinfo ) {
@@ -262,6 +265,7 @@ class Plugin {
 	public function get_s3_location_for_url( string $url ) : ?array {
 		$s3_url = 'https://' . $this->get_s3_bucket() . '.s3.amazonaws.com/';
 		if ( strpos( $url, $s3_url ) === 0 ) {
+			/** @var array{path: string} */
 			$parsed = wp_parse_url( $url );
 			return [
 				'bucket' => $this->get_s3_bucket(),
@@ -276,6 +280,7 @@ class Plugin {
 		}
 
 		$path = str_replace( $upload_dir['baseurl'], $upload_dir['basedir'], $url );
+		/** @var array{host: string, path: string} */
 		$parsed = wp_parse_url( $path );
 		return [
 			'bucket' => $parsed['host'],
@@ -292,7 +297,7 @@ class Plugin {
 	 */
 	public function get_s3_location_for_path( string $path ) : ?array {
 		$parsed = wp_parse_url( $path );
-		if ( $parsed['scheme'] !== 's3' ) {
+		if ( ! isset( $parsed['path'] ) || ! isset( $parsed['host'] ) || ! isset( $parsed['scheme'] ) || $parsed['scheme'] !== 's3' ) {
 			return null;
 		}
 		return [
@@ -320,6 +325,7 @@ class Plugin {
 	 * @return Aws\Sdk
 	 */
 	public function get_aws_sdk() : Aws\Sdk {
+		/** @var null|Aws\Sdk */
 		$sdk = apply_filters( 's3_uploads_aws_sdk', null, $this );
 		if ( $sdk ) {
 			return $sdk;
@@ -370,8 +376,8 @@ class Plugin {
 	 * trying to do a rename() on the file cross streams. This is somewhat of a hack
 	 * to work around the core issue https://core.trac.wordpress.org/ticket/29257
 	 *
-	 * @param array File array
-	 * @return array
+	 * @param array{tmp_name: string} $file File array
+	 * @return array{tmp_name: string}
 	 */
 	public function filter_sideload_move_temp_file_to_s3( array $file ) {
 		$upload_dir = wp_upload_dir();
@@ -389,7 +395,7 @@ class Plugin {
 	 * file streams so we need to make a temporary local copy to extract
 	 * exif data from.
 	 *
-	 * @param array  $meta
+	 * @param array $meta
 	 * @param string $file
 	 * @return array|bool
 	 */
@@ -428,7 +434,6 @@ class Plugin {
 			require_once( ABSPATH . 'wp-admin/includes/file.php' );
 		}
 		$temp_filename = wp_tempnam( $file );
-		echo $temp_filename;
 		copy( $file, $temp_filename );
 		return $temp_filename;
 	}
@@ -490,8 +495,10 @@ class Plugin {
 	 */
 	public static function get_attachment_files( int $attachment_id ) : array {
 		$uploadpath = wp_get_upload_dir();
+		/** @var string */
 		$main_file = get_attached_file( $attachment_id );
 		$files = [ $main_file ];
+
 		$meta = wp_get_attachment_metadata( $attachment_id );
 		if ( isset( $meta['sizes'] ) ) {
 			foreach ( $meta['sizes'] as $size => $sizeinfo ) {
@@ -499,11 +506,13 @@ class Plugin {
 			}
 		}
 
+		/** @var string|false */
 		$original_image = get_post_meta( $attachment_id, 'original_image', true );
 		if ( $original_image ) {
 			$files[] = $uploadpath['basedir'] . $original_image;
 		}
 
+		/** @var array<string,array{file: string}> */
 		$backup_sizes = get_post_meta( $attachment_id, '_wp_attachment_backup_sizes', true );
 		if ( $backup_sizes ) {
 			foreach ( $backup_sizes as $size => $sizeinfo ) {
