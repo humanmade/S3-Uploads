@@ -148,7 +148,7 @@ class Plugin {
 	}
 
 	/**
-	 * Overwrite the defaul wp_upload_dir.
+	 * Overwrite the default wp_upload_dir.
 	 *
 	 * @param array{path: string, basedir: string, baseurl: string, url: string} $dirs
 	 * @return array{path: string, basedir: string, baseurl: string, url: string}
@@ -190,7 +190,7 @@ class Plugin {
 	public function delete_attachment_files( int $post_id ) {
 		$meta = wp_get_attachment_metadata( $post_id );
 		$file = get_attached_file( $post_id );
-		if( ! $file ) {
+		if ( ! $file ) {
 			return;
 		}
 
@@ -260,16 +260,15 @@ class Plugin {
 	 * Reverse a file url in the uploads directory to the params needed for S3.
 	 *
 	 * @param string $url
-	 * @return array
+	 * @return array{bucket: string, key: string, query: string|null}|null
 	 */
 	public function get_s3_location_for_url( string $url ) : ?array {
 		$s3_url = 'https://' . $this->get_s3_bucket() . '.s3.amazonaws.com/';
 		if ( strpos( $url, $s3_url ) === 0 ) {
-			/** @var array{path: string} */
 			$parsed = wp_parse_url( $url );
 			return [
 				'bucket' => $this->get_s3_bucket(),
-				'key'    => ltrim( $parsed['path'], '/' ),
+				'key'    => isset( $parsed['path'] ) ? ltrim( $parsed['path'], '/' ) : '',
 				'query'  => $parsed['query'] ?? null,
 			];
 		}
@@ -280,8 +279,10 @@ class Plugin {
 		}
 
 		$path = str_replace( $upload_dir['baseurl'], $upload_dir['basedir'], $url );
-		/** @var array{host: string, path: string} */
 		$parsed = wp_parse_url( $path );
+		if ( ! isset( $parsed['host'] ) || ! isset( $parsed['path'] ) ) {
+			return null;
+		}
 		return [
 			'bucket' => $parsed['host'],
 			'key'    => ltrim( $parsed['path'], '/' ),

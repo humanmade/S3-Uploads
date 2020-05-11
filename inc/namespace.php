@@ -90,7 +90,7 @@ function outdated_wp_version_notice() {
 
 	printf(
 		'<div class="error"><p>The S3 Uploads plugin requires WordPress version 5.3 or higher. Your server is running WordPress version %s.</p></div>',
-		$wp_version
+		esc_html( $wp_version )
 	);
 }
 
@@ -106,7 +106,7 @@ function enabled() : bool {
 	// Make sure the plugin is enabled when autoenable is on
 	$constant_autoenable_off = ( defined( 'S3_UPLOADS_AUTOENABLE' ) && false === S3_UPLOADS_AUTOENABLE );
 
-	if ( $constant_autoenable_off && 'enabled' !== get_option( 's3_uploads_enabled' ) ) {                         // If the plugin is not enabled, skip
+	if ( $constant_autoenable_off && 'enabled' !== get_option( 's3_uploads_enabled' ) ) { // If the plugin is not enabled, skip
 		return false;
 	}
 
@@ -145,7 +145,7 @@ function set_wp_privacy_exports_dir( string $dir ) {
 	$dir = sys_get_temp_dir() . '/wp_privacy_exports_dir/';
 	if ( ! is_dir( $dir ) ) {
 		mkdir( $dir );
-		file_put_contents( $dir . 'index.html', '' );
+		file_put_contents( $dir . 'index.html', '' ); // @codingStandardsIgnoreLine FS write is ok.
 	}
 	return $dir;
 }
@@ -153,7 +153,7 @@ function set_wp_privacy_exports_dir( string $dir ) {
 /**
  * Move the tmp personal data file to the true uploads location
  *
- * Once a personal data file has been written, move it from the overriden "temp"
+ * Once a personal data file has been written, move it from the overridden "temp"
  * location to the S3 location where it should have been stored all along, and where
  * the "natural" Core URL is going to be pointing to.
  */

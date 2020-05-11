@@ -1,13 +1,22 @@
 <?xml version="1.0"?>
-<psalm requireVoidReturnType="false" totallyTyped="true" resolveFromConfigFile="true">
+<psalm requireVoidReturnType="false" totallyTyped="true" ensureArrayStringOffsetsExist="true">
     <projectFiles>
         <directory name="./" />
+         <ignoreFiles>
+            <directory name="vendor" />
+            <directory name="psalm" />
+            <directory name="tests" />
+        </ignoreFiles>
     </projectFiles>
     <stubs>
-        <file name="psalm/stubs/wordpress.php" />
+        <file name="psalm/stubs/a-wordpress.php" />
+        <file name="psalm/stubs/a-wp-cli.php" />
         <file name="psalm/stubs/overrides.php" />
         <file name="psalm/stubs/constants.php" />
     </stubs>
+    <globals>
+        <var name="wp_version" type="string" />
+    </globals>
     <issueHandlers>
         <MissingFile>
             <errorLevel type="suppress">
