@@ -2,12 +2,33 @@
 
 namespace S3_Uploads;
 
+use Imagick;
 use WP_Error;
 use WP_Image_Editor_Imagick;
 
 class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 
+	/**
+	 * @var ?Imagick
+	 */
+	protected $image;
+
+	/**
+	 * @var ?string
+	 */
+	protected $file;
+
+	/**
+	 * @var ?array{width: int, height: int}
+	 */
+	protected $size;
+
 	protected $temp_file_to_cleanup = null;
+
+	/**
+	 * @var ?string
+	 */
+	protected $remote_filename = null;
 
 	/**
 	 * Hold on to a reference of all temp local files.
@@ -28,13 +49,13 @@ class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 			return true;
 		}
 
-		if ( ! is_file( $this->file ) && ! preg_match( '|^https?://|', $this->file ) ) {
+		if ( $this->file && ! is_file( $this->file ) && ! preg_match( '|^https?://|', $this->file ) ) {
 			return new WP_Error( 'error_loading_image', __( 'File doesn&#8217;t exist?' ), $this->file );
 		}
 
 		$upload_dir = wp_upload_dir();
 
-		if ( strpos( $this->file, $upload_dir['basedir'] ) !== 0 ) {
+		if ( ! $this->file || strpos( $this->file, $upload_dir['basedir'] ) !== 0 ) {
 			return parent::load();
 		}
 
@@ -55,8 +76,18 @@ class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 	 * Imagick by default can't handle s3:// paths
 	 * for saving images. We have instead save it to a file file,
 	 * then copy it to the s3:// path as a workaround.
+	 *
+	 * @param Imagick $image
+	 * @param ?string $filename
+	 * @param ?string $mime_type
+	 * @return WP_Error|array{path: string, file: string, width: int, height: int, mime-type: string}
 	 */
-	protected function _save( $image, $filename = null, $mime_type = null ) {
+	protected function _save( Imagick $image, $filename = null, $mime_type = null ) {
+		/**
+		 * @var ?string $filename
+		 * @var string $extension
+		 * @var string $mime_type
+		 */
 		list( $filename, $extension, $mime_type ) = $this->get_output_format( $filename, $mime_type );
 
 		if ( ! $filename ) {
@@ -66,12 +97,18 @@ class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 		$upload_dir = wp_upload_dir();
 
 		if ( strpos( $filename, $upload_dir['basedir'] ) === 0 ) {
+			/** @var false|string */
 			$temp_filename = tempnam( get_temp_dir(), 's3-uploads' );
+		} else {
+			$temp_filename = false;
 		}
 
-		$save = parent::_save( $image, $temp_filename, $mime_type );
+		/**
+		 * @var WP_Error|array{path: string, file: string, width: int, height: int, mime-type: string} $save
+		 */
+		$save = parent::_save( $image, $temp_filename ?: $filename, $mime_type );
 
-		if ( is_wp_error( $save ) ) {
+		if ( is_wp_error( $save ) && $temp_filename ) {
 			unlink( $temp_filename );
 			return $save;
 		}
@@ -79,19 +116,23 @@ class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 		$copy_result = copy( $save['path'], $filename );
 
 		unlink( $save['path'] );
-		unlink( $temp_filename );
+		if ( $temp_filename ) {
+			unlink( $temp_filename );
+		}
 
 		if ( ! $copy_result ) {
 			return new WP_Error( 'unable-to-copy-to-s3', 'Unable to copy the temp image to S3' );
 		}
 
-		return [
+		$response = [
 			'path'      => $filename,
 			'file'      => wp_basename( apply_filters( 'image_make_intermediate_size', $filename ) ),
-			'width'     => $this->size['width'],
-			'height'    => $this->size['height'],
+			'width'     => $this->size['width'] ?? 0,
+			'height'    => $this->size['height'] ?? 0,
 			'mime-type' => $mime_type,
 		];
+
+		return $response;
 	}
 
 	public function __destruct() {
