@@ -23,8 +23,6 @@ class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 	 */
 	protected $size;
 
-	protected $temp_file_to_cleanup = null;
-
 	/**
 	 * @var ?string
 	 */
@@ -104,13 +102,18 @@ class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 		}
 
 		/**
-		 * @var WP_Error|array{path: string, file: string, width: int, height: int, mime-type: string} $save
+		 * @var WP_Error|array{path: string, file: string, width: int, height: int, mime-type: string}
 		 */
-		$save = parent::_save( $image, $temp_filename ?: $filename, $mime_type );
+		$parent_call = parent::_save( $image, $temp_filename ?: $filename, $mime_type );
 
-		if ( is_wp_error( $save ) && $temp_filename ) {
+		if ( is_wp_error( $parent_call ) && $temp_filename ) {
 			unlink( $temp_filename );
-			return $save;
+			return $parent_call;
+		} else {
+			/**
+			 * @var array{path: string, file: string, width: int, height: int, mime-type: string} $save
+			 */
+			$save = $parent_call;
 		}
 
 		$copy_result = copy( $save['path'], $filename );
