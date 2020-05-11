@@ -460,7 +460,7 @@ class Plugin {
 	 * Update the ACL (Access Control List) for an attachments files.
 	 *
 	 * @param integer $attachment_id
-	 * @param string $acl public-read|private
+	 * @param 'public-read'|'private' $acl public-read|private
 	 * @return WP_Error|null
 	 */
 	public function set_attachment_files_acl( int $attachment_id, string $acl ) : ?WP_Error {

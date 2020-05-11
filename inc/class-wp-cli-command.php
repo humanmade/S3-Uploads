@@ -2,11 +2,12 @@
 
 namespace S3_Uploads;
 
+use Aws;
 use Aws\S3\Transfer;
 use Exception;
 use WP_CLI;
 
-class WP_CLI_Command extends WP_CLI_Command {
+class WP_CLI_Command extends \WP_CLI_Command {
 
 	/**
 	 * Verifies the API keys entered will work for writing and deleting from S3.
@@ -24,7 +25,7 @@ class WP_CLI_Command extends WP_CLI_Command {
 
 		// Create a path in the base directory, with a random file name to avoid potentially overwriting existing data.
 		$upload_dir = wp_upload_dir();
-		$s3_path = $upload_dir['basedir'] . '/' . mt_rand() . '.txt';
+		$s3_path = $upload_dir['basedir'] . '/' . wp_rand() . '.txt';
 
 		// Attempt to copy the local Canola test file to the generated path on S3.
 		WP_CLI::print_value( 'Attempting to upload file ' . $s3_path );
@@ -57,63 +58,6 @@ class WP_CLI_Command extends WP_CLI_Command {
 		WP_CLI::print_value( 'File deleted from S3 successfully.' );
 
 		WP_CLI::success( 'Looks like your configuration is correct.' );
-	}
-
-	/**
-	 * Create an AWS IAM user for S3 Uploads to user
-	 *
-	 * @subcommand create-iam-user
-	 * @synopsis --admin-key=<key> --admin-secret=<secret> [--username=<username>] [--format=<format>]
-	 */
-	public function create_iam_user( array $args, array $args_assoc ) {
-
-		$args_assoc = wp_parse_args(
-			$args_assoc, [
-				'format' => 'table',
-			]
-		);
-		if ( empty( $args_assoc['username'] ) ) {
-			$username = 's3-uploads-' . sanitize_title( home_url() );
-		} else {
-			$username = $args_assoc['username'];
-		}
-
-		try {
-			$iam = Aws\Common\Aws::factory(
-				[
-					'key' => $args_assoc['admin-key'],
-					'secret' => $args_assoc['admin-secret'],
-				]
-			)->get( 'iam' );
-
-			$iam->createUser(
-				[
-					'UserName' => $username,
-				]
-			);
-
-			$credentials = $iam->createAccessKey(
-				[
-					'UserName' => $username,
-				]
-			);
-
-			$credentials = $credentials['AccessKey'];
-
-			$iam->putUserPolicy(
-				[
-					'UserName'       => $username,
-					'PolicyName'     => $username . '-policy',
-					'PolicyDocument' => $this->get_iam_policy(),
-				]
-			);
-
-		} catch ( Exception $e ) {
-			WP_CLI::error( $e->getMessage() );
-		}
-
-		WP_CLI\Utils\format_items( $args_assoc['format'], [ (object) $credentials ], [ 'AccessKeyId', 'SecretAccessKey' ] );
-
 	}
 
 	private function get_iam_policy() : string {
@@ -180,6 +124,8 @@ class WP_CLI_Command extends WP_CLI_Command {
 	 * List files in the S3 bukcet
 	 *
 	 * @synopsis [<path>]
+	 *
+	 * @param array{0: string} $args
 	 */
 	public function ls( array $args ) {
 
@@ -202,6 +148,7 @@ class WP_CLI_Command extends WP_CLI_Command {
 					'Prefix' => $prefix,
 				]
 			);
+			/** @var array{Key: string} $object */
 			foreach ( $objects as $object ) {
 				WP_CLI::line( str_replace( $prefix, '', $object['Key'] ) );
 			}
@@ -215,6 +162,8 @@ class WP_CLI_Command extends WP_CLI_Command {
 	 * Copy files to / from the uploads directory. Use s3://bucket/location for S3
 	 *
 	 * @synopsis <from> <to>
+	 *
+	 * @param array{0: string, 1: string} $args
 	 */
 	public function cp( array $args ) {
 
@@ -235,6 +184,9 @@ class WP_CLI_Command extends WP_CLI_Command {
 	 *
 	 * @subcommand upload-directory
 	 * @synopsis <from> [<to>] [--concurrency=<concurrency>] [--verbose]
+	 *
+	 * @param array{0: string, 1: string} $args
+	 * @param array{concurrency?: int, verbose?: bool} $args_assoc
 	 */
 	public function upload_directory( array $args, array $args_assoc ) {
 
@@ -274,6 +226,9 @@ class WP_CLI_Command extends WP_CLI_Command {
 	 * Delete files from S3
 	 *
 	 * @synopsis <path> [--regex=<regex>]
+	 *
+	 * @param array{0: string} $args
+	 * @param array{regex?: string} $args_assoc
 	 */
 	public function rm( array $args, array $args_assoc ) {
 
@@ -295,7 +250,7 @@ class WP_CLI_Command extends WP_CLI_Command {
 		}
 
 		try {
-			$objects = $s3->deleteMatchingObjects(
+			$s3->deleteMatchingObjects(
 				strtok( S3_UPLOADS_BUCKET, '/' ),
 				$prefix,
 				$regex,
@@ -339,6 +294,8 @@ class WP_CLI_Command extends WP_CLI_Command {
 	 *
 	 * @subcommand get-attachment-files
 	 * @synopsis <attachment-id>
+	 *
+	 * @param array{0: int} $args
 	 */
 	public function get_attachment_files( array $args ) {
 		WP_CLI::print_value( Plugin::get_attachment_files( $args[0] ) );
@@ -351,6 +308,8 @@ class WP_CLI_Command extends WP_CLI_Command {
 	 *
 	 * @subcommand set-attachment-acl
 	 * @synopsis <attachment-id> <acl>
+	 *
+	 * @param array{0: int, 1: 'public-read'|'private'} $args
 	 */
 	public function set_attachment_acl( array $args ) {
 		$result = Plugin::get_instance()->set_attachment_files_acl( $args[0], $args[1] );

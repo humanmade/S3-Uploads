@@ -3,7 +3,7 @@
 namespace S3_Uploads;
 
 /**
- * Local streamwrapper that writes files to the upload dir
+ * Local stream wrapper that writes files to the upload dir
  *
  * This is for the most part taken from Drupal, with some modifications.
  */
@@ -11,7 +11,7 @@ class Local_Stream_Wrapper {
 	/**
 	 * Stream context resource.
 	 *
-	 * @var resource
+	 * @var ?resource
 	 */
 	public $context;
 
@@ -27,26 +27,25 @@ class Local_Stream_Wrapper {
 	 *
 	 * A stream is referenced as "scheme://target".
 	 *
-	 * @var string
+	 * @var ?string
 	 */
 	protected $uri;
 
 	/**
 	 * Gets the path that the wrapper is responsible for.
 	 *
-	 * @return string
-	 *   String specifying the path.
+	 * @return string String specifying the path.
 	 */
-	static function getDirectoryPath() {
+	static function getDirectoryPath() : string {
 		$upload_dir = Plugin::get_instance()->get_original_upload_dir();
 		return $upload_dir['basedir'] . '/s3';
 	}
 
-	function setUri( $uri ) {
+	function setUri( string $uri ) {
 		$this->uri = $uri;
 	}
 
-	function getUri() {
+	function getUri() : string {
 		return $this->uri;
 	}
 
@@ -62,11 +61,11 @@ class Local_Stream_Wrapper {
 	 * @param string $uri
 	 *   Optional URI.
 	 *
-	 * @return string|bool
+	 * @return string
 	 *   Returns a string representing a location suitable for writing of a file,
 	 *   or FALSE if unable to write to the file such as with read-only streams.
 	 */
-	protected function getTarget( $uri = null ) {
+	protected function getTarget( $uri = null ) : string {
 		if ( ! isset( $uri ) ) {
 			$uri = $this->uri;
 		}
@@ -77,7 +76,14 @@ class Local_Stream_Wrapper {
 		return trim( $target, '\/' );
 	}
 
-	static function getMimeType( $uri, $mapping = null ) {
+	/**
+	 * Get mime type for URI
+	 *
+	 * @param string $uri
+	 * @param array{extensions?: string[], mimetypes: array<string,string>} $mapping
+	 * @return string
+	 */
+	static function getMimeType( string $uri, array $mapping = null ) : string {
 
 		$extension = '';
 		$file_parts = explode( '.', basename( $uri ) );
@@ -100,7 +106,7 @@ class Local_Stream_Wrapper {
 		return 'application/octet-stream';
 	}
 
-	function chmod( $mode ) {
+	function chmod( int $mode ) {
 		$output = @chmod( $this->getLocalPath(), $mode );
 		// We are modifying the underlying file here, so we have to clear the stat
 		// cache so that PHP understands that URI has changed too.
@@ -108,7 +114,7 @@ class Local_Stream_Wrapper {
 		return $output;
 	}
 
-	function realpath() {
+	function realpath() : string {
 		return $this->getLocalPath();
 	}
 
@@ -119,7 +125,7 @@ class Local_Stream_Wrapper {
 	 *   (optional) The stream wrapper URI to be converted to a canonical
 	 *   absolute path. This may point to a directory or another type of file.
 	 *
-	 * @return string|bool
+	 * @return string
 	 *   If $uri is not set, returns the canonical absolute path of the URI
 	 *   previously. If $uri is set and valid for this class, returns its canonical absolute
 	 *   path, as determined by the realpath() function. If $uri is set but not
@@ -134,8 +140,8 @@ class Local_Stream_Wrapper {
 
 		$directory = realpath( $this->getDirectoryPath() );
 
-		if ( ! $realpath || ! $directory || strpos( $realpath, $directory ) !== 0 ) {
-			return false;
+		if ( ! $directory || strpos( $realpath, $directory ) !== 0 ) {
+			return '';
 		}
 		return $realpath;
 	}
@@ -145,12 +151,13 @@ class Local_Stream_Wrapper {
 	 *
 	 * @param string $uri
 	 *   A string containing the URI to the file to open.
-	 * @param int $mode
+	 * @param string $mode
 	 *   The file mode ("r", "wb" etc.).
 	 * @param int $options
 	 *   A bit mask of STREAM_USE_PATH and STREAM_REPORT_ERRORS.
 	 * @param string $opened_path
 	 *   A string containing the path actually opened.
+	 * @param-out string $opened_path
 	 *
 	 * @return bool
 	 *   Returns TRUE if file was opened successfully.
@@ -395,7 +402,7 @@ class Local_Stream_Wrapper {
 	 */
 	public function mkdir( $uri, $mode, $options ) {
 		$this->uri = $uri;
-		$recursive = (bool) ($options & STREAM_MKDIR_RECURSIVE);
+		$recursive = (bool) ( $options & STREAM_MKDIR_RECURSIVE );
 		if ( $recursive ) {
 			// $this->getLocalPath() fails if $uri has multiple levels of directories
 			// that do not yet exist.

@@ -11,6 +11,12 @@ use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\CachingStream;
 use GuzzleHttp\Psr7\Stream;
 
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.MemberNotSnakeCase
+// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
+// phpcs:disable WordPress.NamingConventions.ValidHookName.NotLowercase
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.NotSnakeCase
+
 /**
  * Amazon S3 stream wrapper to use "s3://<bucket>/<key>" files with PHP
  * streams, supporting "r", "w", "a", "x".
@@ -65,31 +71,31 @@ class Stream_Wrapper {
 	/** @var resource|null Stream context (this is set by PHP) */
 	public $context;
 
-	/** @var StreamInterface Underlying stream resource */
+	/** @var ?StreamInterface Underlying stream resource */
 	private $body;
 
-	/** @var int Size of the body that is opened */
+	/** @var ?int Size of the body that is opened */
 	private $size;
 
 	/** @var array Hash of opened stream parameters */
 	private $params = [];
 
-	/** @var string Mode in which the stream was opened */
+	/** @var ?string Mode in which the stream was opened */
 	private $mode;
 
-	/** @var \Iterator Iterator used with opendir() related calls */
+	/** @var ?\Iterator Iterator used with opendir() related calls */
 	private $objectIterator;
 
-	/** @var string The bucket that was opened when opendir() was called */
+	/** @var ?string The bucket that was opened when opendir() was called */
 	private $openedBucket;
 
-	/** @var string The prefix of the bucket that was opened with opendir() */
+	/** @var ?string The prefix of the bucket that was opened with opendir() */
 	private $openedBucketPrefix;
 
-	/** @var string Opened bucket path */
+	/** @var ?string Opened bucket path */
 	private $openedPath;
 
-	/** @var CacheInterface Cache for object and dir lookups */
+	/** @var ?CacheInterface Cache for object and dir lookups */
 	private $cache;
 
 	/** @var string The opened protocol (e.g., "s3") */
@@ -127,15 +133,26 @@ class Stream_Wrapper {
 	}
 
 	public function stream_close() {
-		$this->body = $this->cache = null;
+		$this->body = null;
+		$this->cache = null;
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @param string $path
+	 * @param string $mode
+	 * @param array $options
+	 * @param string $opened_path
+	 * @return bool
+	 */
 	public function stream_open( $path, $mode, $options, &$opened_path ) {
 		$this->initProtocol( $path );
 		$this->params = $this->getBucketKey( $path );
 		$this->mode = rtrim( $mode, 'bt' );
 
-		if ( $errors = $this->validate( $path, $this->mode ) ) {
+		$errors = $this->validate( $path, $this->mode );
+		if ( $errors ) {
 			return $this->triggerError( $errors );
 		}
 
@@ -202,9 +219,9 @@ class Stream_Wrapper {
 		// Cache-Control:
 		if ( defined( 'S3_UPLOADS_HTTP_CACHE_CONTROL' ) ) {
 			if ( is_numeric( S3_UPLOADS_HTTP_CACHE_CONTROL ) ) {
-				 $params['CacheControl'] = 'max-age=' . S3_UPLOADS_HTTP_CACHE_CONTROL;
+				$params['CacheControl'] = 'max-age=' . S3_UPLOADS_HTTP_CACHE_CONTROL;
 			} else {
-				 $params['CacheControl'] = S3_UPLOADS_HTTP_CACHE_CONTROL;
+				$params['CacheControl'] = S3_UPLOADS_HTTP_CACHE_CONTROL;
 			}
 		}
 
@@ -278,7 +295,7 @@ class Stream_Wrapper {
 	}
 
 	public function stream_stat() {
-		 $stat = $this->getStatTemplate();
+		$stat = $this->getStatTemplate();
 		$stat[7] = $stat['size'] = $this->getSize();
 		$stat[2] = $stat['mode'] = $this->mode;
 
@@ -338,7 +355,8 @@ class Stream_Wrapper {
 		$path = strtolower( $split[0] ) . '://' . $split[1];
 
 		// Check if this path is in the url_stat cache
-		if ( $value = $this->getCacheStorage()->get( $path ) ) {
+		$value = $this->getCacheStorage()->get( $path );
+		if ( $value ) {
 			return $value;
 		}
 
@@ -530,7 +548,7 @@ class Stream_Wrapper {
 	 *
 	 * @return bool true on success
 	 */
-	public function dir_closedir() {
+	public function dir_closedir() : bool {
 		$this->objectIterator = null;
 		gc_collect_cycles();
 
@@ -560,7 +578,7 @@ class Stream_Wrapper {
 	 * @link http://www.php.net/manual/en/function.readdir.php
 	 */
 	public function dir_readdir() {
-		 // Skip empty result keys
+		// Skip empty result keys
 		if ( ! $this->objectIterator->valid() ) {
 			return false;
 		}
@@ -659,6 +677,10 @@ class Stream_Wrapper {
 	/**
 	 * Validates the provided stream arguments for fopen and returns an array
 	 * of errors.
+	 *
+	 * @param string $path
+	 * @param string $mode
+	 * @return string[]
 	 */
 	private function validate( $path, $mode ) {
 		$errors = [];
@@ -747,7 +769,13 @@ class Stream_Wrapper {
 		return $client;
 	}
 
-	private function getBucketKey( $path ) {
+	/**
+	 * Get the bucket and key for a given path.
+	 *
+	 * @param string $path
+	 * @return array{Bucket: string, Key: string|null}
+	 */
+	private function getBucketKey( string $path ) : array {
 		// Remove the protocol
 		$parts = explode( '://', $path );
 		// Get the bucket, key
@@ -772,8 +800,8 @@ class Stream_Wrapper {
 		return $this->getBucketKey( $path ) + $params;
 	}
 
-	private function openReadStream() {
-		 $client = $this->getClient();
+	private function openReadStream() : bool {
+		$client = $this->getClient();
 		$command = $client->getCommand( 'GetObject', $this->getOptions( true ) );
 		$command['@http']['stream'] = true;
 		$result = $client->execute( $command );
@@ -788,7 +816,7 @@ class Stream_Wrapper {
 		return true;
 	}
 
-	private function openWriteStream() {
+	private function openWriteStream() : bool {
 		$this->body = new Stream( fopen( 'php://temp', 'r+' ) );
 		return true;
 	}
@@ -809,12 +837,11 @@ class Stream_Wrapper {
 	/**
 	 * Trigger one or more errors
 	 *
-	 * @param string|array $errors Errors to trigger
+	 * @param string[] $errors Errors to trigger
 	 * @param mixed        $flags  If set to STREAM_URL_STAT_QUIET, then no
 	 *                             error or exception occurs
 	 *
 	 * @return bool Returns false
-	 * @throws \RuntimeException if throw_errors is true
 	 */
 	private function triggerError( $errors, $flags = null ) {
 		// This is triggered with things like file_exists()
@@ -836,7 +863,7 @@ class Stream_Wrapper {
 	 *
 	 * @param string|array $result Data to add
 	 *
-	 * @return array Returns the modified url_stat result
+	 * @return array<array-key, mixed> Returns the modified url_stat result
 	 */
 	private function formatUrlStat( $result = null ) {
 		$stat = $this->getStatTemplate();
@@ -869,7 +896,7 @@ class Stream_Wrapper {
 	 * Creates a bucket for the given parameters.
 	 *
 	 * @param string $path   Stream wrapper path
-	 * @param array  $params A result of StreamWrapper::withPath()
+	 * @param array{Bucket: string} $params A result of StreamWrapper::withPath()
 	 *
 	 * @return bool Returns true on success or false on failure
 	 */
@@ -938,7 +965,8 @@ class Stream_Wrapper {
 		);
 
 		// Check if the bucket contains keys other than the placeholder
-		if ( $contents = $result['Contents'] ) {
+		$contents = $result['Contents'];
+		if ( $contents ) {
 			return ( count( $contents ) > 1 || $contents[0]['Key'] != $prefix )
 				? $this->triggerError( 'Subfolder is not empty' )
 				: $this->unlink( rtrim( $path, '/' ) . '/' );
@@ -954,9 +982,9 @@ class Stream_Wrapper {
 	 *
 	 * @param int $mode File mode
 	 *
-	 * @return string
+	 * @return 'public-read'|'authenticated-read'|'private'
 	 */
-	private function determineAcl( $mode ) {
+	private function determineAcl( int $mode ) : string {
 		switch ( substr( decoct( $mode ), 0, 1 ) ) {
 			case '7':
 				return 'public-read';
@@ -1007,7 +1035,7 @@ class Stream_Wrapper {
 	 * Invokes a callable and triggers an error if an exception occurs while
 	 * calling the function.
 	 *
-	 * @param callable $fn
+	 * @param callable():bool $fn
 	 * @param int      $flags
 	 *
 	 * @return bool
