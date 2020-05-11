@@ -387,11 +387,12 @@ class S3_Uploads {
 				'Key' => $location['key'],
 				'ACL' => $acl,
 			] );
-			try {
-				Aws\CommandPool::batch( $s3, $commands );
-			} catch ( Exception $e ) {
-				return new WP_Error( $e->getCode(), $e->getMessage() );
-			}
+		}
+
+		try {
+			Aws\CommandPool::batch( $s3, $commands );
+		} catch ( Exception $e ) {
+			return new WP_Error( $e->getCode(), $e->getMessage() );
 		}
 
 		return null;
