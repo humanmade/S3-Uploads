@@ -11,6 +11,7 @@
     <stubs>
         <file name="psalm/stubs/a-wordpress.php" />
         <file name="psalm/stubs/a-wp-cli.php" />
+        <file name="psalm/stubs/imagick.php" />
         <file name="psalm/stubs/overrides.php" />
         <file name="psalm/stubs/constants.php" />
     </stubs>
