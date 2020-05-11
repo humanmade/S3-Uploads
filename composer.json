@@ -27,7 +27,8 @@
 	},
 	"require-dev": {
 		"phpunit/phpunit": "7.5",
-		"vimeo/psalm": "^3.11"
+		"vimeo/psalm": "^3.11",
+		"pcov/clobber": "^2.0"
 	},
 	"scripts": {
 		"test": "./tests/run-tests.sh"
