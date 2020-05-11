@@ -296,8 +296,10 @@ class Stream_Wrapper {
 
 	public function stream_stat() {
 		$stat = $this->getStatTemplate();
-		$stat[7] = $stat['size'] = $this->getSize();
-		$stat[2] = $stat['mode'] = $this->mode;
+		$stat[7] = $this->getSize();
+		$stat['size'] = $stat[7];
+		$stat[2] = $this->mode;
+		$stat['mode'] = $stat[2];
 
 		return $stat;
 	}
