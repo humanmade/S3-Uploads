@@ -20,10 +20,10 @@ jobs:
     steps:
     # Runs a single command using the runners shell
     - name: Install deps
-      uses: docker://humanmade/plugin-tester@latest
+      uses: docker://humanmade/plugin-tester:latest
       with:
         entrypoint: composer install
 
     # Runs a set of commands using the runners shell
     - name: Run phpunit
-      uses: docker://humanmade/plugin-tester@latest
+      uses: docker://humanmade/plugin-tester:latest
