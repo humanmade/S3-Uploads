@@ -20,7 +20,7 @@ jobs:
     steps:
     # Runs a single command using the runners shell
     - name: Install deps
-      uses: humanmade/plugin-tester:latest
+      uses: humanmade/plugin-tester@latest
       with:
         entrypoint: composer install
 
