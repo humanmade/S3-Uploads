@@ -23,7 +23,7 @@ jobs:
       uses: docker://humanmade/plugin-tester:latest
       with:
         entrypoint: ''
-        args: /usr/bin/composer install
+        args: /bin/sh -c "composer install"
 
     # Runs a set of commands using the runners shell
     - name: Run phpunit
