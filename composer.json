@@ -31,6 +31,7 @@
 		"humanmade/psalm-plugin-wordpress": "1.0.0"
 	},
 	"scripts": {
-		"test": "./tests/run-tests.sh"
+		"test": "./tests/run-tests.sh",
+		"check-types": "./vendor/bin/psalm"
 	}
 }
