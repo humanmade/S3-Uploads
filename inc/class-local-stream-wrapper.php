@@ -2,6 +2,13 @@
 
 namespace S3_Uploads;
 
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.MemberNotSnakeCase
+// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
+// phpcs:disable WordPress.NamingConventions.ValidHookName.NotLowercase
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.NotSnakeCase
+// phpcs:disable WordPress.WP.AlternativeFunctions
+
 /**
  * Local stream wrapper that writes files to the upload dir
  *
@@ -18,7 +25,7 @@ class Local_Stream_Wrapper {
 	/**
 	 * A generic resource handle.
 	 *
-	 * @var resource
+	 * @var ?resource
 	 */
 	public $handle = null;
 
@@ -46,7 +53,7 @@ class Local_Stream_Wrapper {
 	}
 
 	function getUri() : string {
-		return $this->uri;
+		return $this->uri ?? '';
 	}
 
 	/**
@@ -67,7 +74,7 @@ class Local_Stream_Wrapper {
 	 */
 	protected function getTarget( $uri = null ) : string {
 		if ( ! isset( $uri ) ) {
-			$uri = $this->uri;
+			$uri = $this->uri ?: '';
 		}
 
 		list( $scheme, $target) = explode( '://', $uri, 2 );
@@ -106,7 +113,7 @@ class Local_Stream_Wrapper {
 		return 'application/octet-stream';
 	}
 
-	function chmod( int $mode ) {
+	function chmod( int $mode ) : bool {
 		$output = @chmod( $this->getLocalPath(), $mode );
 		// We are modifying the underlying file here, so we have to clear the stat
 		// cache so that PHP understands that URI has changed too.
@@ -205,7 +212,7 @@ class Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-lock.php
 	 */
 	public function stream_lock( $operation ) {
-		if ( in_array( $operation, array( LOCK_SH, LOCK_EX, LOCK_UN, LOCK_NB ) ) ) {
+		if ( in_array( $operation, [ LOCK_SH, LOCK_EX, LOCK_UN, LOCK_NB ] ) && $this->handle ) {
 			return flock( $this->handle, $operation );
 		}
 
@@ -224,6 +231,9 @@ class Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-read.php
 	 */
 	public function stream_read( $count ) {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		return fread( $this->handle, $count );
 	}
 
@@ -239,6 +249,9 @@ class Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-write.php
 	 */
 	public function stream_write( $data ) {
+		if ( ! $this->handle ) {
+			return 0;
+		}
 		return fwrite( $this->handle, $data );
 	}
 
@@ -251,6 +264,9 @@ class Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-eof.php
 	 */
 	public function stream_eof() {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		return feof( $this->handle );
 	}
 
@@ -268,6 +284,9 @@ class Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-seek.php
 	 */
 	public function stream_seek( $offset, $whence ) {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		// fseek returns 0 on success and -1 on a failure.
 		// stream_seek   1 on success and  0 on a failure.
 		return ! fseek( $this->handle, $offset, $whence );
@@ -282,6 +301,9 @@ class Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-flush.php
 	 */
 	public function stream_flush() {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		$result = fflush( $this->handle );
 
 		$params = [
@@ -302,25 +324,31 @@ class Local_Stream_Wrapper {
 	/**
 	 * Support for ftell().
 	 *
-	 * @return bool
+	 * @return false|int
 	 *   The current offset in bytes from the beginning of file.
 	 *
 	 * @see http://php.net/manual/streamwrapper.stream-tell.php
 	 */
 	public function stream_tell() {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		return ftell( $this->handle );
 	}
 
 	/**
 	 * Support for fstat().
 	 *
-	 * @return bool
+	 * @return array|false
 	 *   An array with file status, or FALSE in case of an error - see fstat()
 	 *   for a description of this array.
 	 *
 	 * @see http://php.net/manual/streamwrapper.stream-stat.php
 	 */
 	public function stream_stat() {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		return fstat( $this->handle );
 	}
 
@@ -333,7 +361,11 @@ class Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-close.php
 	 */
 	public function stream_close() {
-		return fclose( $this->handle );
+		if ( ! $this->handle ) {
+			return false;
+		}
+		$resource = $this->handle;
+		return fclose( $resource );
 	}
 
 	/**
@@ -494,6 +526,9 @@ class Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.dir-readdir.php
 	 */
 	public function dir_readdir() {
+		if ( ! $this->handle ) {
+			return '';
+		}
 		return readdir( $this->handle );
 	}
 
@@ -506,6 +541,9 @@ class Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.dir-rewinddir.php
 	 */
 	public function dir_rewinddir() {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		rewinddir( $this->handle );
 		// We do not really have a way to signal a failure as rewinddir() does not
 		// have a return value and there is no way to read a directory handler

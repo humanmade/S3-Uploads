@@ -16,7 +16,7 @@
 			"homepage":"http://hmn.md/"
 		}
 	],
-	"support"    : {
+	"support": {
 			"issues": "https://github.com/humanmade/s3-uploads/issues",
 			"source": "https://github.com/humanmade/s3-uploads"
 	},
@@ -28,7 +28,7 @@
 	"require-dev": {
 		"phpunit/phpunit": "7.5",
 		"vimeo/psalm": "dev-master",
-		"pcov/clobber": "^2.0"
+		"humanmade/psalm-plugin-wordpress": "1.0.0"
 	},
 	"scripts": {
 		"test": "./tests/run-tests.sh"

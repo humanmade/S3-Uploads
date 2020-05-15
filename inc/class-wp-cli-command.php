@@ -2,7 +2,6 @@
 
 namespace S3_Uploads;
 
-use Aws;
 use Aws\S3\Transfer;
 use Exception;
 use WP_CLI;
