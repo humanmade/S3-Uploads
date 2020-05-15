@@ -26,4 +26,4 @@ jobs:
 
     # Runs a set of commands using the runners shell
     - name: Run phpunit
-      uses: humanmade/plugin-tester:latest
+      uses: humanmade/plugin-tester@latest
