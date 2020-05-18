@@ -29,7 +29,7 @@
 		"phpunit/phpunit": "7.5",
 		"pcov/clobber": "^2.0",
 		"vimeo/psalm": "dev-master",
-		"humanmade/psalm-plugin-wordpress": "1.0.0"
+		"humanmade/psalm-plugin-wordpress": "dev-master"
 	},
 	"scripts": {
 		"test": "./tests/run-tests.sh",
