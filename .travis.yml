@@ -12,8 +12,8 @@ notifications:
   email: false
 
 before_script:
-  - composer install --ignore-platform-reqs
+  - docker run --rm -v $PWD:/code --entrypoint='' humanmade/plugin-tester composer install
 
 script:
-  - composer test -- --coverage-clover=coverage.xml
+  - ./tests/run-tests.sh --coverage-clover=coverage.xml
   - bash <(curl -s https://codecov.io/bash)
