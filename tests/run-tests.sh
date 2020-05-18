@@ -1,3 +1,5 @@
+set -e
+
 if [ -d "/tmp/s3-uploads-tests" ]; then
 	rm -rf /tmp/s3-uploads-tests/*
 else
