@@ -27,6 +27,7 @@
 	},
 	"require-dev": {
 		"phpunit/phpunit": "7.5",
+		"pcov/clobber": "^2.0",
 		"vimeo/psalm": "dev-master",
 		"humanmade/psalm-plugin-wordpress": "1.0.0"
 	},
