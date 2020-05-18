@@ -23,4 +23,7 @@
             </errorLevel>
         </MissingFile>
     </issueHandlers>
+    <plugins>
+        <pluginClass xmlns="https://getpsalm.org/schema/config" class="PsalmWordPress\Plugin"/>
+    </plugins>
 </psalm>

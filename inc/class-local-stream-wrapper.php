@@ -560,6 +560,9 @@ class Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.dir-closedir.php
 	 */
 	public function dir_closedir() {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		closedir( $this->handle );
 		// We do not really have a way to signal a failure as closedir() does not
 		// have a return value.

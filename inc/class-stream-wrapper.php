@@ -7,6 +7,7 @@ use Aws\LruArrayCache;
 use Aws\Result;
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3ClientInterface;
+use Exception;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\CachingStream;
 use GuzzleHttp\Psr7\Stream;
@@ -67,8 +68,9 @@ use Psr\Http\Message\StreamInterface;
  * - For "unlink" only: Any option that can be passed to the DeleteObject
  *   operation
  *
- * @psalm-type StatArray = array{0: int, 1: int, 2: int, 2: int, 3: int, 4: int, 5: int, 6: int, 7: int, 8: int, 9: int, 10: int, 11: int, 12: int, dev: int, ino: int, mode: int, nlink: int, uid: int, gid: int, rdev: int, size: int, atime: int, mtime: int, ctime: int, blksize: int, blocks: int}
+ * @psalm-type StatArray = array{0: int, 1: int, 2: int|string, 3: int, 4: int, 5: int, 6: int, 7: int, 8: int, 9: int, 10: int, 11: int, 12: int, dev: int, ino: int, mode: int|string, nlink: int, uid: int, gid: int, rdev: int, size: int, atime: int, mtime: int, ctime: int, blksize: int, blocks: int}
  * @psalm-type S3ObjectResultArray = array{ContentLength: int, Size: int, LastModified: string, Key: string, Prefix?: string}
+ * @psalm-type OptionsArray = array{client?: S3ClientInterface, cache?: CacheInterface, Bucket: string, Key: string, acl: string, seekable?: bool}
  */
 class Stream_Wrapper {
 
@@ -84,7 +86,7 @@ class Stream_Wrapper {
 	/** @var array Hash of opened stream parameters */
 	private $params = [];
 
-	/** @var ?int Mode in which the stream was opened */
+	/** @var ?string Mode in which the stream was opened */
 	private $mode;
 
 	/** @var ?\Iterator Iterator used with opendir() related calls */
@@ -123,6 +125,7 @@ class Stream_Wrapper {
 
 		// Set the client passed in as the default stream context client
 		stream_wrapper_register( $protocol, get_called_class(), STREAM_IS_URL );
+		/** @var array{s3: array} */
 		$default = stream_context_get_options( stream_context_get_default() );
 		$default[ $protocol ]['client'] = $client;
 
@@ -161,17 +164,17 @@ class Stream_Wrapper {
 		}
 
 		return $this->boolCall(
-			function() use ( $path ) : bool {
+			function() : bool {
 				switch ( $this->mode ) {
 					case 'r':
-						return $this->openReadStream( $path );
+						return $this->openReadStream();
 					case 'a':
-						return $this->openAppendStream( $path );
+						return $this->openAppendStream();
 					default:
 						/**
 						 * As we open a temp stream, we don't actually know if we have writing ability yet.
 						 * This means functions like copy() will not fail correctly, as the write to s3
-						 * is only attemped on stream_flush() which is too late to report to copy()
+						 * is only attempted on stream_flush() which is too late to report to copy()
 						 * et al that the write has failed.
 						 *
 						 * As a work around, we attempt to write an empty object.
@@ -187,18 +190,25 @@ class Stream_Wrapper {
 							return $this->triggerError( $e->getMessage() );
 						}
 
-						return $this->openWriteStream( $path );
+						return $this->openWriteStream();
 				}
 			}
 		);
 	}
 
 	public function stream_eof() : bool {
+		if ( ! $this->body ) {
+			return true;
+		}
 		return $this->body->eof();
 	}
 
-	public function stream_flush() {
+	public function stream_flush() : bool {
 		if ( $this->mode == 'r' ) {
+			return false;
+		}
+
+		if ( ! $this->body ) {
 			return false;
 		}
 
@@ -289,9 +299,15 @@ class Stream_Wrapper {
 		return false;
 	}
 
+	/**
+	 * @return bool|int
+	 */
 	public function stream_tell() {
 		return $this->boolCall(
 			function() {
+				if ( ! $this->body ) {
+					return false;
+				}
 				return $this->body->tell();
 			}
 		);
@@ -426,7 +442,6 @@ class Stream_Wrapper {
 		return $this->boolCall(
 			function () use ( $parts, $path ) {
 				try {
-					/** @var S3ObjectResultArray */
 					$result = $this->getClient()->headObject( $parts );
 					if ( substr( $parts['Key'], -1, 1 ) == '/' &&
 					$result['ContentLength'] == 0
@@ -436,7 +451,9 @@ class Stream_Wrapper {
 						return $this->formatUrlStat( $path );
 					} else {
 						// Attempt to stat and cache regular object
-						return $this->formatUrlStat( $result->toArray() );
+						/** @var S3ObjectResultArray */
+						$result_array = $result->toArray();
+						return $this->formatUrlStat( $result_array );
 					}
 				} catch ( S3Exception $e ) {
 					// Maybe this isn't an actual key, but a prefix. Do a prefix
@@ -458,7 +475,7 @@ class Stream_Wrapper {
 	}
 
 	/**
-	 * @param array{Bucket: string, Key: string} $parts
+	 * @param array{Bucket: string, Key: string|null} $parts
 	 * @param string $path
 	 * @param int $flags
 	 * @return StatArray|bool
@@ -724,7 +741,7 @@ class Stream_Wrapper {
 		);
 	}
 
-	public function stream_cast( $cast_as ) {
+	public function stream_cast( int $cast_as ) : bool {
 		return false;
 	}
 
@@ -751,10 +768,14 @@ class Stream_Wrapper {
 
 		// When using mode "x" validate if the file exists before attempting
 		// to read
+		/** @var string */
+		$bucket = $this->getOption( 'Bucket' );
+		/** @var string */
+		$key = $this->getOption( 'Key' );
 		if ( $mode == 'x' &&
 			$this->getClient()->doesObjectExist(
-				$this->getOption( 'Bucket' ),
-				$this->getOption( 'Key' ),
+				$bucket,
+				$key,
 				$this->getOptions( true )
 			)
 		) {
@@ -770,7 +791,7 @@ class Stream_Wrapper {
 	 * @param bool $removeContextData Set to true to remove contextual kvp's
 	 *                                like 'client' from the result.
 	 *
-	 * @return array{client?: S3ClientInterface, cache?: CacheInterface, Bucket: string, Key: string, acl: string, seekable?: bool}
+	 * @return OptionsArray
 	 */
 	private function getOptions( $removeContextData = false ) {
 		// Context is not set when doing things like stat
@@ -802,12 +823,12 @@ class Stream_Wrapper {
 	/**
 	 * Get a specific stream context option
 	 *
-	 * @param string $name Name of the option to retrieve
+	 * @param string $name
+	 * @return mixed
 	 */
 	private function getOption( $name ) {
 		$options = $this->getOptions();
-
-		return isset( $options[ $name ] ) ? $options[ $name ] : null;
+		return $options[ $name ];
 	}
 
 	/**
@@ -817,7 +838,7 @@ class Stream_Wrapper {
 	 * @throws \RuntimeException if no client has been configured
 	 */
 	private function getClient() : S3ClientInterface {
-		/** @var ?S3ClientInterface */
+		/** @var S3ClientInterface|null */
 		$client = $this->getOption( 'client' );
 		if ( ! $client ) {
 			throw new \RuntimeException( 'No client in stream context' );
@@ -849,7 +870,7 @@ class Stream_Wrapper {
 	 *
 	 * @param string $path Path passed to the stream wrapper
 	 *
-	 * @return array{Bucket: string, Key: string} Hash of 'Bucket', 'Key', and custom params from the context
+	 * @return array{Bucket: string, Key: string|null} Hash of 'Bucket', 'Key', and custom params from the context
 	 */
 	private function withPath( $path ) {
 		$params = $this->getOptions( true );
@@ -860,7 +881,9 @@ class Stream_Wrapper {
 	private function openReadStream() : bool {
 		$client = $this->getClient();
 		$command = $client->getCommand( 'GetObject', $this->getOptions( true ) );
-		$command['@http']['stream'] = true;
+		if ( is_array( $command['@http'] ) ) {
+			$command['@http']['stream'] = true;
+		}
 		/** @var array{Body: StreamInterface, ContentLength: int} */
 		$result = $client->execute( $command );
 		$this->size = $result['ContentLength'];
@@ -885,6 +908,7 @@ class Stream_Wrapper {
 			$client = $this->getClient();
 			/** @var array */
 			$request = $this->getOptions( true );
+			/** @var StreamInterface */
 			$this->body = $client->getObject( $request )['Body'];
 			$this->body->seek( 0, SEEK_END );
 			return true;
@@ -1109,10 +1133,11 @@ class Stream_Wrapper {
 	}
 
 	/**
-	 * @return LruArrayCache
+	 * @return CacheInterface
 	 */
-	private function getCacheStorage() : LruArrayCache {
+	private function getCacheStorage() : CacheInterface {
 		if ( ! $this->cache ) {
+			/** @var CacheInterface */
 			$this->cache = $this->getOption( 'cache' ) ?: new LruArrayCache();
 		}
 
