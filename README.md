@@ -149,7 +149,7 @@ Private uploads can be transitioned to public by calling `S3_Uploads::set_attach
 S3_Uploads::get_instance()->set_attachment_files_acl( 15, 'public-read' );
 ```
 
-The default expiry for all private file URLs is 24 hours. You can modify this by using the `s3_uploads_private_attachment_url_expiry` WordPress filter. The value can be any string interpreted by `strtotime`. For example:
+The default expiry for all private file URLs is 6 hours. You can modify this by using the `s3_uploads_private_attachment_url_expiry` WordPress filter. The value can be any string interpreted by `strtotime`. For example:
 
 ```php
 add_filter( 's3_uploads_private_attachment_url_expiry', function ( $expiry ) {

@@ -5,7 +5,7 @@ Plugin Name: S3 Uploads
 Description: Store uploads in S3
 Author: Human Made Limited
 Version: 3.0.0-beta
-Author URI: http://hmn.md
+Author URI: https://hmn.md
 */
 
 require_once __DIR__ . '/inc/namespace.php';

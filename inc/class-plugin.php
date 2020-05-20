@@ -471,18 +471,17 @@ class Plugin {
 		$s3 = $this->s3();
 		$commands = [];
 		foreach ( $locations as $location ) {
-			$commands[] = $s3->getCommand(
-				'putObjectAcl', [
-					'Bucket' => $location['bucket'],
-					'Key' => $location['key'],
-					'ACL' => $acl,
-				]
-			);
-			try {
-				Aws\CommandPool::batch( $s3, $commands );
-			} catch ( Exception $e ) {
-				return new WP_Error( $e->getCode(), $e->getMessage() );
-			}
+			$commands[] = $s3->getCommand( 'putObjectAcl', [
+				'Bucket' => $location['bucket'],
+				'Key' => $location['key'],
+				'ACL' => $acl,
+			] );
+		}
+
+		try {
+			Aws\CommandPool::batch( $s3, $commands );
+		} catch ( Exception $e ) {
+			return new WP_Error( $e->getCode(), $e->getMessage() );
 		}
 
 		return null;
@@ -568,11 +567,15 @@ class Plugin {
 	/**
 	 * Add the S3 signed params to an image src array.
 	 *
-	 * @param array{0: string, 1: int, 2: int} $image
+	 * @param array{0: string, 1: int, 2: int}|false $image
 	 * @param integer $post_id
-	 * @return array{0: string, 1: int, 2: int}
+	 * @return array{0: string, 1: int, 2: int}|false
 	 */
-	public function add_s3_signed_params_to_attachment_image_src( array $image, int $post_id ) : array {
+	public function add_s3_signed_params_to_attachment_image_src( $image, int $post_id ) {
+		if ( ! $image ) {
+			return $image;
+		}
+
 		$image[0] = $this->add_s3_signed_params_to_attachment_url( $image[0], $post_id );
 		return $image;
 	}
