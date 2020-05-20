@@ -53,6 +53,12 @@ class S3_Uploads {
 		remove_filter( 'admin_notices', 'wpthumb_errors' );
 
 		add_action( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
+
+		add_action( 'wp_get_attachment_url', array( $this, 'add_s3_signed_params_to_attachment_url' ), 10, 2 );
+		add_action( 'wp_get_attachment_image_src', array( $this, 'add_s3_signed_params_to_attachment_image_src' ), 10, 2 );
+		add_action( 'wp_calculate_image_srcset', array( $this, 'add_s3_signed_params_to_attachment_image_srcset' ), 10, 5 );
+
+		add_filter( 'wp_generate_attachment_metadata', array( $this, 'set_attachment_private_on_generate_attachment_metadata' ), 10, 2 );
 	}
 
 	/**
@@ -64,6 +70,12 @@ class S3_Uploads {
 		remove_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
 		remove_filter( 'wp_image_editors', array( $this, 'filter_editors' ), 9 );
 		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
+
+		remove_action( 'wp_get_attachment_url', array( $this, 'add_s3_signed_params_to_attachment_url' ) );
+		remove_action( 'wp_get_attachment_image_src', array( $this, 'add_s3_signed_params_to_attachment_image_src' ) );
+		remove_action( 'wp_calculate_image_srcset', array( $this, 'add_s3_signed_params_to_attachment_image_srcset' ) );
+
+		remove_filter( 'wp_generate_attachment_metadata', array( $this, 'set_attachment_private_on_generate_attachment_metadata' ) );
 	}
 
 	/**
@@ -74,8 +86,8 @@ class S3_Uploads {
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
 			S3_Uploads_Stream_Wrapper::register( $this->s3() );
-			$objectAcl = defined( 'S3_UPLOADS_OBJECT_ACL' ) ? S3_UPLOADS_OBJECT_ACL : 'public-read';
-			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', $objectAcl );
+			$acl = defined( 'S3_UPLOADS_OBJECT_ACL' ) ? S3_UPLOADS_OBJECT_ACL : 'public-read';
+			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', $acl );
 		}
 
 		stream_context_set_option( stream_context_get_default(), 's3', 'seekable', true );
@@ -163,12 +175,75 @@ class S3_Uploads {
 	}
 
 	/**
+	 * Reverse a file url in the uploads directory to the params needed for S3.
+	 *
+	 * @param string $url
+	 * @return array
+	 */
+	public function get_s3_location_for_url( string $url ) : ?array {
+		$s3_url = 'https://' . $this->get_s3_bucket() . '.s3.amazonaws.com/';
+		if ( strpos( $url, $s3_url ) === 0 ) {
+			$parsed = parse_url( $url );
+			return [
+				'bucket' => $this->get_s3_bucket(),
+				'key'    => ltrim( $parsed['path'], '/' ),
+				'query'  => $parsed['query'] ?? null,
+			];
+		}
+		$upload_dir = wp_upload_dir();
+
+		if ( strpos( $url, $upload_dir['baseurl'] ) === false ) {
+			return null;
+		}
+
+		$path = str_replace( $upload_dir['baseurl'], $upload_dir['basedir'], $url );
+		$parsed = parse_url( $path );
+		return [
+			'bucket' => $parsed['host'],
+			'key'    => ltrim( $parsed['path'], '/' ),
+			'query'  => $parsed['query'] ?? null,
+		];
+	}
+
+	/**
+	 * Reverse a file path in the uploads directory to the params needed for S3.
+	 *
+	 * @param string $url
+	 * @return array
+	 */
+	public function get_s3_location_for_path( string $path ) : ?array {
+		$parsed = parse_url( $path );
+		if ( $parsed['scheme'] !== 's3' ) {
+			return null;
+		}
+		return [
+			'bucket' => $parsed['host'],
+			'key'    => ltrim( $parsed['path'], '/' ),
+		];
+	}
+
+	/**
 	 * @return Aws\S3\S3Client
 	 */
 	public function s3() {
 
 		if ( ! empty( $this->s3 ) ) {
 			return $this->s3;
+		}
+
+		$this->s3 = $this->get_aws_sdk()->createS3();
+		return $this->s3;
+	}
+
+	/**
+	 * Get the AWS Sdk.
+	 *
+	 * @return AWS\Sdk
+	 */
+	public function get_aws_sdk() : AWS\Sdk {
+		$sdk = apply_filters( 's3_uploads_aws_sdk', null, $this );
+		if ( $sdk ) {
+			return $sdk;
 		}
 
 		$params = array( 'version' => 'latest' );
@@ -194,10 +269,10 @@ class S3_Uploads {
 			$params['request.options']['proxy'] = $proxy_auth . $proxy_address;
 		}
 
-		$params   = apply_filters( 's3_uploads_s3_client_params', $params );
-		$this->s3 = Aws\S3\S3Client::factory( $params );
+		$params = apply_filters( 's3_uploads_s3_client_params', $params );
 
-		return $this->s3;
+		$sdk = new Aws\Sdk( $params );
+		return $sdk;
 	}
 
 	public function filter_editors( $editors ) {
@@ -276,5 +351,169 @@ class S3_Uploads {
 		$temp_filename = wp_tempnam( $file );
 		copy( $file, $temp_filename );
 		return $temp_filename;
+	}
+
+	/**
+	 * Check if the attachment is private.
+	 *
+	 * @param integer $attachment_id
+	 * @return boolean
+	 */
+	public function is_private_attachment( int $attachment_id ) : bool {
+		/**
+		 * Filters whether an attachment should be private.
+		 *
+		 * @param bool Whether the attachment is private.
+		 * @param int  The attachment ID.
+		 */
+		return apply_filters( 's3_uploads_is_attachment_private', false, $attachment_id );
+	}
+
+	/**
+	 * Update the ACL (Access Control List) for an attachments files.
+	 *
+	 * @param integer $attachment_id
+	 * @param string $acl public-read|private
+	 * @return void
+	 */
+	public function set_attachment_files_acl( int $attachment_id, string $acl ) : ?WP_Error {
+		$files = static::get_attachment_files( $attachment_id );
+		$locations = array_map( [ $this, 'get_s3_location_for_path' ], $files );
+		$s3 = $this->s3();
+		$commands = [];
+		foreach ( $locations as $location ) {
+			$commands[] = $s3->getCommand( 'putObjectAcl', [
+				'Bucket' => $location['bucket'],
+				'Key' => $location['key'],
+				'ACL' => $acl,
+			] );
+		}
+
+		try {
+			Aws\CommandPool::batch( $s3, $commands );
+		} catch ( Exception $e ) {
+			return new WP_Error( $e->getCode(), $e->getMessage() );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get all the files stored for a given attachment.
+	 *
+	 * @param integer $attachment_id
+	 * @return array Array of all full paths to the attachment's files.
+	 */
+	public static function get_attachment_files( int $attachment_id ) : array {
+		$uploadpath = wp_get_upload_dir();
+		$main_file = get_attached_file( $attachment_id );
+		$files = [ $main_file ];
+		$meta = wp_get_attachment_metadata( $attachment_id );
+		if ( isset( $meta['sizes'] ) ) {
+			foreach ( $meta['sizes'] as $size => $sizeinfo ) {
+				$files[] = $uploadpath['basedir'] . $sizeinfo['file'];
+			}
+		}
+
+		$original_image = get_post_meta( $attachment_id, 'original_image', true );
+		if ( $original_image ) {
+			$files[] = $uploadpath['basedir'] . $original_image;
+		}
+
+		$backup_sizes = get_post_meta( $attachment_id, '_wp_attachment_backup_sizes', true );
+		if ( $backup_sizes ) {
+			foreach ( $backup_sizes as $size => $sizeinfo ) {
+				// Backup sizes only store the backup filename, which is relative to the
+				// main attached file, unlike the metadata sizes array.
+				$files[] = path_join( dirname( $main_file ), $sizeinfo['file'] );
+			}
+		}
+
+		$files = apply_filters( 's3_uploads_get_attachment_files', $files, $attachment_id );
+
+		return $files;
+	}
+
+	/**
+	 * Add the S3 signed params onto an image for for a given attachment.
+	 *
+	 * This function determines whether the attachment needs a signed URL, so is safe to
+	 * pass any URL.
+	 *
+	 * @param string $url
+	 * @param integer $post_id
+	 * @return string
+	 */
+	public function add_s3_signed_params_to_attachment_url( string $url, int $post_id ) : string {
+		if ( ! $this->is_private_attachment( $post_id ) ) {
+			return $url;
+		}
+		$path = $this->get_s3_location_for_url( $url );
+		if ( ! $path ) {
+			return $url;
+		}
+		$cmd = $this->s3()->getCommand('GetObject', [
+			'Bucket' => $path['bucket'],
+			'Key' => $path['key'],
+		]);
+
+		$presigned_url_expires = apply_filters( 's3_uploads_private_attachment_url_expiry', '+6 hours', $post_id );
+		$query = $this->s3()->createPresignedRequest( $cmd, $presigned_url_expires )->getUri()->getQuery();
+
+		// The URL could have query params on it already (such as being an already signed URL),
+		// but query params will mean the S3 signed URL will become corrupt. So, we have to
+		// remove all query params.
+		$url = strtok( $url, '?' ) . '?' . $query;
+		$url = apply_filters( 's3_uploads_presigned_url', $url, $post_id );
+
+		return $url;
+	}
+
+	/**
+	 * Add the S3 signed params to an image src array.
+	 *
+	 * @param array|false $image
+	 * @param integer $post_id
+	 * @return array|false
+	 */
+	public function add_s3_signed_params_to_attachment_image_src( $image, int $post_id ) {
+		if ( ! $image ) {
+			return $image;
+		}
+
+		$image[0] = $this->add_s3_signed_params_to_attachment_url( $image[0], $post_id );
+		return $image;
+	}
+
+	/**
+	 * Add the S3 signed params to the image srcset (response image) sizes.
+	 *
+	 * @param array $sources
+	 * @param array $sizes
+	 * @param string $src
+	 * @param array $meta
+	 * @param integer $post_id
+	 * @return array
+	 */
+	public function add_s3_signed_params_to_attachment_image_srcset( array $sources, array $sizes, string $src, array $meta, int $post_id ) : array {
+		foreach ( $sources as &$source ) {
+			$source['url'] = $this->add_s3_signed_params_to_attachment_url( $source['url'], $post_id );
+		}
+		return $sources;
+	}
+
+	/**
+	 * Whenever attachment metadata is generated, set the attachment files to private if it's a private attachment.
+	 *
+	 * @param array $metadata    The attachment metadata.
+	 * @param int $attachment_id The attachment ID
+	 * @return array
+	 */
+	public function set_attachment_private_on_generate_attachment_metadata( array $metadata, int $attachment_id ) : array {
+		if ( $this->is_private_attachment( $attachment_id ) ) {
+			$this->set_attachment_files_acl( $attachment_id, 'private' );
+		}
+
+		return $metadata;
 	}
 }

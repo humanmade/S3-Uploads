@@ -29,7 +29,7 @@ It's focused on providing a highly robust S3 interface with no "bells and whistl
 
 ## Requirements
 
-- PHP >= 5.5
+- PHP >= 7.1
 - WordPress >= 5.3
 
 ## Getting Set Up
@@ -129,6 +129,30 @@ wp s3-uploads cp <from> <to>
 ```
 
 Note: as either `<from>` or `<to>` can be S3 or local locations, you must specify the full S3 location via `s3://mybucket/mydirectory` for example `cp ./test.txt s3://mybucket/test.txt`.
+
+## Private Uploads
+
+WordPress (and therefor S3 Uploads) default behaviour is that all uploaded media files are publicly accessible. In certain cases which may not be desireable. S3 Uploads supports setting S3 Objects to a `private` ACL and providing temporarily signed URLs for all files that are marked as private.
+
+S3 Uploads does not make assumptions or provide UI for marking attachments as private, instead you should integrate the `s3_uploads_is_attachment_private` WordPress filter to control the behaviour. For example, to mark _all_ attachments as private:
+
+```php
+add_filter( 's3_uploads_is_attachment_private', '__return_true' );
+```
+
+Private uploads can be transitioned to public by calling `S3_Uploads::set_attachment_files_acl( $id, 'public-read' )` or vica-versa. For example:
+
+```php
+S3_Uploads::get_instance()->set_attachment_files_acl( 15, 'public-read' );
+```
+
+The default expiry for all private file URLs is 6 hours. You can modify this by using the `s3_uploads_private_attachment_url_expiry` WordPress filter. The value can be any string interpreted by `strtotime`. For example:
+
+```php
+add_filter( 's3_uploads_private_attachment_url_expiry', function ( $expiry ) {
+	return '+1 hour';
+} );
+```
 
 ## Cache Control
 
