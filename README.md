@@ -44,6 +44,7 @@ composer require humanmade/s3-uploads
 
 ```php
 require_once __DIR__ . '/vendor/autoload.php';
+```
 
 ### Install Manually
 
