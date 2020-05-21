@@ -40,7 +40,10 @@ It's focused on providing a highly robust S3 interface with no "bells and whistl
 composer require humanmade/s3-uploads
 ```
 
-**Note:** [Composer's autoloader](https://getcomposer.org/doc/01-basic-usage.md#autoloading) must be loaded before S3 Uploads is loaded. We recommend loading it in your `wp-config.php` before `wp-settings.php` is loaded.
+**Note:** [Composer's autoloader](https://getcomposer.org/doc/01-basic-usage.md#autoloading) must be loaded before S3 Uploads is loaded. We recommend loading it in your `wp-config.php` before `wp-settings.php` is loaded as shown below.
+
+```php
+require_once __DIR__ . '/vendor/autoload.php';
 
 ### Install Manually
 
