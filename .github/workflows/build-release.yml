@@ -18,9 +18,12 @@ jobs:
         args: 'install -oa'
 
     - name: Archive assets
-      uses: montudor/action-zip@v0.1.0
+      uses: thedoctor0/zip-release@master
       with:
-        args: zip -qq -r ./manual-install.zip .
+        filename: 'manual-install.zip'
+        exclusions: '*.git* tests/*'
+        path: '.'
+        directory: '.'
 
     - name: Upload zip to release
       uses: AButler/upload-release-assets@v2.0
