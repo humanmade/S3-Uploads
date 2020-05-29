@@ -1,0 +1,27 @@
+name: Build Release
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  build-manual-install:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      uses: nick-zh/composer@php7.3
+
+    - name: Archive assets
+      uses: montudor/action-zip@v0.1.0
+      with:
+        args: zip -qq -r ./manual-install.zip .
+
+    - name: Upload zip to release
+      uses: AButler/upload-release-assets@v2.0
+      with:
+        files: 'manual-install.zip'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
