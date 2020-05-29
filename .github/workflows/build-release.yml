@@ -21,7 +21,7 @@ jobs:
       uses: thedoctor0/zip-release@master
       with:
         filename: 'manual-install.zip'
-        exclusions: '*.git* tests/*'
+        exclusions: '*.git* *tests/ *tests/data/ *tests/* *tests/**/*'
         path: '.'
         directory: '.'
 
