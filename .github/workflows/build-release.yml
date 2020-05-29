@@ -14,6 +14,8 @@ jobs:
 
     - name: Install dependencies
       uses: nick-zh/composer@php7.3
+      with:
+        args: 'install -oa'
 
     - name: Archive assets
       uses: montudor/action-zip@v0.1.0
