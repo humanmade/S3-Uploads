@@ -331,6 +331,13 @@ class S3_Uploads {
 	 * @return array
 	 */
 	function wp_filter_resource_hints( $hints, $relation_type ) {
+		if (
+			( defined( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) && S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL ) ||
+			( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL )
+		) {
+			return $hints;
+		}
+
 		if ( 'dns-prefetch' === $relation_type ) {
 			$hints[] = $this->get_s3_url();
 		}
