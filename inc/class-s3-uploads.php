@@ -97,7 +97,7 @@ class S3_Uploads {
 
 		$this->original_upload_dir = $dirs;
 
-        $uploads_path_replacement = (defined('S3_UPLOADS_DROP_UPLOADS_DIR') && S3_UPLOADS_DROP_UPLOADS_DIR)?WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'uploads':WP_CONTENT_DIR;
+        	$uploads_path_replacement = (defined('S3_UPLOADS_DROP_UPLOADS_DIR') && S3_UPLOADS_DROP_UPLOADS_DIR)?WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'uploads':WP_CONTENT_DIR;
 		$dirs['path']    = str_replace( $uploads_path_replacement, 's3://' . $this->bucket, $dirs['path'] );
 		$dirs['basedir'] = str_replace( $uploads_path_replacement, 's3://' . $this->bucket, $dirs['basedir'] );
 
