@@ -609,7 +609,7 @@ class Stream_Wrapper {
 		//
 		// Anyone reading this far, brace yourselves for a mighty horrible hack.
 		$backtrace = debug_backtrace( 0, 3 );
-		if ( $backtrace[1]['function'] === 'scandir' && $backtrace[2]['function'] === 'wp_unique_filename' ) {
+		if ( isset( $backtrace[1]['function'] ) && $backtrace[1]['function'] === 'scandir' && isset( $backtrace[2]['function'] ) && $backtrace[2]['function'] === 'wp_unique_filename' ) {
 			$filename = $backtrace[2]['args'][1];
 			$name = pathinfo( $filename, PATHINFO_FILENAME );
 			$op['Prefix'] .= $name;
