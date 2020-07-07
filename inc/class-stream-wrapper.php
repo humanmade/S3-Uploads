@@ -583,11 +583,19 @@ class Stream_Wrapper {
 		}
 
 		if ( $params['Key'] ) {
-			$params['Key'] = rtrim( $params['Key'], $delimiter ) . $delimiter;
+			// Support paths ending in "*" to allow listing of arbitrary prefixes.
+			if ( substr( $params['Key'], -1, 1 ) === '*' ) {
+				$params['Key'] = rtrim( $params['Key'], '*' );
+				// Set the opened bucket prefix to be the directory. This is because $this->openedBucketPrefix
+				// will be removed from the resulting keys, and we want to return all files in the directory
+				// of the wildcard.
+				$this->openedBucketPrefix = substr( $params['Key'], 0, strrpos( $params['Key'], '/' ) + 1 );
+			} else {
+				$params['Key'] = rtrim( $params['Key'], $delimiter ) . $delimiter;
+				$this->openedBucketPrefix = $params['Key'];
+			}
 			$op['Prefix'] = $params['Key'];
 		}
-
-		$this->openedBucketPrefix = $params['Key'];
 
 		// WordPress attempts to scan whole directories via wp_unique_filename(), which can be very slow
 		// when there are thousands of files in a single uploads sub directory. This is due to behaviour
@@ -608,7 +616,7 @@ class Stream_Wrapper {
 		// return a much smaller subset.
 		//
 		// Anyone reading this far, brace yourselves for a mighty horrible hack.
-		$backtrace = debug_backtrace( 0, 3 );
+		$backtrace = debug_backtrace( 0, 3 ); // phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
 		if ( isset( $backtrace[1]['function'] ) && $backtrace[1]['function'] === 'scandir' && isset( $backtrace[2]['function'] ) && $backtrace[2]['function'] === 'wp_unique_filename' ) {
 			$filename = $backtrace[2]['args'][1];
 			$name = pathinfo( $filename, PATHINFO_FILENAME );
@@ -854,7 +862,7 @@ class Stream_Wrapper {
 	 */
 	private function getOption( $name ) {
 		$options = $this->getOptions();
-		return $options[ $name ];
+		return $options[ $name ] ?? null;
 	}
 
 	/**

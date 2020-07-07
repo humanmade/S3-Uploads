@@ -113,6 +113,8 @@ class Plugin {
 		add_action( 'wp_calculate_image_srcset', [ $this, 'add_s3_signed_params_to_attachment_image_srcset' ], 10, 5 );
 
 		add_filter( 'wp_generate_attachment_metadata', [ $this, 'set_attachment_private_on_generate_attachment_metadata' ], 10, 2 );
+
+		add_filter( 'pre_wp_unique_filename_file_list', [ $this, 'get_files_for_unique_filename_file_list' ], 10, 3 );
 	}
 
 	/**
@@ -610,5 +612,19 @@ class Plugin {
 		}
 
 		return $metadata;
+	}
+
+	/**
+	 * Override the files used for wp_unique_filename() comparisons
+	 *
+	 * @param array|null $files
+	 * @param string $dir
+	 * @return array
+	 */
+	public function get_files_for_unique_filename_file_list( ?array $files, string $dir, string $filename ) : array {
+		$name = pathinfo( $filename, PATHINFO_FILENAME );
+		// The s3:// streamwrapper support listing by partial prefixes with wildcards.
+		// For example, scandir( s3://bucket/2019/06/my-image* )
+		return scandir( trailingslashit( $dir ) . $name . '*' );
 	}
 }
