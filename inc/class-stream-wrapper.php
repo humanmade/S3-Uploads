@@ -583,11 +583,51 @@ class Stream_Wrapper {
 		}
 
 		if ( $params['Key'] ) {
-			$params['Key'] = rtrim( $params['Key'], $delimiter ) . $delimiter;
+			// Support paths ending in "*" to allow listing of arbitrary prefixes.
+			if ( substr( $params['Key'], -1, 1 ) === '*' ) {
+				$params['Key'] = rtrim( $params['Key'], '*' );
+				// Set the opened bucket prefix to be the directory. This is because $this->openedBucketPrefix
+				// will be removed from the resulting keys, and we want to return all files in the directory
+				// of the wildcard.
+				$this->openedBucketPrefix = substr( $params['Key'], 0, ( strrpos( $params['Key'], '/' ) ?: 0 ) + 1 );
+			} else {
+				$params['Key'] = rtrim( $params['Key'], $delimiter ) . $delimiter;
+				$this->openedBucketPrefix = $params['Key'];
+			}
 			$op['Prefix'] = $params['Key'];
 		}
 
-		$this->openedBucketPrefix = $params['Key'];
+		// WordPress attempts to scan whole directories via wp_unique_filename(), which can be very slow
+		// when there are thousands of files in a single uploads sub directory. This is due to behaviour
+		// introduced in https://core.trac.wordpress.org/changeset/46822/. Essentially when a file is uploaded,
+		// it's not enough to make sure no filename already exists (and append a `-1` to the end), because
+		// image sizes of that image could also conflict with already existing files too. Because image sizes
+		// (in the form of -800x600.jpg) can be arbitrary integers, it's not possible to iterate the filesystem
+		// for all possible matching / colliding file names. WordPress core uses a preg-match on all files that
+		// might conflict with the given filename.
+		//
+		// Fortunately, we can make use of S3 arbitrary prefixes to optimize this query. The WordPress regex
+		// done via _wp_check_existing_file_names() is essentially `^$filename-...`, so we can modify the prefix
+		// to include the filename, therefore only return a subset of files from S3 that are more likely to match
+		// the preg_match() call.
+		//
+		// Essentially, wp_unique_filename( my-file.jpg ) doing a `scandir( s3://bucket/2019/04/ )` will actually result in an s3
+		// listObject query for `s3://bucket/2019/04/my-file` which means even if there are millions of files in `2019/04/` we only
+		// return a much smaller subset.
+		//
+		// Anyone reading this far, brace yourselves for a mighty horrible hack.
+		$backtrace = debug_backtrace( 0, 3 ); // phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
+		if ( isset( $backtrace[1]['function'] )
+			&& $backtrace[1]['function'] === 'scandir'
+			&& isset( $backtrace[2]['function'] )
+			&& $backtrace[2]['function'] === 'wp_unique_filename' && isset( $backtrace[2]['args'][1] )
+			&& isset( $op['Prefix'] )
+		) {
+			/** @var string $filename */
+			$filename = $backtrace[2]['args'][1];
+			$name = pathinfo( $filename, PATHINFO_FILENAME );
+			$op['Prefix'] .= $name;
+		}
 
 		// Filter our "/" keys added by the console as directories, and ensure
 		// that if a filter function is provided that it passes the filter.
@@ -828,7 +868,7 @@ class Stream_Wrapper {
 	 */
 	private function getOption( $name ) {
 		$options = $this->getOptions();
-		return $options[ $name ];
+		return $options[ $name ] ?? null;
 	}
 
 	/**
