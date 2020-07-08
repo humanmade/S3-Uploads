@@ -149,7 +149,7 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 		$files = scandir( $upload_dir['path'] . '/my-file*' );
 		$this->assertEquals(
 			[
-				'my-file-scaled.jpg'
+				'my-file-scaled.jpg',
 			],
 			$files
 		);

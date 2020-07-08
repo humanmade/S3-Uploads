@@ -589,7 +589,7 @@ class Stream_Wrapper {
 				// Set the opened bucket prefix to be the directory. This is because $this->openedBucketPrefix
 				// will be removed from the resulting keys, and we want to return all files in the directory
 				// of the wildcard.
-				$this->openedBucketPrefix = substr( $params['Key'], 0, strrpos( $params['Key'], '/' ) + 1 );
+				$this->openedBucketPrefix = substr( $params['Key'], 0, ( strrpos( $params['Key'], '/' ) ?: 0 ) + 1 );
 			} else {
 				$params['Key'] = rtrim( $params['Key'], $delimiter ) . $delimiter;
 				$this->openedBucketPrefix = $params['Key'];
@@ -617,7 +617,13 @@ class Stream_Wrapper {
 		//
 		// Anyone reading this far, brace yourselves for a mighty horrible hack.
 		$backtrace = debug_backtrace( 0, 3 ); // phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
-		if ( isset( $backtrace[1]['function'] ) && $backtrace[1]['function'] === 'scandir' && isset( $backtrace[2]['function'] ) && $backtrace[2]['function'] === 'wp_unique_filename' ) {
+		if ( isset( $backtrace[1]['function'] )
+			&& $backtrace[1]['function'] === 'scandir'
+			&& isset( $backtrace[2]['function'] )
+			&& $backtrace[2]['function'] === 'wp_unique_filename' && isset( $backtrace[2]['args'][1] )
+			&& isset( $op['Prefix'] )
+		) {
+			/** @var string $filename */
 			$filename = $backtrace[2]['args'][1];
 			$name = pathinfo( $filename, PATHINFO_FILENAME );
 			$op['Prefix'] .= $name;

@@ -493,7 +493,7 @@ class Plugin {
 	 * Get all the files stored for a given attachment.
 	 *
 	 * @param integer $attachment_id
-	 * @return array Array of all full paths to the attachment's files.
+	 * @return list<string> Array of all full paths to the attachment's files.
 	 */
 	public static function get_attachment_files( int $attachment_id ) : array {
 		$uploadpath = wp_get_upload_dir();
