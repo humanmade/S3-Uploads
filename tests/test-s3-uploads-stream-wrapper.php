@@ -140,4 +140,18 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 		$this->assertTrue( file_exists( $result['file'] ) );
 		$this->assertEquals( $contents, file_get_contents( $result['file'] ) );
 	}
+
+	public function test_list_directory_with_wildcard() {
+		$upload_dir = wp_upload_dir();
+
+		file_put_contents( $upload_dir['path'] . '/my-file-scaled.jpg', '' );
+		file_put_contents( $upload_dir['path'] . '/some-file-scaled.jpg', '' );
+		$files = scandir( $upload_dir['path'] . '/my-file*' );
+		$this->assertEquals(
+			[
+				'my-file-scaled.jpg',
+			],
+			$files
+		);
+	}
 }

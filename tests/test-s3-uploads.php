@@ -171,4 +171,16 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		$this->assertEquals( 'hmn-uploads', $uploads->get_s3_bucket() );
 	}
 
+	function test_wp_unique_filename() {
+		S3_Uploads\Plugin::get_instance()->setup();
+		$upload_dir = wp_upload_dir();
+
+		file_put_contents( $upload_dir['path'] . '/my-file-scaled.jpg', '' );
+		$filename = wp_unique_filename( $upload_dir['path'], 'my-file.jpg' );
+		$this->assertEquals( 'my-file-1.jpg', $filename );
+
+		$filename = wp_unique_filename( $upload_dir['path'], 'my-new-file.jpg' );
+		$this->assertEquals( 'my-new-file.jpg', $filename );
+	}
+
 }
