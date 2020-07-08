@@ -26,7 +26,7 @@
 	</tr>
 </table>
 
-S3 is a WordPress plugin to store uploads on S3. S3-Uploads aims to be a lightweight "drop-in" for storing uploads on Amazon S3 instead of the local filesystem.
+S3 Uploads is a WordPress plugin to store uploads on S3. S3 Uploads aims to be a lightweight "drop-in" for storing uploads on Amazon S3 instead of the local filesystem.
 
 It's focused on providing a highly robust S3 interface with no "bells and whistles", WP-Admin UI or much otherwise. It comes with some helpful WP-CLI commands for generating IAM users, listing files on S3 and Migrating your existing library to S3.
 
@@ -43,11 +43,17 @@ It's focused on providing a highly robust S3 interface with no "bells and whistl
 composer require humanmade/s3-uploads
 ```
 
+**Note:** [Composer's autoloader](https://getcomposer.org/doc/01-basic-usage.md#autoloading) must be loaded before S3 Uploads is loaded. We recommend loading it in your `wp-config.php` before `wp-settings.php` is loaded as shown below.
+
+```php
+require_once __DIR__ . '/vendor/autoload.php';
+```
+
 ### Install Manually
 
 If you do not use Composer to manage plugins or other dependencies, you can install the plugin manually. Download the `manual-install.zip` file from the [Releases page](https://github.com/humanmade/S3-Uploads/releases) and extract the ZIP file to your `plugins` directory.
 
-You can also `git clone` this repository, and run `composer install` in the plugin folder to pull in it's dependencies.
+You can also `git clone` this repository, and run `composer install` in the plugin folder to pull in its dependencies.
 
 ---
 
