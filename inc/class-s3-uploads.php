@@ -452,7 +452,7 @@ class S3_Uploads {
 	 * @param integer $post_id
 	 * @return string
 	 */
-	public function add_s3_signed_params_to_attachment_url( string $url, int $post_id ) : string {
+	public function add_s3_signed_params_to_attachment_url( string $url, $post_id ) : string {
 		if ( ! $this->is_private_attachment( $post_id ) ) {
 			return $url;
 		}
