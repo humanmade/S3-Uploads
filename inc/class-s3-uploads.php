@@ -97,8 +97,14 @@ class S3_Uploads {
 
 		$this->original_upload_dir = $dirs;
 
-		$dirs['path']    = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['path'] );
-		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['basedir'] );
+		$original_content_dir = WP_CONTENT_DIR;
+
+		if ( defined( 'UPLOADS' ) && ! ( is_multisite() && get_site_option( 'ms_files_rewriting' ) ) ) {
+			$original_content_dir = ABSPATH . UPLOADS ;
+		}
+
+		$dirs['path']    = str_replace( $original_content_dir, 's3://' . $this->bucket, $dirs['path'] );
+		$dirs['basedir'] = str_replace( $original_content_dir, 's3://' . $this->bucket, $dirs['basedir'] );
 
 		if ( ! defined( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) || ! S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL ) {
 
