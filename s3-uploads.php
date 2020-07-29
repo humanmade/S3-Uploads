@@ -4,7 +4,7 @@
 Plugin Name: S3 Uploads
 Description: Store uploads in S3
 Author: Human Made Limited
-Version: 2.1.0-RC2
+Version: 2.2.2
 Author URI: http://hmn.md
 */
 
@@ -30,7 +30,6 @@ function s3_uploads_init() {
 		return;
 	}
 
-
 	if ( ( ! defined( 'S3_UPLOADS_KEY' ) || ! defined( 'S3_UPLOADS_SECRET' ) ) && ! defined( 'S3_UPLOADS_USE_INSTANCE_PROFILE' ) ) {
 		return;
 	}
@@ -45,6 +44,7 @@ function s3_uploads_init() {
 
 	$instance = S3_Uploads::get_instance();
 	$instance->setup();
+
     if ( defined( 'S3_UPLOADS_IMAGIFY_KEY' ) ) {
         $imagify = new S3_Uploads_Imagify($instance);
         $wp_gallery = new S3_Uploads_WP_Gallery();
