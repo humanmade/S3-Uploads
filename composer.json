@@ -20,6 +20,7 @@
 	"type": "wordpress-plugin",
 	"require": {
 		"composer/installers": "~1.0",
+		"guzzlehttp/guzzle": "6.5.2",
 		"aws/aws-sdk-php": "3.142.8",
 		"wp-media/imagify-php": "^1.1",
 		"rosell-dk/webp-convert": "^2.3.2"
