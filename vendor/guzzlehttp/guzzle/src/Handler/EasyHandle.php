@@ -1,9 +1,7 @@
 <?php
-
 namespace GuzzleHttp\Handler;
 
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Utils;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -15,44 +13,28 @@ use Psr\Http\Message\StreamInterface;
  */
 final class EasyHandle
 {
-    /**
-     * @var resource cURL resource
-     */
+    /** @var resource cURL resource */
     public $handle;
 
-    /**
-     * @var StreamInterface Where data is being written
-     */
+    /** @var StreamInterface Where data is being written */
     public $sink;
 
-    /**
-     * @var array Received HTTP headers so far
-     */
+    /** @var array Received HTTP headers so far */
     public $headers = [];
 
-    /**
-     * @var ResponseInterface|null Received response (if any)
-     */
+    /** @var ResponseInterface Received response (if any) */
     public $response;
 
-    /**
-     * @var RequestInterface Request being sent
-     */
+    /** @var RequestInterface Request being sent */
     public $request;
 
-    /**
-     * @var array Request options
-     */
+    /** @var array Request options */
     public $options = [];
 
-    /**
-     * @var int cURL error number (if any)
-     */
+    /** @var int cURL error number (if any) */
     public $errno = 0;
 
-    /**
-     * @var \Throwable|null Exception during on_headers (if any)
-     */
+    /** @var \Exception Exception during on_headers (if any) */
     public $onHeadersException;
 
     /**
@@ -60,16 +42,16 @@ final class EasyHandle
      *
      * @throws \RuntimeException if no headers have been received.
      */
-    public function createResponse(): void
+    public function createResponse()
     {
         if (empty($this->headers)) {
             throw new \RuntimeException('No headers have been received');
         }
 
         // HTTP-version SP status-code SP reason-phrase
-        $startLine = \explode(' ', \array_shift($this->headers), 3);
-        $headers = Utils::headersFromLines($this->headers);
-        $normalizedKeys = Utils::normalizeHeaderKeys($headers);
+        $startLine = explode(' ', array_shift($this->headers), 3);
+        $headers = \GuzzleHttp\headers_from_lines($this->headers);
+        $normalizedKeys = \GuzzleHttp\normalize_header_keys($headers);
 
         if (!empty($this->options['decode_content'])
             && isset($normalizedKeys['content-encoding'])
@@ -90,25 +72,16 @@ final class EasyHandle
             }
         }
 
-        $statusCode = (int) $startLine[1];
-
         // Attach a response to the easy handle with the parsed headers.
         $this->response = new Response(
-            $statusCode,
+            $startLine[1],
             $headers,
             $this->sink,
-            \substr($startLine[0], 5),
+            substr($startLine[0], 5),
             isset($startLine[2]) ? (string) $startLine[2] : null
         );
     }
 
-    /**
-     * @param string $name
-     *
-     * @return void
-     *
-     * @throws \BadMethodCallException
-     */
     public function __get($name)
     {
         $msg = $name === 'handle'

@@ -1,0 +1,55 @@
+{
+  "name": "rosell-dk/image-mime-type-guesser",
+  "description": "Guess mime type of images",
+  "type": "library",
+  "license": "MIT",
+  "keywords": ["mime", "mime type", "image", "images"],
+  "scripts": {
+    "ci": [
+      "@test",
+      "@phpcs-all",
+      "@composer validate --no-check-all --strict"
+    ],
+    "cs-fix-all": [
+      "php-cs-fixer fix src"
+    ],
+    "cs-fix": "php-cs-fixer fix",
+    "cs-dry": "php-cs-fixer fix --dry-run --diff",
+    "test": "phpunit tests --coverage-text --coverage-clover=coverage.clover",
+    "test2": "phpunit tests",
+    "phpcs": "phpcs --standard=PSR2",
+    "phpcs-all": "phpcs --standard=PSR2 src",
+    "phpcbf": "phpcbf --standard=PSR2"
+  },
+  "extra": {
+      "scripts-descriptions": {
+        "ci": "Run tests before CI",
+        "phpcs": "Checks coding styles (PSR2) of file/dir, which you must supply. To check all, supply 'src'",
+        "phpcbf": "Fix coding styles (PSR2) of file/dir, which you must supply. To fix all, supply 'src'",
+        "cs-fix-all": "Fix the coding style of all the source files, to comply with the PSR-2 coding standard",
+        "cs-fix": "Fix the coding style of a PHP file or directory, which you must specify.",
+        "test": "Launches the preconfigured PHPUnit"
+      }
+  },
+  "autoload": {
+    "psr-4": { "ImageMimeTypeGuesser\\": "src/" }
+  },
+  "autoload-dev": {
+    "psr-4": { "ImageMimeTypeGuesser\\Tests\\": "tests/" }
+  },
+  "authors": [
+    {
+      "name": "Bjørn Rosell",
+      "homepage": "https://www.bitwise-it.dk/contact",
+      "role": "Project Author"
+    }
+  ],
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.11",
+    "phpunit/phpunit": "^5.7.27",
+    "squizlabs/php_codesniffer": "3.*"
+  },
+  "config": {
+    "sort-packages": true
+  }
+}
