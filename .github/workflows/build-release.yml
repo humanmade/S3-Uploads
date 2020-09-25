@@ -1,0 +1,32 @@
+name: Build Release
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  build-manual-install:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      uses: nick-zh/composer@php7.3
+      with:
+        args: 'install -oa'
+
+    - name: Archive assets
+      uses: thedoctor0/zip-release@master
+      with:
+        filename: 'manual-install.zip'
+        exclusions: '*.git* *tests/ *tests/data/ *tests/* *tests/**/*'
+        path: '.'
+        directory: '.'
+
+    - name: Upload zip to release
+      uses: AButler/upload-release-assets@v2.0
+      with:
+        files: 'manual-install.zip'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}

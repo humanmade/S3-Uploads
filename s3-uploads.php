@@ -5,7 +5,7 @@ Plugin Name: S3 Uploads
 Description: Store uploads in S3
 Author: Human Made Limited
 Version: 3.0.0-beta
-Author URI: http://hmn.md
+Author URI: https://hmn.md
 */
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
