@@ -483,7 +483,7 @@ class S3_Uploads {
 	 * @param integer $post_id
 	 * @return array|false
 	 */
-	public function add_s3_signed_params_to_attachment_image_src( $image, int $post_id ) {
+	public function add_s3_signed_params_to_attachment_image_src( $image, $post_id ) {
 		if ( ! $image ) {
 			return $image;
 		}
