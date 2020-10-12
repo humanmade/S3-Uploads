@@ -85,7 +85,24 @@ class S3_Uploads {
 		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
-			S3_Uploads_Stream_Wrapper::register( $this->s3() );
+			/**
+			 * Filter: 's3_uploads_stream_wrapper_cache' - Filter S3 stream wrapper instance.
+			 *
+			 * Allow injecting custom cache services to S3 stream wrapper.
+			 *
+			 * @api \Aws\CacheInterface|null Current stream wrapper caching instance
+			 * @api S3_Uploads               Instance of this class.
+			 */
+			$s3_uploads_stream_wrapper_cache = apply_filters( 's3_uploads_stream_wrapper_cache', null, $this );
+
+			/**
+			 * Ensure that filter returns usable class otherwise ignore it.
+			 */
+			if ( ! $s3_uploads_stream_wrapper_cache instanceof \Aws\CacheInterface || ! $s3_uploads_stream_wrapper_cache instanceof \Countable ) {
+				$s3_uploads_stream_wrapper_cache = null;
+			}
+
+			S3_Uploads_Stream_Wrapper::register( $this->s3(), 's3', $s3_uploads_stream_wrapper_cache );
 			$acl = defined( 'S3_UPLOADS_OBJECT_ACL' ) ? S3_UPLOADS_OBJECT_ACL : 'public-read';
 			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', $acl );
 		}
