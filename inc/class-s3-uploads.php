@@ -523,4 +523,43 @@ class S3_Uploads {
 
 		return $metadata;
 	}
+
+	/**
+	 * Update the metadata headers on an attachment's metadata by copying it over itself.
+	 *
+	 * @param integer $attachment_id
+	 * @param string $values associative array of metadata. Existing values for a key will be overwritten.
+	 * @return void
+	 */
+	public function set_attachment_meta( int $attachment_id, array $values ): ?WP_Error {
+		$files = static::get_attachment_files( $attachment_id );
+		$locations = array_map( [ $this, 'get_s3_location_for_path' ], $files );
+		$s3 = $this->s3();
+		$commands = [];
+		foreach ( $locations as $location ) {
+			try {
+				$headers = $s3 -> headObject([
+					'Bucket' => $location['bucket'],
+					'Key' => $location['key'],
+				]);
+
+				$new_meta = $values;
+				if (array_key_exists('Metadata', $headers) && is_array($headers['Metadata'])){
+					$new_meta = array_merge($headers['Metadata'], $values);
+				}
+
+				$s3->copyObject([
+					'Bucket' => $location['bucket'],
+					'Key' => $location['key'],
+					'CopySource' => $location['bucket'] . "/" . $location['key'],
+					'Metadata'=>$values,
+					'MetadataDirective'=>'REPLACE'
+				] );
+
+			} catch ( Exception $e ) {
+				return new WP_Error( $e->getCode(), $e->getMessage() );
+			}
+		}
+		return null;
+	}
 }
