@@ -159,7 +159,8 @@ class S3_Uploads_Stream_Wrapper
 					try {
 						$p = $this->params;
 						$p['Body'] = '';
-						$params['post_id'] = attachment_url_to_postid($params['Key']);
+						$filename = basename($params['Key']);
+						$params['post_id'] = attachment_url_to_postid($filename);
 						$p = apply_filters( 's3_uploads_putObject_params', $p );
 						unset($p['post_id']);
 						$this->getClient()->putObject($p);
@@ -211,7 +212,7 @@ class S3_Uploads_Stream_Wrapper
 		}
 
 		// Post ID (e.g., for an attachment) on the request which originated the file, if applicable
-		$filename = end(explode('/', $params['Key']));
+		$filename = basename($params['Key']);
 		$params_with_post_id = array_merge($params, array('post_id' => attachment_url_to_postid($filename)));
 
 		/**

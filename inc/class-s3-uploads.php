@@ -538,17 +538,17 @@ class S3_Uploads {
 		$commands = [];
 		foreach ( $locations as $location ) {
 			try {
-				$headers = $s3 -> headObject([
+				$headers = $s3 -> headObject( [
 					'Bucket' => $location['bucket'],
 					'Key' => $location['key'],
-				]);
+				] );
 
 				$new_meta = $values;
-				if (array_key_exists('Metadata', $headers) && is_array($headers['Metadata'])){
-					$new_meta = array_merge($headers['Metadata'], $values);
+				if ( array_key_exists( 'Metadata', $headers) && is_array( $headers['Metadata'] ) ) {
+					$new_meta = array_merge( $headers['Metadata'], $values );
 				}
 
-				$s3->copyObject([
+				$s3->copyObject( [
 					'Bucket' => $location['bucket'],
 					'Key' => $location['key'],
 					'CopySource' => $location['bucket'] . "/" . $location['key'],
