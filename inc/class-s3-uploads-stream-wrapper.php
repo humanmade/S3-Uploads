@@ -159,7 +159,10 @@ class S3_Uploads_Stream_Wrapper
 					try {
 						$p = $this->params;
 						$p['Body'] = '';
+						$filename = basename($params['Key']);
+						$params['post_id'] = attachment_url_to_postid($filename);
 						$p = apply_filters( 's3_uploads_putObject_params', $p );
+						unset($p['post_id']);
 						$this->getClient()->putObject($p);
 					} catch (Exception $e) {
 						return $this->triggerError($e->getMessage());
@@ -208,6 +211,10 @@ class S3_Uploads_Stream_Wrapper
 			}
 		}
 
+		// Post ID (e.g., for an attachment) on the request which originated the file, if applicable
+		$filename = basename($params['Key']);
+		$params_with_post_id = array_merge($params, array('post_id' => attachment_url_to_postid($filename)));
+
 		/**
 		 * Filter the parameters passed to S3
 		 * Theses are the parameters passed to S3Client::putObject()
@@ -215,7 +222,8 @@ class S3_Uploads_Stream_Wrapper
 		 *
 		 * @param array $params S3Client::putObject parameters.
 		 */
-		$params = apply_filters( 's3_uploads_putObject_params',  $params );
+		$params = apply_filters( 's3_uploads_putObject_params',  $params_with_post_id);
+		unset($params['post_id']);
 
 		$this->clearCacheKey("s3://{$params['Bucket']}/{$params['Key']}");
 		return $this->boolCall(function () use ($params) {
