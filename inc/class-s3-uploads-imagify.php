@@ -6,7 +6,6 @@ use WebPConvert\Convert\Converters\Stack;
 
 class S3_Uploads_Imagify {
 
-
 	public $instance;
 	public $upload_dir;
 	public $imagify;
@@ -19,7 +18,7 @@ class S3_Uploads_Imagify {
 		if ( ! file_exists( $this->upload_dir['tmp_path'] ) ) {
 			mkdir( $this->upload_dir['tmp_path'], 0777, true );
 		}
-        add_action( 'optimaize_action', array( $this, 'copy_from_s3_to_tmp' ), 10, 3 );
+		add_action( 'optimaize_action', array( $this, 'copy_from_s3_to_tmp' ), 10, 3 );
 		add_action( 'generate_webp_action', array( $this, 'generate_webp' ) );
 		add_action( 'optimize_new_attachment_action', array( $this, 'optimize_new_attachment' ), 10, 2 );
 
@@ -105,11 +104,13 @@ class S3_Uploads_Imagify {
 		if ( empty( $s3_all_image_uploaded ) && $is_image ) {
 			if ( $imagify_status !== 'success' || $imagify_status !== 'already_optimized' ) {
 				$files_to_copy = $this->get_all_files_to_upload_by_id( $attachment_id );
+				$files_to_copy = $this->do_copy_files_to_local( $files_to_copy );
 				$files_to_copy = $this->create_optimize_files( $files_to_copy );
 				$files_to_copy = $this->create_webp_files( $files_to_copy );
 			} else {
 				$files_to_copy['data']['all_image_optimize'] = true;
 				$files_to_copy                               = $this->get_all_files_to_upload_by_id( $attachment_id, true );
+				$files_to_copy                               = $this->do_copy_files_to_local( $files_to_copy );
 				$this->generate_missing_webp( $files_to_copy, $attachment_id );
 			}
 		} else {
@@ -218,9 +219,9 @@ class S3_Uploads_Imagify {
 
 	}
 
-    /*
-     * This method will be used in the future.
-     */
+	/*
+	 * This method will be used in the future.
+	 */
 	public function update_attachment_handle( $metadata, $attachment_id, $context ) {
 		$full_file     = $this->upload_dir['tmp_basedir'] . $metadata['file'];
 		$files_to_copy = array();
@@ -241,9 +242,10 @@ class S3_Uploads_Imagify {
 			'attachment_id' => $attachment_id,
 		);
 	}
-    /*
-     * This method will be used in the future.
-     */
+
+	/*
+	 * This method will be used in the future.
+	 */
 
 	public function reoptimize_files( $attachment_id ) {
 		$files_to_copy = get_post_meta( $attachment_id, 'attachment_optimaize_failed_files', true );
@@ -252,9 +254,10 @@ class S3_Uploads_Imagify {
 			$this->optimize_files( $files_to_copy, $attachment_id );
 		}
 	}
-    /*
-     * This method use to copy files to S3 bucket.
-     */
+
+	/*
+	 * This method use to copy files to S3 bucket.
+	 */
 	public function do_copy_files_to_s3( $files ) {
 		$all_image_uploaded = true;
 		if ( ! isset( $files['sizes'] ) && ! $files['sizes'] ) {
@@ -272,15 +275,16 @@ class S3_Uploads_Imagify {
 		$files['data']['all_image_uploaded'] = $all_image_uploaded;
 		return $files;
 	}
-    /*
-     * This method use to copy files to local uploads/ local backup dir.
-     */
+
+	/*
+	 * This method use to copy files to local uploads/ local backup dir.
+	 */
 
 	public function do_copy_files_to_local( $files ) {
 		if ( isset( $files['sizes'] ) && $files['sizes'] ) {
 			$dir_name = dirname( $files['sizes']['full']['local'] );
 			if ( ! is_dir( $dir_name ) ) {
-				mkdir( $dir_name );
+				mkdir( $dir_name, 0755, true );
 			}
 			foreach ( $files['sizes'] as $key => $file ) {
 				copy( $file['s3'], $file['local'] );
@@ -288,9 +292,10 @@ class S3_Uploads_Imagify {
 		}
 		return $files;
 	}
-    /*
-     * TThis method use to copy files to S3 buckup folder.
-     */
+
+	/*
+	 * TThis method use to copy files to S3 buckup folder.
+	 */
 
 	public function copy_original_file_to_backup( $files ) {
 		if ( isset( $files['sizes'] ) && $files['sizes'] ) {
@@ -300,9 +305,9 @@ class S3_Uploads_Imagify {
 		}
 	}
 
-    /*
-     * This method will be used in the future.
-     */
+	/*
+	 * This method will be used in the future.
+	 */
 	public function create_optimize_files( $files ) {
 		if ( $files['data']['is_image'] && isset( $files['sizes'] ) && $files['sizes'] ) {
 			$tmp_files          = array();
@@ -338,9 +343,10 @@ class S3_Uploads_Imagify {
 			return $files;
 		}
 	}
-    /*
-     * This method will be used in the future.
-     */
+
+	/*
+	 * This method will be used in the future.
+	 */
 
 	public function optimize_files( $files, $attachment_id ) {
 		$optimaize_failed_files = array();
@@ -371,9 +377,10 @@ class S3_Uploads_Imagify {
 			update_post_meta( $attachment_id, 'attachment_optimaize_failed_files', '' );
 		}
 	}
-    /*
-     * This method create missing webp files.
-     */
+
+	/*
+	 * This method create missing webp files.
+	 */
 
 	public function generate_missing_webp( $files, $attachment_id ) {
 		if ( $files['data']['is_image'] && isset( $files['sizes'] ) && $files['sizes'] ) {
@@ -386,9 +393,22 @@ class S3_Uploads_Imagify {
 			}
 		}
 	}
-    /*
-     * This method create webp files for all image sizes.
-     */
+
+	public function copy_files_to_local( $files ) {
+		if ( $files['data']['is_image'] && isset( $files['sizes'] ) && $files['sizes'] ) {
+			foreach ( $files['sizes'] as $key => $file ) {
+				echo '<pre>';
+				print_r( $file );
+				echo '</pre>';
+			}
+		}
+		die();
+
+	}
+
+	/*
+	 * This method create webp files for all image sizes.
+	 */
 
 	public function create_webp_files( $files ) {
 		if ( $files['data']['is_image'] && isset( $files['sizes'] ) && $files['sizes'] ) {

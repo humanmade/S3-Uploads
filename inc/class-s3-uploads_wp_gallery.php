@@ -32,14 +32,13 @@ class S3_Uploads_WP_Gallery {
 			$s3_is_image = $s3_is_image[0];
 		}
 		if ( ! empty( $s3_all_image_uploaded ) && $s3_is_image ) {
-			echo '<button class="next-reoptimize" data-post_id="' . $post_id . '">Reoptimize</button>';
+			echo '<p class="next-reoptimize" style="color:green" data-post_id="' . $post_id . '">This Image Fully Optimize</button>';
 		} else {
 			if ( $s3_is_image ) {
 				echo '<button class="next-upload" data-post_id="' . $post_id . '">Upload & Optimize</button>';
 			} else {
 				if ( ! $s3_all_image_uploaded ) {
 					echo '<button class="next-upload" data-post_id="' . $post_id . '">Upload</button>';
-
 				}
 			}
 		}
