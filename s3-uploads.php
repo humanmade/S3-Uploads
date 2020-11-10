@@ -3,8 +3,8 @@
 /*
 Plugin Name: S3 Uploads
 Description: Store uploads in S3
-Author: Human Made Limited
-Version: 3.0.0-beta
+Author: rdbrck / Human Made
+Version: 1.0.0-rb
 Author URI: https://hmn.md
 */
 
