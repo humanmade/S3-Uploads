@@ -552,7 +552,7 @@ class S3_Uploads {
 					'Bucket' => $location['bucket'],
 					'Key' => $location['key'],
 					'CopySource' => $location['bucket'] . "/" . $location['key'],
-					'Metadata'=>$values,
+					'Metadata'=>$new_meta,
 					'MetadataDirective'=>'REPLACE'
 				] );
 
