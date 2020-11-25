@@ -638,11 +638,15 @@ class S3_Uploads_Stream_Wrapper
 				isset($options['acl']) ? $options['acl'] : 'private',
 				$options
 			);
-			// Delete the original object
-			$this->getClient()->deleteObject([
-				'Bucket' => $partsFrom['Bucket'],
-				'Key'    => $partsFrom['Key']
-			] + $options);
+			try {
+				// Delete the original object
+				$this->getClient()->deleteObject([
+					'Bucket' => $partsFrom['Bucket'],
+					'Key'    => $partsFrom['Key']
+				] + $options);
+			} catch (Exception $e) {
+
+			}
 			return true;
 		});
 	}
