@@ -544,7 +544,7 @@ class S3_Uploads {
 				] );
 
 				$new_meta = $values;
-				if ( array_key_exists( 'Metadata', $headers) && is_array( $headers['Metadata'] ) ) {
+				if ( array_key_exists( 'Metadata', $headers ) && is_array( $headers['Metadata'] ) ) {
 					$new_meta = array_merge( $headers['Metadata'], $values );
 				}
 
@@ -553,6 +553,9 @@ class S3_Uploads {
 					'Key' => $location['key'],
 					'CopySource' => $location['bucket'] . "/" . $location['key'],
 					'Metadata'=>$new_meta,
+					'ContentType'=>$headers['ContentType'],
+					'CacheControl'=>$headers['CacheControl'],
+					'Expires'=>$headers['Expires'],
 					'MetadataDirective'=>'REPLACE'
 				] );
 
