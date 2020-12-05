@@ -127,7 +127,7 @@ class S3_Uploads_Local_Stream_Wrapper {
 		if ( ! isset( $uri ) ) {
 			$uri = $this->uri;
 		}
-		$path = $this->getDirectoryPath() . '/' . $this->getTarget( $uri );
+		$path = realpath( $this->getDirectoryPath() ) . '/' . $this->getTarget( $uri );
 		$realpath = $path;
 
 		$directory = realpath( $this->getDirectoryPath() );
