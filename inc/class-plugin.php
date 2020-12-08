@@ -555,7 +555,8 @@ class Plugin {
 			return $url;
 		}
 		$cmd = $this->s3()->getCommand(
-			'GetObject', [
+			'GetObject',
+			[
 				'Bucket' => $path['bucket'],
 				'Key' => $path['key'],
 			]
