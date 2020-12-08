@@ -10,6 +10,7 @@ use Aws\S3\S3ClientInterface;
 use Exception;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\CachingStream;
+use GuzzleHttp\Psr7\MimeType;
 use GuzzleHttp\Psr7\Stream;
 use Psr\Http\Message\StreamInterface; //phpcs:ignore Used in Psalm types
 
@@ -220,8 +221,8 @@ class Stream_Wrapper {
 
 		// Attempt to guess the ContentType of the upload based on the
 		// file extension of the key. Added by Joe Hoyle
-		if ( ! isset( $params['ContentType'] ) && Psr7\mimetype_from_filename( $params['Key'] ) ) {
-			$params['ContentType'] = Psr7\mimetype_from_filename( $params['Key'] );
+		if ( ! isset( $params['ContentType'] ) && MimeType::fromFilename( $params['Key'] ) ) {
+			$params['ContentType'] = MimeType::fromFilename( $params['Key'] );
 		}
 
 		/// Expires:
@@ -230,6 +231,9 @@ class Stream_Wrapper {
 		}
 		// Cache-Control:
 		if ( defined( 'S3_UPLOADS_HTTP_CACHE_CONTROL' ) ) {
+			/**
+			 * @psalm-suppress RedundantCondition
+			 */
 			if ( is_numeric( S3_UPLOADS_HTTP_CACHE_CONTROL ) ) {
 				$params['CacheControl'] = 'max-age=' . S3_UPLOADS_HTTP_CACHE_CONTROL;
 			} else {

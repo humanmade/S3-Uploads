@@ -6,6 +6,9 @@ use Aws;
 use Exception;
 use WP_Error;
 
+/**
+ * @psalm-consistent-constructor
+ */
 class Plugin {
 
 	/**
