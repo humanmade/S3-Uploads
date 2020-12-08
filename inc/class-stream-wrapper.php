@@ -12,7 +12,7 @@ use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\CachingStream;
 use GuzzleHttp\Psr7\MimeType;
 use GuzzleHttp\Psr7\Stream;
-use Psr\Http\Message\StreamInterface; //phpcs:ignore Used in Psalm types
+use Psr\Http\Message\StreamInterface; //phpcs:ignore -- Used in Psalm types
 
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.MemberNotSnakeCase
 // phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
