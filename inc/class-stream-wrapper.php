@@ -11,7 +11,7 @@ use Exception;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\CachingStream;
 use GuzzleHttp\Psr7\Stream;
-use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\StreamInterface; //phpcs:ignore Used in Psalm types
 
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.MemberNotSnakeCase
 // phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
@@ -220,10 +220,8 @@ class Stream_Wrapper {
 
 		// Attempt to guess the ContentType of the upload based on the
 		// file extension of the key. Added by Joe Hoyle
-		if ( ! isset( $params['ContentType'] ) &&
-			( $type = Psr7\mimetype_from_filename( $params['Key'] ) )
-		) {
-			$params['ContentType'] = $type;
+		if ( ! isset( $params['ContentType'] ) && Psr7\mimetype_from_filename( $params['Key'] ) ) {
+			$params['ContentType'] = Psr7\mimetype_from_filename( $params['Key'] );
 		}
 
 		/// Expires:
@@ -992,21 +990,27 @@ class Stream_Wrapper {
 			case 'NULL':
 			case 'string':
 				// Directory with 0777 access - see "man 2 stat".
-				$stat['mode'] = $stat[2] = 0040777;
+				$stat[2] = 0040777;
+				$stat['mode'] = 0040777;
 				break;
 			case 'array':
 				// Regular file with 0777 access - see "man 2 stat".
-				$stat['mode'] = $stat[2] = 0100777;
+				$stat[2] = 0100777;
+				$stat['mode'] = 0100777;
 				// Pluck the content-length if available.
 				if ( isset( $result['ContentLength'] ) ) {
-					$stat['size'] = $stat[7] = $result['ContentLength'];
+					$stat[7] = $result['ContentLength'];
+					$stat['size'] = $result['ContentLength'];
 				} elseif ( isset( $result['Size'] ) ) {
-					$stat['size'] = $stat[7] = $result['Size'];
+					$stat[7] = $result['Size'];
+					$stat['size'] = $stat[7];
 				}
 				if ( isset( $result['LastModified'] ) ) {
 					// ListObjects or HeadObject result
-					$stat['mtime'] = $stat[9] = $stat['ctime'] = $stat[10]
-						= strtotime( $result['LastModified'] );
+					$stat[10] = strtotime( $result['LastModified'] );
+					$stat['ctime'] = $stat[10];
+					$stat[9] = $stat[10];
+					$stat['mtime'] = $stat[10];
 				}
 		}
 
