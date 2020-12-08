@@ -8,7 +8,7 @@ use Aws\Result;
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3ClientInterface;
 use Exception;
-use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7; //phpcs:ignore -- Used in Psalm types
 use GuzzleHttp\Psr7\CachingStream;
 use GuzzleHttp\Psr7\MimeType;
 use GuzzleHttp\Psr7\Stream;
