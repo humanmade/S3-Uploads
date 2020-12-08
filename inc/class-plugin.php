@@ -581,11 +581,11 @@ class Plugin {
 	 * Add the S3 signed params to an image src array.
 	 *
 	 * @param array{0: string, 1: int, 2: int}|false $image
-	 * @param integer $post_id
+	 * @param integer|"" $post_id The post id, due to WordPress hook, this can be "", so can't just hint as int.
 	 * @return array{0: string, 1: int, 2: int}|false
 	 */
-	public function add_s3_signed_params_to_attachment_image_src( $image, int $post_id ) {
-		if ( ! $image ) {
+	public function add_s3_signed_params_to_attachment_image_src( $image, $post_id ) {
+		if ( ! $image || ! $post_id ) {
 			return $image;
 		}
 
