@@ -6,24 +6,18 @@
  * @subpackage JSON API
 */
 
-// Support for:
-// 1. `WP_DEVELOP_DIR` environment variable
-// 2. Plugin installed inside of WordPress.org developer checkout
-// 3. Tests checked out to /tmp
-if ( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
-	$test_root = getenv( 'WP_DEVELOP_DIR' ) . '/tests/phpunit';
-} else if ( file_exists( '../../../../tests/phpunit/includes/bootstrap.php' ) ) {
-	$test_root = '../../../../tests/phpunit';
-} else if ( file_exists( '/tmp/wordpress-tests-lib/includes/bootstrap.php' ) ) {
-	$test_root = '/tmp/wordpress-tests-lib';
-}
-
-require $test_root . '/includes/functions.php';
+require '/wp-phpunit/includes/functions.php';
 
 function _manually_load_plugin() {
 	require dirname( __FILE__ ) . '/../s3-uploads.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
+
+
+tests_add_filter( 's3_uploads_s3_client_params', function ( array $params ) : array {
+	$params['endpoint'] = 'http://172.17.0.2:9000';
+	return $params;
+} );
 
 if ( getenv( 'S3_UPLOADS_BUCKET' ) ) {
 	define( 'S3_UPLOADS_BUCKET', getenv( 'S3_UPLOADS_BUCKET' ) );
@@ -41,4 +35,4 @@ if ( getenv( 'S3_UPLOADS_REGION' ) ) {
 	define( 'S3_UPLOADS_REGION', getenv( 'S3_UPLOADS_REGION' ) );
 }
 
-require $test_root . '/includes/bootstrap.php';
+require '/wp-phpunit/includes/bootstrap.php';

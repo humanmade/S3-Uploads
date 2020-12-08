@@ -1,22 +1,31 @@
 <?php
 
+namespace S3_Uploads;
+
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.MemberNotSnakeCase
+// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
+// phpcs:disable WordPress.NamingConventions.ValidHookName.NotLowercase
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.NotSnakeCase
+// phpcs:disable WordPress.WP.AlternativeFunctions
+
 /**
- * Local streamwrapper that writes files to the upload dir
+ * Local stream wrapper that writes files to the upload dir
  *
  * This is for the most part taken from Drupal, with some modifications.
  */
-class S3_Uploads_Local_Stream_Wrapper {
+class Local_Stream_Wrapper {
 	/**
 	 * Stream context resource.
 	 *
-	 * @var resource
+	 * @var ?resource
 	 */
 	public $context;
 
 	/**
 	 * A generic resource handle.
 	 *
-	 * @var resource
+	 * @var ?resource
 	 */
 	public $handle = null;
 
@@ -25,27 +34,26 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 *
 	 * A stream is referenced as "scheme://target".
 	 *
-	 * @var string
+	 * @var ?string
 	 */
 	protected $uri;
 
 	/**
 	 * Gets the path that the wrapper is responsible for.
 	 *
-	 * @return string
-	 *   String specifying the path.
+	 * @return string String specifying the path.
 	 */
-	static function getDirectoryPath() {
-		$upload_dir = S3_Uploads::get_instance()->get_original_upload_dir();
+	static function getDirectoryPath() : string {
+		$upload_dir = Plugin::get_instance()->get_original_upload_dir();
 		return $upload_dir['basedir'] . '/s3';
 	}
 
-	function setUri( $uri ) {
+	function setUri( string $uri ) {
 		$this->uri = $uri;
 	}
 
-	function getUri() {
-		return $this->uri;
+	function getUri() : string {
+		return $this->uri ?? '';
 	}
 
 	/**
@@ -60,13 +68,13 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 * @param string $uri
 	 *   Optional URI.
 	 *
-	 * @return string|bool
+	 * @return string
 	 *   Returns a string representing a location suitable for writing of a file,
 	 *   or FALSE if unable to write to the file such as with read-only streams.
 	 */
-	protected function getTarget( $uri = null ) {
+	protected function getTarget( $uri = null ) : string {
 		if ( ! isset( $uri ) ) {
-			$uri = $this->uri;
+			$uri = $this->uri ?: '';
 		}
 
 		list( $scheme, $target) = explode( '://', $uri, 2 );
@@ -75,7 +83,14 @@ class S3_Uploads_Local_Stream_Wrapper {
 		return trim( $target, '\/' );
 	}
 
-	static function getMimeType( $uri, $mapping = null ) {
+	/**
+	 * Get mime type for URI
+	 *
+	 * @param string $uri
+	 * @param array{extensions?: string[], mimetypes: array<string,string>} $mapping
+	 * @return string
+	 */
+	static function getMimeType( string $uri, array $mapping = null ) : string {
 
 		$extension = '';
 		$file_parts = explode( '.', basename( $uri ) );
@@ -98,7 +113,7 @@ class S3_Uploads_Local_Stream_Wrapper {
 		return 'application/octet-stream';
 	}
 
-	function chmod( $mode ) {
+	function chmod( int $mode ) : bool {
 		$output = @chmod( $this->getLocalPath(), $mode );
 		// We are modifying the underlying file here, so we have to clear the stat
 		// cache so that PHP understands that URI has changed too.
@@ -106,7 +121,7 @@ class S3_Uploads_Local_Stream_Wrapper {
 		return $output;
 	}
 
-	function realpath() {
+	function realpath() : string {
 		return $this->getLocalPath();
 	}
 
@@ -117,7 +132,7 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 *   (optional) The stream wrapper URI to be converted to a canonical
 	 *   absolute path. This may point to a directory or another type of file.
 	 *
-	 * @return string|bool
+	 * @return string
 	 *   If $uri is not set, returns the canonical absolute path of the URI
 	 *   previously. If $uri is set and valid for this class, returns its canonical absolute
 	 *   path, as determined by the realpath() function. If $uri is set but not
@@ -132,8 +147,8 @@ class S3_Uploads_Local_Stream_Wrapper {
 
 		$directory = realpath( $this->getDirectoryPath() );
 
-		if ( ! $realpath || ! $directory || strpos( $realpath, $directory ) !== 0 ) {
-			return false;
+		if ( ! $directory || strpos( $realpath, $directory ) !== 0 ) {
+			return '';
 		}
 		return $realpath;
 	}
@@ -143,12 +158,13 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 *
 	 * @param string $uri
 	 *   A string containing the URI to the file to open.
-	 * @param int $mode
+	 * @param string $mode
 	 *   The file mode ("r", "wb" etc.).
 	 * @param int $options
 	 *   A bit mask of STREAM_USE_PATH and STREAM_REPORT_ERRORS.
 	 * @param string $opened_path
 	 *   A string containing the path actually opened.
+	 * @param-out string $opened_path
 	 *
 	 * @return bool
 	 *   Returns TRUE if file was opened successfully.
@@ -196,7 +212,7 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-lock.php
 	 */
 	public function stream_lock( $operation ) {
-		if ( in_array( $operation, array( LOCK_SH, LOCK_EX, LOCK_UN, LOCK_NB ) ) ) {
+		if ( in_array( $operation, [ LOCK_SH, LOCK_EX, LOCK_UN, LOCK_NB ] ) && $this->handle ) {
 			return flock( $this->handle, $operation );
 		}
 
@@ -215,6 +231,9 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-read.php
 	 */
 	public function stream_read( $count ) {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		return fread( $this->handle, $count );
 	}
 
@@ -230,6 +249,9 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-write.php
 	 */
 	public function stream_write( $data ) {
+		if ( ! $this->handle ) {
+			return 0;
+		}
 		return fwrite( $this->handle, $data );
 	}
 
@@ -242,6 +264,9 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-eof.php
 	 */
 	public function stream_eof() {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		return feof( $this->handle );
 	}
 
@@ -259,6 +284,9 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-seek.php
 	 */
 	public function stream_seek( $offset, $whence ) {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		// fseek returns 0 on success and -1 on a failure.
 		// stream_seek   1 on success and  0 on a failure.
 		return ! fseek( $this->handle, $offset, $whence );
@@ -273,6 +301,9 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-flush.php
 	 */
 	public function stream_flush() {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		$result = fflush( $this->handle );
 
 		$params = [
@@ -293,25 +324,31 @@ class S3_Uploads_Local_Stream_Wrapper {
 	/**
 	 * Support for ftell().
 	 *
-	 * @return bool
+	 * @return false|int
 	 *   The current offset in bytes from the beginning of file.
 	 *
 	 * @see http://php.net/manual/streamwrapper.stream-tell.php
 	 */
 	public function stream_tell() {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		return ftell( $this->handle );
 	}
 
 	/**
 	 * Support for fstat().
 	 *
-	 * @return bool
+	 * @return array|false
 	 *   An array with file status, or FALSE in case of an error - see fstat()
 	 *   for a description of this array.
 	 *
 	 * @see http://php.net/manual/streamwrapper.stream-stat.php
 	 */
 	public function stream_stat() {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		return fstat( $this->handle );
 	}
 
@@ -324,7 +361,11 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.stream-close.php
 	 */
 	public function stream_close() {
-		return fclose( $this->handle );
+		if ( ! $this->handle ) {
+			return false;
+		}
+		$resource = $this->handle;
+		return fclose( $resource );
 	}
 
 	/**
@@ -393,7 +434,7 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 */
 	public function mkdir( $uri, $mode, $options ) {
 		$this->uri = $uri;
-		$recursive = (bool) ($options & STREAM_MKDIR_RECURSIVE);
+		$recursive = (bool) ( $options & STREAM_MKDIR_RECURSIVE );
 		if ( $recursive ) {
 			// $this->getLocalPath() fails if $uri has multiple levels of directories
 			// that do not yet exist.
@@ -485,6 +526,9 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.dir-readdir.php
 	 */
 	public function dir_readdir() {
+		if ( ! $this->handle ) {
+			return '';
+		}
 		return readdir( $this->handle );
 	}
 
@@ -497,6 +541,9 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.dir-rewinddir.php
 	 */
 	public function dir_rewinddir() {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		rewinddir( $this->handle );
 		// We do not really have a way to signal a failure as rewinddir() does not
 		// have a return value and there is no way to read a directory handler
@@ -513,6 +560,9 @@ class S3_Uploads_Local_Stream_Wrapper {
 	 * @see http://php.net/manual/streamwrapper.dir-closedir.php
 	 */
 	public function dir_closedir() {
+		if ( ! $this->handle ) {
+			return false;
+		}
 		closedir( $this->handle );
 		// We do not really have a way to signal a failure as closedir() does not
 		// have a return value.

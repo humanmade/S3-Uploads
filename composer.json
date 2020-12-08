@@ -6,6 +6,9 @@
 		"wordpress"
 	],
 	"license": "GPL-2.0+",
+	"autoload": {
+		"classmap": [ "./inc" ]
+	},
 	"authors": [
 		{
 			"name":"Human Made Limited",
@@ -13,7 +16,7 @@
 			"homepage":"http://hmn.md/"
 		}
 	],
-	"support"    : {
+	"support": {
 			"issues": "https://github.com/humanmade/s3-uploads/issues",
 			"source": "https://github.com/humanmade/s3-uploads"
 	},
@@ -21,5 +24,14 @@
 	"require": {
 		"composer/installers": "~1.0",
 		"aws/aws-sdk-php": "~3.18"
-	 }
+	},
+	"require-dev": {
+		"phpunit/phpunit": "7.5",
+		"pcov/clobber": "^2.0",
+		"humanmade/psalm-plugin-wordpress": "dev-master"
+	},
+	"scripts": {
+		"test": "./tests/run-tests.sh",
+		"check-types": "./vendor/bin/psalm"
+	}
 }
