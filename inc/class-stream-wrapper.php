@@ -71,7 +71,7 @@ use Psr\Http\Message\StreamInterface; //phpcs:ignore -- Used in Psalm types
  *
  * @psalm-type StatArray = array{0: int, 1: int, 2: int|string, 3: int, 4: int, 5: int, 6: int, 7: int, 8: int, 9: int, 10: int, 11: int, 12: int, dev: int, ino: int, mode: int|string, nlink: int, uid: int, gid: int, rdev: int, size: int, atime: int, mtime: int, ctime: int, blksize: int, blocks: int}
  * @psalm-type S3ObjectResultArray = array{ContentLength: int, Size: int, LastModified: string, Key: string, Prefix?: string}
- * @psalm-type OptionsArray = array{client?: S3ClientInterface, cache?: CacheInterface, Bucket: string, Key: string, acl: string, seekable?: bool}
+ * @psalm-type OptionsArray = array{plugin?: Plugin, cache?: CacheInterface, Bucket: string, Key: string, acl: string, seekable?: bool}
  */
 class Stream_Wrapper {
 
@@ -116,7 +116,7 @@ class Stream_Wrapper {
 	 * @param CacheInterface    $cache    Default cache for the protocol.
 	 */
 	public static function register(
-		S3ClientInterface $client,
+		Plugin $plugin,
 		$protocol = 's3',
 		CacheInterface $cache = null
 	) {
@@ -128,7 +128,7 @@ class Stream_Wrapper {
 		stream_wrapper_register( $protocol, get_called_class(), STREAM_IS_URL );
 		/** @var array{s3: array} */
 		$default = stream_context_get_options( stream_context_get_default() );
-		$default[ $protocol ]['client'] = $client;
+		$default[ $protocol ]['plugin'] = $plugin;
 
 		if ( $cache ) {
 			$default[ $protocol ]['cache'] = $cache;
@@ -880,13 +880,13 @@ class Stream_Wrapper {
 	 * @throws \RuntimeException if no client has been configured
 	 */
 	private function getClient() : S3ClientInterface {
-		/** @var S3ClientInterface|null */
-		$client = $this->getOption( 'client' );
-		if ( ! $client ) {
-			throw new \RuntimeException( 'No client in stream context' );
+		/** @var Plugin|null */
+		$plugin = $this->getOption( 'plugin' );
+		if ( ! $plugin ) {
+			throw new \RuntimeException( 'No plugin in stream context' );
 		}
 
-		return $client;
+		return $plugin->s3();
 	}
 
 	/**
