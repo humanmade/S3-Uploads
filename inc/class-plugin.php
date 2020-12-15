@@ -144,7 +144,7 @@ class Plugin {
 		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
-			Stream_Wrapper::register( $this->s3() );
+			Stream_Wrapper::register( $this );
 			$acl = defined( 'S3_UPLOADS_OBJECT_ACL' ) ? S3_UPLOADS_OBJECT_ACL : 'public-read';
 			stream_context_set_option( stream_context_get_default(), 's3', 'ACL', $acl );
 		}
@@ -417,8 +417,8 @@ class Plugin {
 	/**
 	 * Add the DNS address for the S3 Bucket to list for DNS prefetch.
 	 *
-	 * @param $hints
-	 * @param $relation_type
+	 * @param array $hints
+	 * @param string $relation_type
 	 * @return array
 	 */
 	function wp_filter_resource_hints( array $hints, string $relation_type ) : array {
