@@ -114,7 +114,7 @@ class Local_Stream_Wrapper {
 	}
 
 	function chmod( int $mode ) : bool {
-		$output = @chmod( $this->getLocalPath(), $mode );
+		$output = @chmod( $this->getLocalPath(), $mode ); // // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		// We are modifying the underlying file here, so we have to clear the stat
 		// cache so that PHP understands that URI has changed too.
 		clearstatcache( true, $this->getLocalPath() );

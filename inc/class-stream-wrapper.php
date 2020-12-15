@@ -19,6 +19,7 @@ use Psr\Http\Message\StreamInterface; //phpcs:ignore -- Used in Psalm types
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
 // phpcs:disable WordPress.NamingConventions.ValidHookName.NotLowercase
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.NotSnakeCase
+// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fopen
 
 /**
  * Amazon S3 stream wrapper to use "s3://<bucket>/<key>" files with PHP
@@ -976,7 +977,7 @@ class Stream_Wrapper {
 		}
 
 		// This is triggered when doing things like lstat() or stat()
-		trigger_error( implode( "\n", (array) $errors ), E_USER_WARNING );
+		trigger_error( implode( "\n", (array) $errors ), E_USER_WARNING ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		return false;
 	}
