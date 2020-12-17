@@ -14,4 +14,4 @@ docker run --rm -e S3_UPLOADS_BUCKET=tests -e S3_UPLOADS_KEY=AWSACCESSKEY -e S3_
 docker kill s3-uploads-tests-minio > /dev/null
 
 echo "Running Psalm..."
-docker run --rm -v $PWD:/code --entrypoint='/code/vendor/bin/psalm' humanmade/plugin-tester
+docker run --rm -v $PWD:/code --entrypoint='/code/vendor/bin/psalm' humanmade/plugin-tester --shepherd
