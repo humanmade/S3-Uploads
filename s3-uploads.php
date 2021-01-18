@@ -19,7 +19,12 @@ function s3_uploads_init() {
 	// Ensure the AWS SDK can be loaded.
 	if ( ! class_exists( '\\Aws\\S3\\S3Client' ) ) {
 		// Require AWS Autoloader file.
-		require_once dirname( __FILE__ ) . '/vendor/autoload.php';
+		if ( file_exists( ABSPATH . '/vendor/autoload.php' ) ) {
+			require_once ABSPATH . '/vendor/autoload.php';
+		} else {
+			// fall back to local vendor dir
+			require_once dirname( __FILE__ ) . '/vendor/autoload.php';
+		}
 	}
 
 	if ( ! s3_uploads_check_requirements() ) {
