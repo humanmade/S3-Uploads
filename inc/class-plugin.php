@@ -557,24 +557,28 @@ class Plugin {
 		if ( ! $path ) {
 			return $url;
 		}
-		$cmd = $this->s3()->getCommand(
-			'GetObject',
-			[
+
+		$presigned_url = wp_cache_get( $url, 's3_uploads_presigned_url' );
+
+		if ( ! $presigned_url ) {
+			$cmd = $this->s3()->getCommand('GetObject', [
 				'Bucket' => $path['bucket'],
 				'Key' => $path['key'],
-			]
-		);
+			]);
 
-		$presigned_url_expires = apply_filters( 's3_uploads_private_attachment_url_expiry', '+6 hours', $post_id );
-		$query = $this->s3()->createPresignedRequest( $cmd, $presigned_url_expires )->getUri()->getQuery();
+			$presigned_url_expires = apply_filters( 's3_uploads_private_attachment_url_expiry', '+6 hours', $post_id );
+			$query = $this->s3()->createPresignedRequest( $cmd, $presigned_url_expires )->getUri()->getQuery();
 
-		// The URL could have query params on it already (such as being an already signed URL),
-		// but query params will mean the S3 signed URL will become corrupt. So, we have to
-		// remove all query params.
-		$url = strtok( $url, '?' ) . '?' . $query;
-		$url = apply_filters( 's3_uploads_presigned_url', $url, $post_id );
+			// The URL could have query params on it already (such as being an already signed URL),
+			// but query params will mean the S3 signed URL will become corrupt. So, we have to
+			// remove all query params.
+			$presigned_url = strtok( $url, '?' ) . '?' . $query;
+			$presigned_url = apply_filters( 's3_uploads_presigned_url', $presigned_url, $post_id );
 
-		return $url;
+			wp_cache_set( $url, $presigned_url, 's3_uploads_presigned_url', strtotime( $presigned_url_expires ) );
+		}
+
+		return $presigned_url;
 	}
 
 	/**
