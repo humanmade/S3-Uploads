@@ -110,6 +110,7 @@ class Plugin {
 		add_filter( 'wp_resource_hints', [ $this, 'wp_filter_resource_hints' ], 10, 2 );
 
 		add_action( 'wp_handle_sideload_prefilter', [ $this, 'filter_sideload_move_temp_file_to_s3' ] );
+		add_filter( 'wp_generate_attachment_metadata', [ $this, 'set_filesize_in_attachment_meta' ] );
 
 		add_action( 'wp_get_attachment_url', [ $this, 'add_s3_signed_params_to_attachment_url' ], 10, 2 );
 		add_action( 'wp_get_attachment_image_src', [ $this, 'add_s3_signed_params_to_attachment_image_src' ], 10, 2 );
@@ -129,6 +130,7 @@ class Plugin {
 		remove_filter( 'upload_dir', [ $this, 'filter_upload_dir' ] );
 		remove_filter( 'wp_image_editors', [ $this, 'filter_editors' ], 9 );
 		remove_filter( 'wp_handle_sideload_prefilter', [ $this, 'filter_sideload_move_temp_file_to_s3' ] );
+		remove_filter( 'wp_generate_attachment_metadata', [ $this, 'set_filesize_in_attachment_meta' ] );
 
 		remove_action( 'wp_get_attachment_url', [ $this, 'add_s3_signed_params_to_attachment_url' ] );
 		remove_action( 'wp_get_attachment_image_src', [ $this, 'add_s3_signed_params_to_attachment_image_src' ] );
@@ -376,7 +378,6 @@ class Plugin {
 
 		return $editors;
 	}
-
 	/**
 	 * Copy the file from /tmp to an s3 dir so handle_sideload doesn't fail due to
 	 * trying to do a rename() on the file cross streams. This is somewhat of a hack
@@ -394,6 +395,33 @@ class Plugin {
 		$file['tmp_name'] = $new_path;
 
 		return $file;
+	}
+
+	/**
+	 * Store the attachment filesize in the attachment meta array.
+	 *
+	 * Getting the filesize of an image in S3 involves a remote HEAD request,
+	 * which is a bit slower than a local filesystem operation would be. As a
+	 * result, operations like `wp_prepare_attachments_for_js' take substantially
+	 * longer to complete against s3 uploads than if they were performed with a
+	 * local filesystem.i
+	 *
+	 * Saving the filesize in the attachment metadata when the image is
+	 * uploaded allows core to skip this stat when retrieving and formatting it.
+	 *
+	 * @param array $metadata Attachment metadata.
+	 * @return array Attachment metadata array, with "filesize" value added.
+	 */
+	function set_filesize_in_attachment_meta( $metadata ) {
+		$uploads_dir = wp_upload_dir();
+
+		$file = path_join( $uploads_dir['basedir'], $metadata['file'] );
+
+		if ( file_exists( $file ) ) {
+			$metadata['filesize'] = filesize( $file );
+		}
+
+		return $metadata;
 	}
 
 	/**
