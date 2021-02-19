@@ -412,7 +412,7 @@ class Plugin {
 	 * @param array $metadata Attachment metadata.
 	 * @return array Attachment metadata array, with "filesize" value added.
 	 */
-	function set_filesize_in_attachment_meta( $metadata ) {
+	function set_filesize_in_attachment_meta( array $metadata ) : array {
 		$uploads_dir = wp_upload_dir();
 
 		$file = path_join( $uploads_dir['basedir'], $metadata['file'] );
