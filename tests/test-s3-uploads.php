@@ -105,8 +105,8 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		) );
 
 		$meta_data = wp_generate_attachment_metadata( $attachment_id, $test_file );
-		$this->assertEquals( 'video/mp4', $meta_data['mime_type'] );
-		$this->assertEquals( 'quicktime', $meta_data['dataformat'] );
+		// Video mimetype can vary depending on platform configuration
+		$this->assertTrue( in_array( $meta_data['mime_type'], [ 'video/quicktime', 'video/mp4' ], true ) );
 		$this->assertEquals( 320, $meta_data['width'] );
 		$this->assertEquals( 240, $meta_data['height'] );
 	}
