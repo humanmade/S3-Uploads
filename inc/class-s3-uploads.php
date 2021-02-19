@@ -322,7 +322,7 @@ class S3_Uploads {
 	 * @param int   $attachment_id ID of uploaded attachment.
 	 * @return array Attachment metadata array, with "filesize" value added.
 	 */
-	function set_filesize_in_attachment_meta( $metadata, $attachment_id ) {
+	function set_filesize_in_attachment_meta( array $metadata, $attachment_id ) {
 		$uploads_dir = wp_upload_dir();
 
 		$file = path_join( $uploads_dir['basedir'], $metadata['file'] );
