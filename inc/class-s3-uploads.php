@@ -243,14 +243,12 @@ class S3_Uploads {
 	 * Saving the filesize in the attachment metadata when the image is
 	 * uploaded allows core to skip this stat when retrieving and formatting it.
 	 *
-	 * @param array $metadata Attachment metadata.
+	 * @param array $metadata      Attachment metadata.
 	 * @param int   $attachment_id ID of uploaded attachment.
 	 * @return array Attachment metadata array, with "filesize" value added.
 	 */
-	function set_filesize_in_attachment_meta( array $metadata, $attachment_id ) {
-		$uploads_dir = wp_upload_dir();
-
-		$file = path_join( $uploads_dir['basedir'], $metadata['file'] );
+	function set_filesize_in_attachment_meta( array $metadata, int $attachment_id  ) : array {
+		$file = get_attached_file( $attachment_id );
 
 		if ( file_exists( $file ) ) {
 			$metadata['filesize'] = filesize( $file );
