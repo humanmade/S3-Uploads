@@ -416,7 +416,7 @@ class Plugin {
 	function set_filesize_in_attachment_meta( array $metadata, int $attachment_id ) : array {
 		$file = get_attached_file( $attachment_id );
 
-		if ( file_exists( $file ) ) {
+		if ( ! isset( $metadata['filesize'] ) && file_exists( $file ) ) {
 			$metadata['filesize'] = filesize( $file );
 		}
 
