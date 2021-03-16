@@ -247,7 +247,7 @@ class S3_Uploads {
 	 * @param int   $attachment_id ID of uploaded attachment.
 	 * @return array Attachment metadata array, with "filesize" value added.
 	 */
-	function set_filesize_in_attachment_meta( array $metadata, int $attachment_id  ) : array {
+	function set_filesize_in_attachment_meta( array $metadata, int $attachment_id  ) {
 		$file = get_attached_file( $attachment_id );
 
 		if ( file_exists( $file ) ) {
