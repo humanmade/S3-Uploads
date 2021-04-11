@@ -2,6 +2,7 @@
 namespace Composer\Installers;
 
 use Composer\DependencyResolver\Pool;
+use Composer\Semver\Constraint\Constraint;
 
 class CakePHPInstaller extends BaseInstaller
 {
@@ -49,14 +50,6 @@ class CakePHPInstaller extends BaseInstaller
      */
     protected function matchesCakeVersion($matcher, $version)
     {
-        if (class_exists('Composer\Semver\Constraint\MultiConstraint')) {
-            $multiClass = 'Composer\Semver\Constraint\MultiConstraint';
-            $constraintClass = 'Composer\Semver\Constraint\Constraint';
-        } else {
-            $multiClass = 'Composer\Package\LinkConstraint\MultiConstraint';
-            $constraintClass = 'Composer\Package\LinkConstraint\VersionConstraint';
-        }
-
         $repositoryManager = $this->composer->getRepositoryManager();
         if (! $repositoryManager) {
             return false;
@@ -67,6 +60,6 @@ class CakePHPInstaller extends BaseInstaller
             return false;
         }
 
-        return $repos->findPackage('cakephp/cakephp', new $constraintClass($matcher, $version)) !== null;
+        return $repos->findPackage('cakephp/cakephp', new Constraint($matcher, $version)) !== null;
     }
 }

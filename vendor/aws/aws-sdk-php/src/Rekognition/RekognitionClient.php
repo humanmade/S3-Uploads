@@ -41,6 +41,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise detectLabelsAsync(array $args = [])
  * @method \Aws\Result detectModerationLabels(array $args = [])
  * @method \GuzzleHttp\Promise\Promise detectModerationLabelsAsync(array $args = [])
+ * @method \Aws\Result detectProtectiveEquipment(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise detectProtectiveEquipmentAsync(array $args = [])
  * @method \Aws\Result detectText(array $args = [])
  * @method \GuzzleHttp\Promise\Promise detectTextAsync(array $args = [])
  * @method \Aws\Result getCelebrityInfo(array $args = [])
@@ -69,6 +71,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise listFacesAsync(array $args = [])
  * @method \Aws\Result listStreamProcessors(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listStreamProcessorsAsync(array $args = [])
+ * @method \Aws\Result listTagsForResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise listTagsForResourceAsync(array $args = [])
  * @method \Aws\Result recognizeCelebrities(array $args = [])
  * @method \GuzzleHttp\Promise\Promise recognizeCelebritiesAsync(array $args = [])
  * @method \Aws\Result searchFaces(array $args = [])
@@ -99,5 +103,9 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise stopProjectVersionAsync(array $args = [])
  * @method \Aws\Result stopStreamProcessor(array $args = [])
  * @method \GuzzleHttp\Promise\Promise stopStreamProcessorAsync(array $args = [])
+ * @method \Aws\Result tagResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise tagResourceAsync(array $args = [])
+ * @method \Aws\Result untagResource(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise untagResourceAsync(array $args = [])
  */
 class RekognitionClient extends AwsClient {}

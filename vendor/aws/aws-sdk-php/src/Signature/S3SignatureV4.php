@@ -10,15 +10,18 @@ use Psr\Http\Message\RequestInterface;
 class S3SignatureV4 extends SignatureV4
 {
     /**
-     * Always add a x-amz-content-sha-256 for data integrity.
+     * S3-specific signing logic
+     *
+     * {@inheritdoc}
      */
     public function signRequest(
         RequestInterface $request,
         CredentialsInterface $credentials
     ) {
+        // Always add a x-amz-content-sha-256 for data integrity
         if (!$request->hasHeader('x-amz-content-sha256')) {
             $request = $request->withHeader(
-                'X-Amz-Content-Sha256',
+                'x-amz-content-sha256',
                 $this->getPayload($request)
             );
         }
@@ -28,6 +31,8 @@ class S3SignatureV4 extends SignatureV4
 
     /**
      * Always add a x-amz-content-sha-256 for data integrity.
+     *
+     * {@inheritdoc}
      */
     public function presign(
         RequestInterface $request,

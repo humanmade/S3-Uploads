@@ -36,12 +36,13 @@ trait DecryptionTrait
 
     /**
      * Builds an AesStreamInterface using cipher options loaded from the
-     * MetadataEnvelope and MaterialsProvider.
+     * MetadataEnvelope and MaterialsProvider. Can decrypt data from both the
+     * legacy and V2 encryption client workflows.
      *
      * @param string $cipherText Plain-text data to be encrypted using the
      *                           materials, algorithm, and data provided.
-     * @param MaterialsProvider $provider A provider to supply and encrypt
-     *                                    materials used in encryption.
+     * @param MaterialsProviderInterface $provider A provider to supply and encrypt
+     *                                             materials used in encryption.
      * @param MetadataEnvelope $envelope A storage envelope for encryption
      *                                   metadata to be read from.
      * @param array $cipherOptions Additional verification options.
@@ -55,7 +56,7 @@ trait DecryptionTrait
      */
     public function decrypt(
         $cipherText,
-        MaterialsProvider $provider,
+        MaterialsProviderInterface $provider,
         MetadataEnvelope $envelope,
         array $cipherOptions = []
     ) {
@@ -80,14 +81,14 @@ trait DecryptionTrait
             $envelope[MetadataEnvelope::CONTENT_CRYPTO_SCHEME_HEADER]
         );
 
-        $decryptionSteam = $this->getDecryptingStream(
+        $decryptionStream = $this->getDecryptingStream(
             $cipherText,
             $cek,
             $cipherOptions
         );
         unset($cek);
 
-        return $decryptionSteam;
+        return $decryptionStream;
     }
 
     private function getTagFromCiphertextStream(

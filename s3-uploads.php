@@ -4,7 +4,7 @@
 Plugin Name: S3 Uploads
 Description: Store uploads in S3
 Author: Human Made Limited
-Version: 2.2.2
+Version: 2.3.2
 Author URI: http://hmn.md
 */
 
@@ -19,12 +19,7 @@ function s3_uploads_init() {
 	// Ensure the AWS SDK can be loaded.
 	if ( ! class_exists( '\\Aws\\S3\\S3Client' ) ) {
 		// Require AWS Autoloader file.
-		if ( file_exists( ABSPATH . '/vendor/autoload.php' ) ) {
-			require_once ABSPATH . '/vendor/autoload.php';
-		} else {
-			// fall back to local vendor dir
-			require_once dirname( __FILE__ ) . '/vendor/autoload.php';
-		}
+		require_once dirname( __FILE__ ) . '/vendor/autoload.php';
 	}
 
 	if ( ! s3_uploads_check_requirements() ) {
@@ -54,15 +49,6 @@ function s3_uploads_init() {
         $imagify = new S3_Uploads_Imagify($instance);
         $wp_gallery = new S3_Uploads_WP_Gallery();
     }
-
-	// Include newer version of getID3, as the one bundled with WordPress Core is too old that it
-	// breaks with s3:// file paths. This is less than ideal for performance, but there's no
-	// reliable WordPress hooks we can use to load this only when we need. Most infuriating is
-	// WordPress does class_exists( 'getID3', false ) so we can't use an autoloader to override
-	// the version being loaded.
-	if ( ! class_exists( 'getID3' ) ) {
-		require_once dirname( __FILE__ ) . '/lib/getid3/getid3.php';
-	}
 
 	// Add filters to "wrap" the wp_privacy_personal_data_export_file function call as we need to
 	// switch out the personal_data directory to a local temp folder, and then upload after it's

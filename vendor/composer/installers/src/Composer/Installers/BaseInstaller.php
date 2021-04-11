@@ -74,8 +74,8 @@ abstract class BaseInstaller
     /**
      * For an installer to override to modify the vars per installer.
      *
-     * @param  array $vars
-     * @return array
+     * @param  array<string, string> $vars This will normally receive array{name: string, vendor: string, type: string}
+     * @return array<string, string>
      */
     public function inflectPackageVars($vars)
     {
@@ -85,7 +85,7 @@ abstract class BaseInstaller
     /**
      * Gets the installer's locations
      *
-     * @return array
+     * @return array<string, string> map of package types => install path
      */
     public function getLocations()
     {
@@ -95,8 +95,8 @@ abstract class BaseInstaller
     /**
      * Replace vars in a path
      *
-     * @param  string $path
-     * @param  array  $vars
+     * @param  string                $path
+     * @param  array<string, string> $vars
      * @return string
      */
     protected function templatePath($path, array $vars = array())
@@ -121,7 +121,7 @@ abstract class BaseInstaller
      * @param  string $name
      * @param  string $type
      * @param  string $vendor = NULL
-     * @return string
+     * @return string|false
      */
     protected function mapCustomInstallPaths(array $paths, $name, $type, $vendor = NULL)
     {

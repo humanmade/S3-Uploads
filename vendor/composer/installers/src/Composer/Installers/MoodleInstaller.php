@@ -18,6 +18,7 @@ class MoodleInstaller extends BaseInstaller
         'cachestore'         => 'cache/stores/{$name}/',
         'cachelock'          => 'cache/locks/{$name}/',
         'calendartype'       => 'calendar/type/{$name}/',
+        'fileconverter'      => 'files/converter/{$name}/',
         'format'             => 'course/format/{$name}/',
         'coursereport'       => 'course/report/{$name}/',
         'customcertelement'  => 'mod/customcert/element/{$name}/',

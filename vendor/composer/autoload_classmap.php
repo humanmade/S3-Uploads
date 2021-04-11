@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Imagify\\Optimizer' => $vendorDir . '/wp-media/imagify-php/class-imagify.php',
+    'Normalizer' => $vendorDir . '/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
 );
