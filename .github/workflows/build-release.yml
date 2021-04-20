@@ -20,6 +20,7 @@ jobs:
       uses: ramsey/composer-install@v1
       with:
         composer-options: '-oa --no-dev'
+        extensions: pcov
 
     - name: Archive assets
       uses: thedoctor0/zip-release@master
