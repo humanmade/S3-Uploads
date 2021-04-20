@@ -3,6 +3,8 @@ name: Build Release
 on:
   release:
     types: [ published ]
+  workflow_dispatch:
+
 
 jobs:
   build-manual-install:
@@ -15,7 +17,7 @@ jobs:
     - name: Install dependencies
       uses: nick-zh/composer@php7.3
       with:
-        args: 'install -oa'
+        args: 'install -oa --no-dev'
 
     - name: Archive assets
       uses: thedoctor0/zip-release@master
