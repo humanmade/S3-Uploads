@@ -3,6 +3,8 @@ name: Build Release
 on:
   release:
     types: [ published ]
+  workflow_dispatch:
+
 
 jobs:
   build-manual-install:
@@ -11,11 +13,14 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-
-    - name: Install dependencies
-      uses: nick-zh/composer@php7.3
+    - uses: "shivammathur/setup-php@v2"
       with:
-        args: 'install -oa'
+        php-version: "7.4"
+        extensions: pcov
+    - name: Install dependencies
+      uses: ramsey/composer-install@v1
+      with:
+        composer-options: '-oa --no-dev'
 
     - name: Archive assets
       uses: thedoctor0/zip-release@master
