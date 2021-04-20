@@ -15,9 +15,10 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Install dependencies
-      uses: nick-zh/composer@php7.3
+      uses: ramsey/composer-install@v1
       with:
-        args: 'install -oa --no-dev'
+        composer-options: '-oa --no-dev'
+        php-version: "7.4"
 
     - name: Archive assets
       uses: thedoctor0/zip-release@master
