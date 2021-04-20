@@ -13,12 +13,13 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-
+    - uses: "shivammathur/setup-php@v2"
+      with:
+        php-version: "7.4"
     - name: Install dependencies
       uses: ramsey/composer-install@v1
       with:
         composer-options: '-oa --no-dev'
-        php-version: "7.4"
 
     - name: Archive assets
       uses: thedoctor0/zip-release@master
