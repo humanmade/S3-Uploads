@@ -2,6 +2,7 @@
 
 namespace S3_Uploads;
 
+use Aws\Command;
 use Aws\S3\Transfer;
 use Exception;
 use WP_CLI;
@@ -206,7 +207,7 @@ class WP_CLI_Command extends \WP_CLI_Command {
 		$transfer_args = [
 			'concurrency' => $args_assoc['concurrency'],
 			'debug'       => (bool) $args_assoc['verbose'],
-			'before'      => function ( AWS\Command $command ) {
+			'before'      => function ( Command $command ) {
 				if ( in_array( $command->getName(), [ 'PutObject', 'CreateMultipartUpload' ], true ) ) {
 					$acl = defined( 'S3_UPLOADS_OBJECT_ACL' ) ? S3_UPLOADS_OBJECT_ACL : 'public-read';
 					$command['ACL'] = $acl;
