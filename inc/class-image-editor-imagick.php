@@ -33,7 +33,7 @@ class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 	 *
 	 * These are cleaned up on __destruct.
 	 *
-	 * @var array
+	 * @var string[]
 	 */
 	protected $temp_files_to_cleanup = [];
 
@@ -95,7 +95,6 @@ class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 		$upload_dir = wp_upload_dir();
 
 		if ( strpos( $filename, $upload_dir['basedir'] ) === 0 ) {
-			/** @var false|string */
 			$temp_filename = tempnam( get_temp_dir(), 's3-uploads' );
 		} else {
 			$temp_filename = false;
@@ -139,7 +138,9 @@ class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 	}
 
 	public function __destruct() {
-		array_map( 'unlink', $this->temp_files_to_cleanup );
+		foreach ( $this->temp_files_to_cleanup as $file ) {
+			unlink( $file );
+		}
 		parent::__destruct();
 	}
 }

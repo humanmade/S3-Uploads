@@ -100,7 +100,7 @@ class Plugin {
 	/**
 	 * Setup the hooks, urls filtering etc for S3 Uploads
 	 */
-	public function setup() {
+	public function setup() : void {
 		$this->register_stream_wrapper();
 
 		add_filter( 'upload_dir', [ $this, 'filter_upload_dir' ] );
@@ -124,7 +124,7 @@ class Plugin {
 	/**
 	 * Tear down the hooks, url filtering etc for S3 Uploads
 	 */
-	public function tear_down() {
+	public function tear_down() : void {
 
 		stream_wrapper_unregister( 's3' );
 		remove_filter( 'upload_dir', [ $this, 'filter_upload_dir' ] );
@@ -142,7 +142,7 @@ class Plugin {
 	/**
 	 * Register the stream wrapper for s3
 	 */
-	public function register_stream_wrapper() {
+	public function register_stream_wrapper() : void {
 		if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
 			stream_wrapper_register( 's3', 'S3_Uploads_Local_Stream_Wrapper', STREAM_IS_URL );
 		} else {
@@ -194,7 +194,7 @@ class Plugin {
 	 *
 	 * @param int $post_id
 	 */
-	public function delete_attachment_files( int $post_id ) {
+	public function delete_attachment_files( int $post_id ) : void {
 		$meta = wp_get_attachment_metadata( $post_id );
 		$file = get_attached_file( $post_id );
 		if ( ! $file ) {
@@ -542,7 +542,7 @@ class Plugin {
 
 		$meta = wp_get_attachment_metadata( $attachment_id );
 		if ( isset( $meta['sizes'] ) ) {
-			foreach ( $meta['sizes'] as $size => $sizeinfo ) {
+			foreach ( $meta['sizes'] as $sizeinfo ) {
 				$files[] = $uploadpath['basedir'] . $sizeinfo['file'];
 			}
 		}
@@ -556,7 +556,7 @@ class Plugin {
 		/** @var array<string,array{file: string}> */
 		$backup_sizes = get_post_meta( $attachment_id, '_wp_attachment_backup_sizes', true );
 		if ( $backup_sizes ) {
-			foreach ( $backup_sizes as $size => $sizeinfo ) {
+			foreach ( $backup_sizes as $sizeinfo ) {
 				// Backup sizes only store the backup filename, which is relative to the
 				// main attached file, unlike the metadata sizes array.
 				$files[] = path_join( dirname( $main_file ), $sizeinfo['file'] );
