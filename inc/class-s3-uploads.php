@@ -84,9 +84,6 @@ class S3_Uploads {
 	}
 
 	public function filter_upload_dir( $dirs ) {
-		if ( ! is_admin() ) {
-			return $dirs;
-		}
 
 		$this->original_upload_dir = $dirs;
 
