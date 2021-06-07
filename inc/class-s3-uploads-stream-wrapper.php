@@ -133,6 +133,13 @@ class S3_Uploads_Stream_Wrapper
 
 	public function stream_open($path, $mode, $options, &$opened_path)
 	{
+        $media_extensions = ['jpg', 'png', 'webp', 'svg'];
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+
+        if(in_array($extension, $media_extensions)){
+            return ;
+        }
+
 		$this->initProtocol($path);
 		$this->params = $this->getBucketKey($path);
 		$this->mode = rtrim($mode, 'bt');

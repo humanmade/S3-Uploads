@@ -1,5 +1,9 @@
 <?php
 
+use WebPConvert\WebPConvert;
+use WebPConvert\Convert\Converters\Stack;
+
+
 class S3_Uploads_Imagify {
 
 	public $instance;
@@ -7,8 +11,9 @@ class S3_Uploads_Imagify {
 	public $imagify;
 	private $imagify_key = S3_UPLOADS_IMAGIFY_KEY;
 
-	public function __construct( $instance ) {
-		$this->instance = $instance;
+	public function __construct() {
+        $instance = S3_Uploads::get_instance();
+        $this->instance = $instance;
 		$this->imagify  = new Imagify\Optimizer( $this->imagify_key );
 		$this->set_upload_dir();
 		if ( ! file_exists( $this->upload_dir['tmp_path'] ) ) {
@@ -143,29 +148,6 @@ class S3_Uploads_Imagify {
 		$image_extensions = array( 'jpg', 'jpeg', 'jpe', 'png', 'gif' );
 		$ext              = pathinfo( $file_name, PATHINFO_EXTENSION );
 		if ( in_array( $ext, $image_extensions ) ) {
-			return true;
-		}
-		return false;
-	}
-
-	/*
-	 * This method check if the attachment file is jpg.
-	 */
-	public function is_jpg( $file_name ) {
-		$image_extensions = array( 'jpg', 'jpeg', 'jpe' );
-		$ext              = pathinfo( $file_name, PATHINFO_EXTENSION );
-		if ( in_array( $ext, $image_extensions ) ) {
-			return true;
-		}
-		return false;
-	}
-
-	/*
-	 * This method check if the attachment file is png.
-	 */
-	public function is_png( $file_name ) {
-		$ext              = pathinfo( $file_name, PATHINFO_EXTENSION );
-		if ( $ext === 'png' ) {
 			return true;
 		}
 		return false;
@@ -403,24 +385,26 @@ class S3_Uploads_Imagify {
 
 	public function generate_missing_webp( $files, $attachment_id ) {
 		if ( $files['data']['is_image'] && isset( $files['sizes'] ) && $files['sizes'] ) {
-            $is_jpg = $this->is_jpg($files['sizes']['full']['local']);
-            $is_png = $this->is_png($files['sizes']['full']['local']);
-
-            foreach ( $files['sizes'] as $file ) {
+			foreach ( $files['sizes'] as $file ) {
 				$ext = pathinfo( $file['local'], PATHINFO_EXTENSION );
 				if ( $ext === 'webp' && ! file_exists( $file['from'] ) ) {
 					$file_name = str_replace( '.webp', '', $file['local'] );
-                    if($is_jpg){
-                        $img = imagecreatefromjpeg($file_name);
-                    }elseif($is_png){
-                        $img = imagecreatefrompng($file_name);
-                    }else{
-                        $img = imagecreatefromgif($file_name);
-                    }
-                    imagewebp($img,$file['local'] );
+					Stack::convert( $file_name, $file['local'] );
 				}
 			}
 		}
+	}
+
+	public function copy_files_to_local( $files ) {
+		if ( $files['data']['is_image'] && isset( $files['sizes'] ) && $files['sizes'] ) {
+			foreach ( $files['sizes'] as $key => $file ) {
+				echo '<pre>';
+				print_r( $file );
+				echo '</pre>';
+			}
+		}
+		die();
+
 	}
 
 	/*
@@ -429,20 +413,10 @@ class S3_Uploads_Imagify {
 
 	public function create_webp_files( $files ) {
 		if ( $files['data']['is_image'] && isset( $files['sizes'] ) && $files['sizes'] ) {
-		    $is_jpg = $this->is_jpg($files['sizes']['full']['local']);
-		    $is_png = $this->is_png($files['sizes']['full']['local']);
 			foreach ( $files['sizes'] as $key => $file ) {
 				$webp_file_s3 = $file['s3'] . '.webp';
 				$webp_file    = $file['local'] . '.webp';
-				if($is_jpg){
-				    $img = imagecreatefromjpeg($file['local']);
-                }elseif($is_png){
-                    $img = imagecreatefrompng($file['local']);
-                }else{
-                    $img = imagecreatefromgif($file['local']);
-                }
-                imagewebp($img,$webp_file );
-
+				Stack::convert( $file['local'], $webp_file );
 				$files['sizes'][ $key . '_webp' ] = array(
 					'local' => $webp_file,
 					's3'    => $webp_file_s3,

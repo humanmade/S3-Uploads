@@ -46,7 +46,7 @@ function s3_uploads_init() {
 	$instance->setup();
 
     if ( defined( 'S3_UPLOADS_IMAGIFY_KEY' ) ) {
-        $imagify = new S3_Uploads_Imagify($instance);
+        $imagify = new S3_Uploads_Imagify();
         $wp_gallery = new S3_Uploads_WP_Gallery();
     }
 
