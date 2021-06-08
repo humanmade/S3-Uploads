@@ -12,8 +12,9 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once dirname( __FILE__ ) . '/inc/class-s3-uploads-wp-cli-command.php';
 }
 require_once dirname( __FILE__ ) . '/inc/class-s3-uploads_wp_gallery.php';
-
-add_action( 'plugins_loaded', 's3_uploads_init' );
+if( is_admin()){
+    add_action( 'plugins_loaded', 's3_uploads_init' );
+}
 
 function s3_uploads_init() {
 	// Ensure the AWS SDK can be loaded.
