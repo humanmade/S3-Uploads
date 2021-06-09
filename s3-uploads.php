@@ -12,7 +12,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once dirname( __FILE__ ) . '/inc/class-s3-uploads-wp-cli-command.php';
 }
 require_once dirname( __FILE__ ) . '/inc/class-s3-uploads_wp_gallery.php';
-if( is_admin()){
+if( getenv('CLUSTER') === 'dev' || is_admin()){
     add_action( 'plugins_loaded', 's3_uploads_init' );
 }
 
