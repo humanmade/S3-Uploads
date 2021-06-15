@@ -1,5 +1,4 @@
 <?php
-
 /*
 Plugin Name: S3 Uploads
 Description: Store uploads in S3
