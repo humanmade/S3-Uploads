@@ -512,7 +512,7 @@ class Local_Stream_Wrapper {
 	 */
 	public function dir_opendir( $uri, $options ) {
 		$this->uri = $uri;
-		$this->handle = opendir( pathinfo($this->getLocalPath(), PATHINFO_DIRNAME) );
+		$this->handle = opendir( pathinfo( $this->getLocalPath(), PATHINFO_DIRNAME ) );
 
 		return (bool) $this->handle;
 	}
