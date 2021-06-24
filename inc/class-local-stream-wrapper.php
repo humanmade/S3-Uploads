@@ -14,7 +14,7 @@ namespace S3_Uploads;
  *
  * This is for the most part taken from Drupal, with some modifications.
  */
-class Local_Stream_Wrapper{
+class Local_Stream_Wrapper {
 	/**
 	 * Stream context resource.
 	 *

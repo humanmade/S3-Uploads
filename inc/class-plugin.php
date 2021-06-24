@@ -5,7 +5,6 @@ namespace S3_Uploads;
 use Aws;
 use Exception;
 use WP_Error;
-use S3_Uploads\Local_Stream_Wrapper;
 
 /**
  * @psalm-consistent-constructor
