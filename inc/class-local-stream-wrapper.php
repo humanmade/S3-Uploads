@@ -14,7 +14,7 @@ namespace S3_Uploads;
  *
  * This is for the most part taken from Drupal, with some modifications.
  */
-class Local_Stream_Wrapper {
+class Local_Stream_Wrapper{
 	/**
 	 * Stream context resource.
 	 *
@@ -512,7 +512,7 @@ class Local_Stream_Wrapper {
 	 */
 	public function dir_opendir( $uri, $options ) {
 		$this->uri = $uri;
-		$this->handle = opendir( $this->getLocalPath() );
+		$this->handle = opendir( pathinfo($this->getLocalPath(), PATHINFO_DIRNAME) );
 
 		return (bool) $this->handle;
 	}
