@@ -2,7 +2,7 @@
 
 namespace S3_Uploads;
 
-function init() {
+function init() : void {
 	// Ensure the AWS SDK can be loaded.
 	if ( ! class_exists( '\\Aws\\S3\\S3Client' ) ) {
 		// Require AWS Autoloader file.
@@ -73,7 +73,7 @@ function check_requirements() : bool {
  *
  * This has to be a named function for compatibility with PHP 5.2.
  */
-function outdated_php_version_notice() {
+function outdated_php_version_notice() : void {
 	printf(
 		'<div class="error"><p>The S3 Uploads plugin requires PHP version 5.5.0 or higher. Your server is running PHP version %s.</p></div>',
 		PHP_VERSION
@@ -85,7 +85,7 @@ function outdated_php_version_notice() {
  *
  * This has to be a named function for compatibility with PHP 5.2.
  */
-function outdated_wp_version_notice() {
+function outdated_wp_version_notice() : void {
 	global $wp_version;
 
 	printf(
@@ -116,14 +116,14 @@ function enabled() : bool {
 /**
  * Setup the filters for wp_privacy_exports_dir to use a temp folder location.
  */
-function before_export_personal_data() {
+function before_export_personal_data() : void {
 	add_filter( 'wp_privacy_exports_dir', __NAMESPACE__ . '\\set_wp_privacy_exports_dir' );
 }
 
 /**
  * Remove the filters for wp_privacy_exports_dir as we only want it added in some cases.
  */
-function after_export_personal_data() {
+function after_export_personal_data() : void {
 	remove_filter( 'wp_privacy_exports_dir', __NAMESPACE__ . '\\set_wp_privacy_exports_dir' );
 }
 
@@ -157,7 +157,7 @@ function set_wp_privacy_exports_dir( string $dir ) {
  * location to the S3 location where it should have been stored all along, and where
  * the "natural" Core URL is going to be pointing to.
  */
-function move_temp_personal_data_to_s3( string $archive_pathname ) {
+function move_temp_personal_data_to_s3( string $archive_pathname ) : void {
 	if ( strpos( $archive_pathname, sys_get_temp_dir() ) !== 0 ) {
 		return;
 	}

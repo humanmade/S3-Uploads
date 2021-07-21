@@ -12,3 +12,6 @@ const S3_UPLOADS_OBJECT_ACL = 'public';
 
 const S3_UPLOADS_HTTP_EXPIRES = '2 days';
 const S3_UPLOADS_HTTP_CACHE_CONTROL = '300';
+
+const WP_CONTENT_DIR = '';
+const ABSPATH = '';
