@@ -121,7 +121,7 @@ class WP_CLI_Command extends \WP_CLI_Command {
 	}
 
 	/**
-	 * List files in the S3 bukcet
+	 * List files in the S3 bucket
 	 *
 	 * @synopsis [<path>]
 	 *
