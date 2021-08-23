@@ -330,7 +330,8 @@ class S3_Uploads_Imagify {
 
 					} else {
 						$all_image_optimize                             = false;
-						$tmp_files['sizes'][ $key ]['optimize_message'] = $handle->detail;
+						$optimize_message = $handle->detail ?? 'not optimized';
+						$tmp_files['sizes'][ $key ]['optimize_message'] = $optimize_message;
 					}
 					$tmp_files['sizes'][ $key ]['optimize_status'] = $handle->success;
 
