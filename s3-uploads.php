@@ -4,7 +4,7 @@
 Plugin Name: S3 Uploads
 Description: Store uploads in S3
 Author: rdbrck / Human Made Limited
-Version: 1.1.2-rb
+Version: 1.1.0-rb
 Author URI: https://hmn.md
 */
 
