@@ -53,12 +53,7 @@ class S3_Uploads {
 		remove_filter( 'admin_notices', 'wpthumb_errors' );
 
 		add_action( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
-
-		add_action( 'wp_get_attachment_url', array( $this, 'add_s3_signed_params_to_attachment_url' ), 10, 2 );
-		add_action( 'wp_get_attachment_image_src', array( $this, 'add_s3_signed_params_to_attachment_image_src' ), 10, 2 );
-		add_action( 'wp_calculate_image_srcset', array( $this, 'add_s3_signed_params_to_attachment_image_srcset' ), 10, 5 );
-
-		add_filter( 'wp_generate_attachment_metadata', array( $this, 'set_attachment_private_on_generate_attachment_metadata' ), 10, 2 );
+		add_filter( 'wp_generate_attachment_metadata', array( $this, 'set_filesize_in_attachment_meta' ), 10, 3 );
 	}
 
 	/**
@@ -70,12 +65,7 @@ class S3_Uploads {
 		remove_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
 		remove_filter( 'wp_image_editors', array( $this, 'filter_editors' ), 9 );
 		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'filter_sideload_move_temp_file_to_s3' ) );
-
-		remove_action( 'wp_get_attachment_url', array( $this, 'add_s3_signed_params_to_attachment_url' ) );
-		remove_action( 'wp_get_attachment_image_src', array( $this, 'add_s3_signed_params_to_attachment_image_src' ) );
-		remove_action( 'wp_calculate_image_srcset', array( $this, 'add_s3_signed_params_to_attachment_image_srcset' ) );
-
-		remove_filter( 'wp_generate_attachment_metadata', array( $this, 'set_attachment_private_on_generate_attachment_metadata' ) );
+		remove_filter( 'wp_generate_attachment_metadata', array( $this, 'set_filesize_in_attachment_meta' ) );
 	}
 
 	/**
@@ -285,7 +275,6 @@ class S3_Uploads {
 
 		return $editors;
 	}
-
 	/**
 	 * Copy the file from /tmp to an s3 dir so handle_sideload doesn't fail due to
 	 * trying to do a rename() on the file cross streams. This is somewhat of a hack
@@ -303,6 +292,32 @@ class S3_Uploads {
 		$file['tmp_name'] = $new_path;
 
 		return $file;
+	}
+
+	/**
+	 * Store the attachment filesize in the attachment meta array.
+	 *
+	 * Getting the filesize of an image in S3 involves a remote HEAD request,
+	 * which is a bit slower than a local filesystem operation would be. As a
+	 * result, operations like `wp_prepare_attachments_for_js' take substantially
+	 * longer to complete against s3 uploads than if they were performed with a
+	 * local filesystem.i
+	 *
+	 * Saving the filesize in the attachment metadata when the image is
+	 * uploaded allows core to skip this stat when retrieving and formatting it.
+	 *
+	 * @param array $metadata      Attachment metadata.
+	 * @param int   $attachment_id ID of uploaded attachment.
+	 * @return array Attachment metadata array, with "filesize" value added.
+	 */
+	function set_filesize_in_attachment_meta( array $metadata, int $attachment_id  ) {
+		$file = get_attached_file( $attachment_id );
+
+		if ( file_exists( $file ) ) {
+			$metadata['filesize'] = filesize( $file );
+		}
+
+		return $metadata;
 	}
 
 	/**
