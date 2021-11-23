@@ -20,7 +20,7 @@
 			"issues": "https://github.com/humanmade/s3-uploads/issues",
 			"source": "https://github.com/humanmade/s3-uploads"
 	},
-	"type": "wordpress-plugin",
+	"type": "library",
 	"require": {
 		"composer/installers": "~1.0 || ^2.0",
 		"aws/aws-sdk-php": "~3.18"
