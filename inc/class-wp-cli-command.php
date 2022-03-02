@@ -121,7 +121,7 @@ class WP_CLI_Command extends \WP_CLI_Command {
 	}
 
 	/**
-	 * List files in the S3 bukcet
+	 * List files in the S3 bucket
 	 *
 	 * @synopsis [<path>]
 	 *
@@ -270,7 +270,7 @@ class WP_CLI_Command extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Ensable the auto-rewriting of media links to S3
+	 * Enable the auto-rewriting of media links to S3
 	 */
 	public function enable() {
 		update_option( 's3_uploads_enabled', 'enabled' );
