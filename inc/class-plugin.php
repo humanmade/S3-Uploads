@@ -253,7 +253,7 @@ class Plugin {
 	public function get_original_upload_dir() : array {
 
 		if ( empty( $this->original_upload_dir ) ) {
-			wp_upload_dir();
+			return wp_upload_dir();
 		}
 
 		/**
