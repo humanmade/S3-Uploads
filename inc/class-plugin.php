@@ -155,6 +155,13 @@ class Plugin {
 	}
 
 	/**
+	 * Get the s3:// path for the bucket.
+	 */
+	public function get_s3_path() {
+		return 's3://' . $this->bucket;
+	}
+
+	/**
 	 * Overwrite the default wp_upload_dir.
 	 *
 	 * @param array{path: string, basedir: string, baseurl: string, url: string} $dirs
@@ -163,19 +170,20 @@ class Plugin {
 	public function filter_upload_dir( array $dirs ) : array {
 
 		$this->original_upload_dir = $dirs;
+		$s3_path = $this->get_s3_path();
 
-		$dirs['path']    = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['path'] );
-		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, 's3://' . $this->bucket, $dirs['basedir'] );
+		$dirs['path']    = str_replace( WP_CONTENT_DIR, $s3_path, $dirs['path'] );
+		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, $s3_path, $dirs['basedir'] );
 
 		if ( ! defined( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) || ! S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL ) {
 
 			if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
-				$dirs['url']     = str_replace( 's3://' . $this->bucket, $dirs['baseurl'] . '/s3/' . $this->bucket, $dirs['path'] );
-				$dirs['baseurl'] = str_replace( 's3://' . $this->bucket, $dirs['baseurl'] . '/s3/' . $this->bucket, $dirs['basedir'] );
+				$dirs['url']     = str_replace( $s3_path, $dirs['baseurl'] . '/s3/' . $this->bucket, $dirs['path'] );
+				$dirs['baseurl'] = str_replace( $s3_path, $dirs['baseurl'] . '/s3/' . $this->bucket, $dirs['basedir'] );
 
 			} else {
-				$dirs['url']     = str_replace( 's3://' . $this->bucket, $this->get_s3_url(), $dirs['path'] );
-				$dirs['baseurl'] = str_replace( 's3://' . $this->bucket, $this->get_s3_url(), $dirs['basedir'] );
+				$dirs['url']     = str_replace( $s3_path, $this->get_s3_url(), $dirs['path'] );
+				$dirs['baseurl'] = str_replace( $s3_path, $this->get_s3_url(), $dirs['basedir'] );
 			}
 		}
 
