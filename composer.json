@@ -24,5 +24,10 @@
 		"aws/aws-sdk-php": "~3.18",
 		"wp-media/imagify-php": "^1.1",
 		"rosell-dk/webp-convert": "^2.3.2"
-	 }
+	},
+	"config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
+    }
 }
