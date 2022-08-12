@@ -188,7 +188,7 @@ class Plugin {
 				// The s3:// protocol is not needed when displaying the media library and slows things down in some cases.
 				if ( isset( $_POST['action'] ) && 'query-attachments' === $_POST['action'] ) {
 					$dirs['path']    = $this->original_upload_dir['path'];
-					$dirs['basedir'] = $this->original_upload_dir['basedir'];;
+					$dirs['basedir'] = $this->original_upload_dir['basedir'];
 				}
 			}
 		}
