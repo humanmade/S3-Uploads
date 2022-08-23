@@ -8,7 +8,7 @@
 	>
 	<testsuites>
 			<!-- Default test suite to run all tests -->
-			<testsuite>
+			<testsuite name="S3_Uploads">
 					<directory prefix="test-" suffix=".php">tests</directory>
 			</testsuite>
 	</testsuites>

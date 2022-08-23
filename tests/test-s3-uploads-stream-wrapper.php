@@ -10,7 +10,7 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 
 	public function tearDown() {
 		stream_wrapper_unregister( 's3' );
-		S3_Uploads::get_instance()->register_stream_wrapper();
+		S3_Uploads\Plugin::get_instance()->register_stream_wrapper();
 	}
 
 	public function test_stream_wrapper_is_registered() {
@@ -46,7 +46,7 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 
 		stream_wrapper_unregister( 's3' );
 
-		$uploads = new S3_Uploads( S3_UPLOADS_BUCKET, S3_UPLOADS_KEY, '123', null, S3_UPLOADS_REGION );
+		$uploads = new S3_Uploads\Plugin( S3_UPLOADS_BUCKET, S3_UPLOADS_KEY, '123', null, S3_UPLOADS_REGION );
 		$uploads->register_stream_wrapper();
 
 		$bucket_root = strtok( S3_UPLOADS_BUCKET, '/' );
@@ -61,7 +61,7 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 
 		stream_wrapper_unregister( 's3' );
 
-		$uploads = new S3_Uploads( S3_UPLOADS_BUCKET, S3_UPLOADS_KEY, '123', null, S3_UPLOADS_REGION );
+		$uploads = new S3_Uploads\Plugin( S3_UPLOADS_BUCKET, S3_UPLOADS_KEY, '123', null, S3_UPLOADS_REGION );
 		$uploads->register_stream_wrapper();
 
 		$bucket_root = strtok( S3_UPLOADS_BUCKET, '/' );
@@ -139,5 +139,19 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 		$this->assertTrue( empty( $result['error'] ) );
 		$this->assertTrue( file_exists( $result['file'] ) );
 		$this->assertEquals( $contents, file_get_contents( $result['file'] ) );
+	}
+
+	public function test_list_directory_with_wildcard() {
+		$upload_dir = wp_upload_dir();
+
+		file_put_contents( $upload_dir['path'] . '/my-file-scaled.jpg', '' );
+		file_put_contents( $upload_dir['path'] . '/some-file-scaled.jpg', '' );
+		$files = scandir( $upload_dir['path'] . '/my-file*' );
+		$this->assertEquals(
+			[
+				'my-file-scaled.jpg',
+			],
+			$files
+		);
 	}
 }

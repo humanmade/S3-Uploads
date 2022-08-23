@@ -18,32 +18,13 @@ class Test_S3_Uploads_Image_Editor_Imagick extends WP_UnitTestCase {
 		$this->assertFalse( in_array( 'WP_Image_Editor_Imagick', $editors ), 'Imagick editor should be removed from the image editors array.' );
 	}
 
-	/**
-	 * It's expected that we can't save image uses imagick built in, as
-	 * the undlaying system library can't write to the "s3://" filesystem.
-	 *
-	 */
-	public function test_save_image_with_inbuilt_fails() {
-
-		$upload_dir = wp_upload_dir();
-		$path = $upload_dir['basedir'] . '/sunflower.jpg';
-		copy( $this->image_path, $path );
-
-		$image_editor = new WP_Image_Editor_Imagick( $path );
-
-		$image_editor->load();
-		$status = $image_editor->save( $upload_dir['basedir'] . '/sunflower-100x100.jpg' );
-
-		$this->assertWPError( $status );
-	}
-
 	public function test_save_image() {
 
 		$upload_dir = wp_upload_dir();
 		$path = $upload_dir['basedir'] . '/sunflower.jpg';
 		copy( $this->image_path, $path );
 
-		$image_editor = new S3_Uploads_Image_Editor_Imagick( $path );
+		$image_editor = new S3_Uploads\Image_Editor_Imagick( $path );
 
 		$image_editor->load();
 		$image_editor->resize( 100, 100, true );
