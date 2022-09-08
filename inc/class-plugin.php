@@ -328,11 +328,10 @@ class Plugin {
 	public function s3() : Aws\S3\S3Client {
 
 		if ( ! empty( $this->s3 ) ) {
-			return $this->s3;
+			$this->s3 = $this->get_aws_sdk()->createS3();
 		}
 
-		$this->s3 = $this->get_aws_sdk()->createS3();
-		return $this->s3;
+		return apply_filters( 's3_uploads_s3_client', $this->s3 );
 	}
 
 	/**
