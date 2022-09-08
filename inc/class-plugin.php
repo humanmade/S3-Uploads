@@ -327,7 +327,7 @@ class Plugin {
 	 */
 	public function s3() : Aws\S3\S3Client {
 
-		if ( ! empty( $this->s3 ) ) {
+		if ( empty( $this->s3 ) ) {
 			$this->s3 = $this->get_aws_sdk()->createS3();
 		}
 
