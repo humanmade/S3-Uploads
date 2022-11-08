@@ -106,8 +106,11 @@ class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 		 */
 		$parent_call = parent::_save( $image, $temp_filename ?: $filename, $mime_type );
 
-		if ( is_wp_error( $parent_call ) && $temp_filename ) {
-			unlink( $temp_filename );
+		if ( is_wp_error( $parent_call ) ) {
+			if ( $temp_filename ) {
+				unlink( $temp_filename );
+			}
+
 			return $parent_call;
 		} else {
 			/**
