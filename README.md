@@ -100,7 +100,6 @@ wp s3-uploads verify
 
 You will need to create your IAM user yourself, or attach the necessary permissions to an existing user, you can output the policy via `wp s3-uploads generate-iam-policy`.
 
-
 ## Listing files on S3
 
 S3-Uploads comes with a WP-CLI command for listing files in the S3 bucket for debugging etc.
