@@ -143,7 +143,7 @@ class WP_CLI_Command extends \WP_CLI_Command {
 
 		try {
 			$objects = $s3->getIterator(
-				'ListObjects', [
+				'ListObjectsV2', [
 					'Bucket' => strtok( S3_UPLOADS_BUCKET, '/' ),
 					'Prefix' => $prefix,
 				]
