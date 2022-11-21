@@ -461,7 +461,7 @@ class Stream_Wrapper {
 				} catch ( S3Exception $e ) {
 					// Maybe this isn't an actual key, but a prefix. Do a prefix
 					// listing of objects to determine.
-					$result = $this->getClient()->listObjects(
+					$result = $this->getClient()->listObjectsV2(
 						[
 							'Bucket'  => $parts['Bucket'],
 							'Prefix'  => rtrim( $parts['Key'], '/' ) . '/',
@@ -615,7 +615,7 @@ class Stream_Wrapper {
 		// the preg_match() call.
 		//
 		// Essentially, wp_unique_filename( my-file.jpg ) doing a `scandir( s3://bucket/2019/04/ )` will actually result in an s3
-		// listObject query for `s3://bucket/2019/04/my-file` which means even if there are millions of files in `2019/04/` we only
+		// listObjectsV2 query for `s3://bucket/2019/04/my-file` which means even if there are millions of files in `2019/04/` we only
 		// return a much smaller subset.
 		//
 		// Anyone reading this far, brace yourselves for a mighty horrible hack.
@@ -635,7 +635,7 @@ class Stream_Wrapper {
 		// Filter our "/" keys added by the console as directories, and ensure
 		// that if a filter function is provided that it passes the filter.
 		$this->objectIterator = \Aws\flatmap(
-			$this->getClient()->getPaginator( 'ListObjects', $op ),
+			$this->getClient()->getPaginator( 'ListObjectsV2', $op ),
 			function ( Result $result ) use ( $filterFn ) {
 				/** @var list<S3ObjectResultArray> */
 				$contentsAndPrefixes = $result->search( '[Contents[], CommonPrefixes[]][]' );
@@ -1087,7 +1087,7 @@ class Stream_Wrapper {
 		// Use a key that adds a trailing slash if needed.
 		$prefix = rtrim( $params['Key'], '/' ) . '/';
 		/** @var array{Contents: list<array{ Key: string }>, CommonPrefixes:array} */
-		$result = $this->getClient()->listObjects(
+		$result = $this->getClient()->listObjectsV2(
 			[
 				'Bucket'  => $params['Bucket'],
 				'Prefix'  => $prefix,
