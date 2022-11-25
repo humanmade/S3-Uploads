@@ -244,7 +244,6 @@ class Stream_Wrapper {
 			$params['CacheControl'] = 'max-age=31530000';
 		}
 
-
 		/**
 		 * Filter the parameters passed to S3
 		 * Theses are the parameters passed to S3Client::putObject()
