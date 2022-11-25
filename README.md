@@ -174,6 +174,8 @@ define( 'S3_UPLOADS_HTTP_EXPIRES', gmdate( 'D, d M Y H:i:s', time() + (10 * 365 
 	// will expire in 10 years time
 ```
 
+If the constant `S3_UPLOADS_HTTP_CACHE_CONTROL` is not set, a default `Cache-Control` header `max-age=31536000` is set on the file.
+
 ## Default Behaviour
 
 As S3 Uploads is a plug and play plugin, activating it will start rewriting image URLs to S3, and also put
