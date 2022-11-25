@@ -240,7 +240,10 @@ class Stream_Wrapper {
 			} else {
 				$params['CacheControl'] = S3_UPLOADS_HTTP_CACHE_CONTROL;
 			}
+		} else {
+			$params['CacheControl'] = 'max-age=31530000';
 		}
+
 
 		/**
 		 * Filter the parameters passed to S3
