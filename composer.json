@@ -35,8 +35,7 @@
 	},
 	"config": {
 		"allow-plugins": {
-			"composer/installers": true,
-			"typisttech/imposter-plugin": true
+			"composer/installers": true
 		}
 	}
 }
