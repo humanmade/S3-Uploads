@@ -33,5 +33,10 @@
 	"scripts": {
 		"test": "./tests/run-tests.sh",
 		"check-types": "./vendor/bin/psalm"
+	},
+	"config": {
+		"allow-plugins": {
+			"composer/installers": true
+		}
 	}
 }
