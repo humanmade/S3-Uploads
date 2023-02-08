@@ -13,7 +13,6 @@
 codecov.yml export-ignore
 phpunit.xml.dist export-ignore
 psalm.xml export-ignore
-verify.txt export-ignore
 
 #
 # Auto detect text files and perform LF normalization
