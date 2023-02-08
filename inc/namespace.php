@@ -29,6 +29,10 @@ function init() {
 		wp_die( 'S3_UPLOADS_REGION constant is required. Please define it in your wp-config.php' );
 	}
 
+	if ( defined( 'WP_CLI' ) && WP_CLI ) {
+		\WP_CLI::add_command( 's3-uploads', 'S3_Uploads\\WP_CLI_Command' );
+	}
+
 	$instance = Plugin::get_instance();
 	$instance->setup();
 
