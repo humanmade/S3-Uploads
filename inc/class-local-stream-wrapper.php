@@ -143,7 +143,7 @@ class Local_Stream_Wrapper {
 			$uri = $this->uri;
 		}
 		$path = $this->getDirectoryPath() . '/' . $this->getTarget( $uri );
-		$realpath = $path;
+        $realpath = str_replace( '/', DIRECTORY_SEPARATOR, $path ); // ensure check against realpath passes on Windows machines
 
 		$directory = realpath( $this->getDirectoryPath() );
 
