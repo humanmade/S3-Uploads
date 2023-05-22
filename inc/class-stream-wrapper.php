@@ -486,7 +486,7 @@ class Stream_Wrapper {
 	private function statDirectory( $parts, $path, $flags ) {
 		// Stat "directories": buckets, or "s3://"
 		if ( ! $parts['Bucket'] ||
-			$this->getClient()->doesBucketExist( $parts['Bucket'] )
+			$this->getClient()->doesBucketExistV2( $parts['Bucket'], false )
 		) {
 			return $this->formatUrlStat( $path );
 		}
@@ -816,9 +816,10 @@ class Stream_Wrapper {
 		/** @var string */
 		$key = $this->getOption( 'Key' );
 		if ( $mode == 'x' &&
-			$this->getClient()->doesObjectExist(
+			$this->getClient()->doesObjectExistV2(
 				$bucket,
 				$key,
+				false,
 				$this->getOptions( true )
 			)
 		) {
@@ -1031,7 +1032,7 @@ class Stream_Wrapper {
 	 * @return bool Returns true on success or false on failure
 	 */
 	private function createBucket( $path, array $params ) {
-		if ( $this->getClient()->doesBucketExist( $params['Bucket'] ) ) {
+		if ( $this->getClient()->doesBucketExistV2( $params['Bucket'], false ) ) {
 			return $this->triggerError( "Bucket already exists: {$path}" );
 		}
 
@@ -1058,7 +1059,7 @@ class Stream_Wrapper {
 		$params['Body'] = '';
 
 		// Fail if this pseudo directory key already exists
-		if ( $this->getClient()->doesObjectExist(
+		if ( $this->getClient()->doesObjectExistV2(
 			$params['Bucket'],
 			$params['Key']
 		)
