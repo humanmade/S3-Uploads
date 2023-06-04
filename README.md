@@ -21,7 +21,7 @@
 			A <strong><a href="https://hmn.md/">Human Made</a></strong> project. Maintained by @joehoyle.
 		</td>
 		<td align="center">
-			<img src="https://hmn.md/content/themes/hmnmd/assets/images/hm-logo.svg" width="100" />
+			<img src="https://humanmade.com/content/themes/hmnmd/assets/images/hm-logo.svg" width="100" />
 		</td>
 	</tr>
 </table>
