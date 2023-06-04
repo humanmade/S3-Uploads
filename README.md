@@ -51,7 +51,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 ### Install Manually
 
-If you do not use Composer to manage plugins or other dependencies, you can install the plugin manually. Download the `manual-install.zip` file from the [Releases page](https://github.com/humanmade/S3-Uploads/releases) and extract the ZIP file to your `plugins` directory.
+If you do not use Composer to manage plugins or other dependencies, you can install the plugin manually. Download the `manual-install.zip` file from the [Releases page](https://github.com/humanmade/S3-Uploads/releases) and upload it via the Plugin Install process (Plugins -> Add New -> Upload Plugin). Alternatively, you can extract the ZIP file to your `plugins` directory.
 
 You can also `git clone` this repository, and run `composer install` in the plugin folder to pull in its dependencies.
 
