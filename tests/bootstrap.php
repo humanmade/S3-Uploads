@@ -9,7 +9,10 @@
 require '/wp-phpunit/includes/functions.php';
 
 function _manually_load_plugin() {
-	require dirname( __FILE__ ) . '/../s3-uploads.php';
+	if ( file_exists( dirname( __DIR__ ) . '/vendor/autoload.php' ) ) {
+		require dirname( __DIR__ ) . '/vendor/autoload.php';
+	}
+	require dirname( __DIR__ ) . '/s3-uploads.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
