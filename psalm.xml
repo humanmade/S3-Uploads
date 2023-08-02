@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<psalm requireVoidReturnType="false" totallyTyped="true" ensureArrayStringOffsetsExist="true">
+    <projectFiles>
+        <directory name="./"/>
+         <ignoreFiles>
+            <directory name="vendor"/>
+            <directory name="psalm"/>
+            <directory name="tests"/>
+        </ignoreFiles>
+    </projectFiles>
+    <stubs>
+        <file name="psalm/stubs/imagick.php"/>
+        <file name="psalm/stubs/constants.php"/>
+        <file name="inc/class-wp-cli-command.php"/>
+    </stubs>
+    <globals>
+        <var name="wp_version" type="string"/>
+    </globals>
+    <issueHandlers>
+        <MissingFile>
+            <errorLevel type="suppress">
+                <file name="inc/class-plugin.php"/>
+            </errorLevel>
+        </MissingFile>
+    </issueHandlers>
+    <plugins>
+        <pluginClass xmlns="https://getpsalm.org/schema/config" class="PsalmWordPress\Plugin"/>
+    </plugins>
+</psalm>
