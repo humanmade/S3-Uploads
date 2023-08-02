@@ -1,7 +1,7 @@
 {
-	"name": "redbrickmedia/s3-uploads",
+	"name": "assmbly/s3-uploads",
 	"description": "WordPress plugin to store uploads on S3 (forked from humanmade/s3-uploads)",
-	"homepage": "https://github.com/redbrickmedia/S3-Uploads",
+	"homepage": "https://github.com/assmbly/S3-Uploads",
 	"keywords": [
 		"wordpress"
 	],
