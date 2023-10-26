@@ -4,10 +4,11 @@ namespace S3_Uploads;
 
 function init() {
 	// Ensure the AWS SDK can be loaded.
-	if ( ! class_exists( '\\Aws\\S3\\S3Client' ) ) {
+	// EDUBLOGS disabled check becuase if AWS is already loaded, it won't load plugin classes
+	//if ( ! class_exists( '\\Aws\\S3\\S3Client' ) ) {
 		// Require AWS Autoloader file.
 		require_once dirname( __DIR__ ) . '/vendor/autoload.php';
-	}
+	//}
 
 	if ( ! check_requirements() ) {
 		return;
