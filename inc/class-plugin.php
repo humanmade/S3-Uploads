@@ -52,6 +52,11 @@ class Plugin {
 	private $region = null;
 
 	/**
+	 * @var ?string
+	 */
+	private $prefix = null;
+
+	/**
 	 * @var ?Aws\S3\S3Client
 	 */
 	private $s3 = null;
@@ -73,7 +78,8 @@ class Plugin {
 				defined( 'S3_UPLOADS_KEY' ) ? S3_UPLOADS_KEY : null,
 				defined( 'S3_UPLOADS_SECRET' ) ? S3_UPLOADS_SECRET : null,
 				defined( 'S3_UPLOADS_BUCKET_URL' ) ? S3_UPLOADS_BUCKET_URL : null,
-				S3_UPLOADS_REGION
+				S3_UPLOADS_REGION,
+				defined( 'S3_UPLOADS_PREFIX' ) ? S3_UPLOADS_PREFIX : null
 			);
 		}
 
@@ -89,12 +95,13 @@ class Plugin {
 	 * @param ?string $bucket_url
 	 * @param ?string $region
 	 */
-	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null ) {
+	public function __construct( $bucket, $key, $secret, $bucket_url = null, $region = null, $prefix = '' ) {
 		$this->bucket     = $bucket;
 		$this->key        = $key;
 		$this->secret     = $secret;
 		$this->bucket_url = $bucket_url;
 		$this->region     = $region;
+		$this->prefix     = $prefix;
 	}
 
 	/**
@@ -155,35 +162,28 @@ class Plugin {
 	}
 
 	/**
-	 * Get the s3:// path for the bucket.
-	 */
-	public function get_s3_path() {
-		return 's3://' . $this->bucket;
-	}
-
-	/**
 	 * Overwrite the default wp_upload_dir.
 	 *
 	 * @param array{path: string, basedir: string, baseurl: string, url: string} $dirs
 	 * @return array{path: string, basedir: string, baseurl: string, url: string}
 	 */
 	public function filter_upload_dir( array $dirs ) : array {
+		global $wpdb;
 
 		$this->original_upload_dir = $dirs;
-		$s3_path = $this->get_s3_path();
 
-		$dirs['path']    = str_replace( WP_CONTENT_DIR, $s3_path, $dirs['path'] );
-		$dirs['basedir'] = str_replace( WP_CONTENT_DIR, $s3_path, $dirs['basedir'] );
+		$dirs['basedir'] = rtrim('s3://' . $this->bucket . '/' . $this->prefix, '/') . '/dist/' . substr(md5($wpdb->blogid), 0, 1) . '/' . $wpdb->blogid . '/files';
+		$dirs['path']    = $dirs['basedir'] . $dirs['subdir'];
 
 		if ( ! defined( 'S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL' ) || ! S3_UPLOADS_DISABLE_REPLACE_UPLOAD_URL ) {
 
 			if ( defined( 'S3_UPLOADS_USE_LOCAL' ) && S3_UPLOADS_USE_LOCAL ) {
-				$dirs['url']     = str_replace( $s3_path, $dirs['baseurl'] . '/s3/' . $this->bucket, $dirs['path'] );
-				$dirs['baseurl'] = str_replace( $s3_path, $dirs['baseurl'] . '/s3/' . $this->bucket, $dirs['basedir'] );
+				$dirs['url']     = str_replace( 's3://' . $this->bucket, $dirs['baseurl'] . '/s3/' . $this->bucket, $dirs['path'] );
+				$dirs['baseurl'] = str_replace( 's3://' . $this->bucket, $dirs['baseurl'] . '/s3/' . $this->bucket, $dirs['basedir'] );
 
 			} else {
-				$dirs['url']     = str_replace( $s3_path, $this->get_s3_url(), $dirs['path'] );
-				$dirs['baseurl'] = str_replace( $s3_path, $this->get_s3_url(), $dirs['basedir'] );
+				$dirs['url']     = str_replace( 's3://' . $this->bucket, $this->get_s3_url(), $dirs['path'] );
+				$dirs['baseurl'] = str_replace( 's3://' . $this->bucket, $this->get_s3_url(), $dirs['basedir'] );
 			}
 		}
 
@@ -586,7 +586,7 @@ class Plugin {
 	 * @param integer $post_id
 	 * @return string
 	 */
-	public function add_s3_signed_params_to_attachment_url( string $url, int $post_id ) : string {
+	public function add_s3_signed_params_to_attachment_url( string $url, ?int $post_id = 0 ) : string {
 		if ( ! $this->is_private_attachment( $post_id ) ) {
 			return $url;
 		}
@@ -640,7 +640,7 @@ class Plugin {
 	 * @param integer $post_id
 	 * @return array{url: string, descriptor: string, value: int}[]
 	 */
-	public function add_s3_signed_params_to_attachment_image_srcset( array $sources, array $sizes, string $src, array $meta, int $post_id ) : array {
+	public function add_s3_signed_params_to_attachment_image_srcset( array $sources, array $sizes, string $src, array $meta, ?int $post_id = 0 ) : array {
 		foreach ( $sources as &$source ) {
 			$source['url'] = $this->add_s3_signed_params_to_attachment_url( $source['url'], $post_id );
 		}
@@ -673,6 +673,6 @@ class Plugin {
 		$name = pathinfo( $filename, PATHINFO_FILENAME );
 		// The s3:// streamwrapper support listing by partial prefixes with wildcards.
 		// For example, scandir( s3://bucket/2019/06/my-image* )
-		return (array) scandir( trailingslashit( $dir ) . $name . '*' );
+		return scandir( trailingslashit( $dir ) . $name . '*' );
 	}
 }
