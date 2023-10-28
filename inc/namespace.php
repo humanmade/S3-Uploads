@@ -146,7 +146,7 @@ function set_wp_privacy_exports_dir( string $dir ) {
 	if ( strpos( $dir, 's3://' ) !== 0 ) {
 		return $dir;
 	}
-	$dir = get_temp_dir() . '/wp_privacy_exports_dir/';
+	$dir = get_temp_dir() . 'wp_privacy_exports_dir/';
 	if ( ! is_dir( $dir ) ) {
 		mkdir( $dir );
 		file_put_contents( $dir . 'index.html', '' ); // @codingStandardsIgnoreLine FS write is ok.
