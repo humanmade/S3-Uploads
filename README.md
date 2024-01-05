@@ -37,7 +37,7 @@ It's focused on providing a highly robust S3 interface with no "bells and whistl
 
 ## Getting Set Up
 
-### Install Using Composer
+S3 Uploads requires installation via Composer:
 
 ```
 composer require humanmade/s3-uploads
@@ -49,13 +49,7 @@ composer require humanmade/s3-uploads
 require_once __DIR__ . '/vendor/autoload.php';
 ```
 
-### Install Manually
-
-If you do not use Composer to manage plugins or other dependencies, you can install the plugin manually. Download the `manual-install.zip` file from the [Releases page](https://github.com/humanmade/S3-Uploads/releases) and extract the ZIP file to your `plugins` directory.
-
-You can also `git clone` this repository, and run `composer install` in the plugin folder to pull in its dependencies.
-
----
+## Configuration
 
 Once you've installed the plugin, add the following constants to your `wp-config.php`:
 
