@@ -724,9 +724,11 @@ class Stream_Wrapper {
 
 		// Remove the prefix from the result to emulate other stream wrappers.
 		$retVal = $this->openedBucketPrefix
-			  ? substr( $result, strlen( $this->openedBucketPrefix ) )
-			  : $result;
-		if ( $retVal === '' ) $retVal = false;
+			? substr( $result, strlen( $this->openedBucketPrefix ) )
+			: $result;
+		if ( $retVal === '' ) {
+			$retVal = false;
+		}
 		return $retVal;
 	}
 
