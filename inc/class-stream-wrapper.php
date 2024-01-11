@@ -723,9 +723,11 @@ class Stream_Wrapper {
 		$this->objectIterator->next();
 
 		// Remove the prefix from the result to emulate other stream wrappers.
-		return $this->openedBucketPrefix
-			? substr( $result, strlen( $this->openedBucketPrefix ) )
-			: $result;
+		$retVal = $this->openedBucketPrefix
+			  ? substr( $result, strlen( $this->openedBucketPrefix ) )
+			  : $result;
+		if ( $retVal === '' ) $retVal = false;
+		return $retVal;
 	}
 
 	private function formatKey( string $key ) : string {
