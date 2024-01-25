@@ -2,17 +2,17 @@
 
 namespace S3_Uploads;
 
-use Aws\CacheInterface;
-use Aws\LruArrayCache;
-use Aws\Result;
-use Aws\S3\Exception\S3Exception;
-use Aws\S3\S3ClientInterface;
+use Humanmade\S3_Uploads\Aws\CacheInterface;
+use Humanmade\S3_Uploads\Aws\LruArrayCache;
+use Humanmade\S3_Uploads\Aws\Result;
+use Humanmade\S3_Uploads\Aws\S3\Exception\S3Exception;
+use Humanmade\S3_Uploads\Aws\S3\S3ClientInterface;
 use Exception;
-use GuzzleHttp\Psr7; //phpcs:ignore -- Used in Psalm types
-use GuzzleHttp\Psr7\CachingStream;
-use GuzzleHttp\Psr7\MimeType;
-use GuzzleHttp\Psr7\Stream;
-use Psr\Http\Message\StreamInterface; //phpcs:ignore -- Used in Psalm types
+use Humanmade\S3_Uploads\GuzzleHttp\Psr7; //phpcs:ignore -- Used in Psalm types
+use Humanmade\S3_Uploads\GuzzleHttp\Psr7\CachingStream;
+use Humanmade\S3_Uploads\GuzzleHttp\Psr7\MimeType;
+use Humanmade\S3_Uploads\GuzzleHttp\Psr7\Stream;
+use Humanmade\S3_Uploads\Psr\Http\Message\StreamInterface; //phpcs:ignore -- Used in Psalm types
 
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.MemberNotSnakeCase
 // phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
@@ -634,7 +634,7 @@ class Stream_Wrapper {
 
 		// Filter our "/" keys added by the console as directories, and ensure
 		// that if a filter function is provided that it passes the filter.
-		$this->objectIterator = \Aws\flatmap(
+		$this->objectIterator = \Humanmade\S3_Uploads\Aws\flatmap(
 			$this->getClient()->getPaginator( 'ListObjectsV2', $op ),
 			function ( Result $result ) use ( $filterFn ) {
 				/** @var list<S3ObjectResultArray> */

@@ -2,7 +2,7 @@
 
 namespace S3_Uploads;
 
-use Aws;
+use Humanmade\S3_Uploads\Aws;
 use Exception;
 use WP_Error;
 
@@ -52,7 +52,7 @@ class Plugin {
 	private $region = null;
 
 	/**
-	 * @var ?Aws\S3\S3Client
+	 * @var ?Humanmade\S3_Uploads\Aws\S3\S3Client
 	 */
 	private $s3 = null;
 
@@ -323,9 +323,9 @@ class Plugin {
 	}
 
 	/**
-	 * @return Aws\S3\S3Client
+	 * @return Humanmade\S3_Uploads\Aws\S3\S3Client
 	 */
-	public function s3() : Aws\S3\S3Client {
+	public function s3() : Humanmade\S3_Uploads\Aws\S3\S3Client {
 
 		if ( ! empty( $this->s3 ) ) {
 			return $this->s3;
@@ -338,10 +338,10 @@ class Plugin {
 	/**
 	 * Get the AWS Sdk.
 	 *
-	 * @return Aws\Sdk
+	 * @return Humanmade\S3_Uploads\Aws\Sdk
 	 */
-	public function get_aws_sdk() : Aws\Sdk {
-		/** @var null|Aws\Sdk */
+	public function get_aws_sdk() : Humanmade\S3_Uploads\Aws\Sdk {
+		/** @var null|Humanmade\S3_Uploads\Aws\Sdk */
 		$sdk = apply_filters( 's3_uploads_aws_sdk', null, $this );
 		if ( $sdk ) {
 			return $sdk;
@@ -372,7 +372,7 @@ class Plugin {
 
 		$params = apply_filters( 's3_uploads_s3_client_params', $params );
 
-		$sdk = new Aws\Sdk( $params );
+		$sdk = new \Humanmade\S3_Uploads\Aws\Sdk( $params );
 		return $sdk;
 	}
 
@@ -528,7 +528,7 @@ class Plugin {
 		}
 
 		try {
-			Aws\CommandPool::batch( $s3, $commands );
+			Humanmade\S3_Uploads\Aws\CommandPool::batch( $s3, $commands );
 		} catch ( Exception $e ) {
 			return new WP_Error( $e->getCode(), $e->getMessage() );
 		}

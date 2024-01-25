@@ -4,9 +4,8 @@ namespace S3_Uploads;
 
 function init() {
 	// Ensure the AWS SDK can be loaded.
-	if ( ! class_exists( '\\Aws\\S3\\S3Client' ) ) {
-		// Require AWS Autoloader file.
-		require_once dirname( __DIR__ ) . '/vendor/autoload.php';
+	if ( ! class_exists( '\\Humanmade\\S3_Uploads\\Aws\\S3\\S3Client' ) ) {
+		return;
 	}
 
 	if ( ! check_requirements() ) {

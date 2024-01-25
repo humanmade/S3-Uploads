@@ -1,0 +1,39 @@
+name: Build with vendor-prefixed
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  wordpress:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set PHP version
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        coverage: none
+
+    - name: composer install
+      run: composer install
+
+    - name: Archive assets
+      uses: thedoctor0/zip-release@master
+      with:
+        filename: 'manual-install.zip'
+        exclusions: '*.git* *tests/ *tests/data/ *tests/* *tests/**/*'
+        path: '.'
+        directory: '.'
+
+    - name: Make artifacts available
+      uses: actions/upload-artifact@v3
+      with:
+        name: Plugin Zip
+        retention-days: 2
+        path: |
+          ${{ github.workspace }}/s3-uploads.zip
