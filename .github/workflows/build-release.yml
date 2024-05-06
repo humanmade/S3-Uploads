@@ -26,7 +26,7 @@ jobs:
       uses: thedoctor0/zip-release@master
       with:
         filename: 'manual-install.zip'
-        exclusions: '*.git* *tests/ *tests/data/ *tests/* *tests/**/*'
+        exclusions: '*.git* *tests/ *tests/data/ *tests/* *tests/**/* *psalm/* *.phpcsignore *.yml *.xml *.xml.dist'
         path: '.'
         directory: '.'
 
