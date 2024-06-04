@@ -29,6 +29,10 @@ function init() {
 		wp_die( 'S3_UPLOADS_REGION constant is required. Please define it in your wp-config.php' );
 	}
 
+	if ( defined( 'WP_CLI' ) && WP_CLI ) {
+		\WP_CLI::add_command( 's3-uploads', 'S3_Uploads\\WP_CLI_Command' );
+	}
+
 	$instance = Plugin::get_instance();
 	$instance->setup();
 
@@ -132,7 +136,7 @@ function after_export_personal_data() {
  *
  * We don't want to use the default uploads folder location, as with S3 Uploads this is
  * going to the a s3:// custom URL handler, which is going to fail with the use of ZipArchive.
- * Instead we set to to sys_get_temp_dir and move the fail in the wp_privacy_personal_data_export_file_created
+ * Instead we set to to WP's get_temp_dir and move the fail in the wp_privacy_personal_data_export_file_created
  * hook.
  *
  * @param string $dir
@@ -142,7 +146,7 @@ function set_wp_privacy_exports_dir( string $dir ) {
 	if ( strpos( $dir, 's3://' ) !== 0 ) {
 		return $dir;
 	}
-	$dir = sys_get_temp_dir() . '/wp_privacy_exports_dir/';
+	$dir = get_temp_dir() . 'wp_privacy_exports_dir/';
 	if ( ! is_dir( $dir ) ) {
 		mkdir( $dir );
 		file_put_contents( $dir . 'index.html', '' ); // @codingStandardsIgnoreLine FS write is ok.
@@ -158,7 +162,7 @@ function set_wp_privacy_exports_dir( string $dir ) {
  * the "natural" Core URL is going to be pointing to.
  */
 function move_temp_personal_data_to_s3( string $archive_pathname ) {
-	if ( strpos( $archive_pathname, sys_get_temp_dir() ) !== 0 ) {
+	if ( strpos( $archive_pathname, get_temp_dir() ) !== 0 ) {
 		return;
 	}
 	$upload_dir = wp_upload_dir();

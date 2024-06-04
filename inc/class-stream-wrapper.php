@@ -461,7 +461,7 @@ class Stream_Wrapper {
 				} catch ( S3Exception $e ) {
 					// Maybe this isn't an actual key, but a prefix. Do a prefix
 					// listing of objects to determine.
-					$result = $this->getClient()->listObjects(
+					$result = $this->getClient()->listObjectsV2(
 						[
 							'Bucket'  => $parts['Bucket'],
 							'Prefix'  => rtrim( $parts['Key'], '/' ) . '/',
@@ -486,7 +486,7 @@ class Stream_Wrapper {
 	private function statDirectory( $parts, $path, $flags ) {
 		// Stat "directories": buckets, or "s3://"
 		if ( ! $parts['Bucket'] ||
-			$this->getClient()->doesBucketExist( $parts['Bucket'] )
+			$this->getClient()->doesBucketExistV2( $parts['Bucket'], false )
 		) {
 			return $this->formatUrlStat( $path );
 		}
@@ -615,7 +615,7 @@ class Stream_Wrapper {
 		// the preg_match() call.
 		//
 		// Essentially, wp_unique_filename( my-file.jpg ) doing a `scandir( s3://bucket/2019/04/ )` will actually result in an s3
-		// listObject query for `s3://bucket/2019/04/my-file` which means even if there are millions of files in `2019/04/` we only
+		// listObjectsV2 query for `s3://bucket/2019/04/my-file` which means even if there are millions of files in `2019/04/` we only
 		// return a much smaller subset.
 		//
 		// Anyone reading this far, brace yourselves for a mighty horrible hack.
@@ -635,7 +635,7 @@ class Stream_Wrapper {
 		// Filter our "/" keys added by the console as directories, and ensure
 		// that if a filter function is provided that it passes the filter.
 		$this->objectIterator = \Aws\flatmap(
-			$this->getClient()->getPaginator( 'ListObjects', $op ),
+			$this->getClient()->getPaginator( 'ListObjectsV2', $op ),
 			function ( Result $result ) use ( $filterFn ) {
 				/** @var list<S3ObjectResultArray> */
 				$contentsAndPrefixes = $result->search( '[Contents[], CommonPrefixes[]][]' );
@@ -723,9 +723,13 @@ class Stream_Wrapper {
 		$this->objectIterator->next();
 
 		// Remove the prefix from the result to emulate other stream wrappers.
-		return $this->openedBucketPrefix
+		$retVal = $this->openedBucketPrefix
 			? substr( $result, strlen( $this->openedBucketPrefix ) )
 			: $result;
+		if ( $retVal === '' ) {
+			$retVal = false;
+		}
+		return $retVal;
 	}
 
 	private function formatKey( string $key ) : string {
@@ -816,9 +820,10 @@ class Stream_Wrapper {
 		/** @var string */
 		$key = $this->getOption( 'Key' );
 		if ( $mode == 'x' &&
-			$this->getClient()->doesObjectExist(
+			$this->getClient()->doesObjectExistV2(
 				$bucket,
 				$key,
+				false,
 				$this->getOptions( true )
 			)
 		) {
@@ -1031,7 +1036,7 @@ class Stream_Wrapper {
 	 * @return bool Returns true on success or false on failure
 	 */
 	private function createBucket( $path, array $params ) {
-		if ( $this->getClient()->doesBucketExist( $params['Bucket'] ) ) {
+		if ( $this->getClient()->doesBucketExistV2( $params['Bucket'], false ) ) {
 			return $this->triggerError( "Bucket already exists: {$path}" );
 		}
 
@@ -1058,7 +1063,7 @@ class Stream_Wrapper {
 		$params['Body'] = '';
 
 		// Fail if this pseudo directory key already exists
-		if ( $this->getClient()->doesObjectExist(
+		if ( $this->getClient()->doesObjectExistV2(
 			$params['Bucket'],
 			$params['Key']
 		)
@@ -1087,7 +1092,7 @@ class Stream_Wrapper {
 		// Use a key that adds a trailing slash if needed.
 		$prefix = rtrim( $params['Key'], '/' ) . '/';
 		/** @var array{Contents: list<array{ Key: string }>, CommonPrefixes:array} */
-		$result = $this->getClient()->listObjects(
+		$result = $this->getClient()->listObjectsV2(
 			[
 				'Bucket'  => $params['Bucket'],
 				'Prefix'  => $prefix,
