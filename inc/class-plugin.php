@@ -157,7 +157,7 @@ class Plugin {
 	/**
 	 * Get the s3:// path for the bucket.
 	 */
-	public function get_s3_path() {
+	public function get_s3_path() : string {
 		return 's3://' . $this->bucket;
 	}
 
