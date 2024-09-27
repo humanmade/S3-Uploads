@@ -1,24 +1,31 @@
 {
-	"name": "humanmade/s3-uploads",
-	"description": "WordPress plugin to store uploads on S3",
-	"homepage": "https://github.com/humanmade/S3-Uploads",
+	"name": "dingo-d/s3-uploads",
+	"description": "WordPress plugin to store uploads on S3, modified and updated by Denis Žoljom",
+	"homepage": "https://github.com/dingo-d/S3-Uploads",
 	"keywords": [
 		"wordpress"
 	],
 	"license": "GPL-2.0+",
 	"autoload": {
-		"classmap": [ "./inc" ]
+		"classmap": [
+			"./inc"
+		]
 	},
 	"authors": [
 		{
-			"name":"Human Made Limited",
-			"email":"support@humanmade.co.uk",
-			"homepage":"http://hmn.md/"
+			"name": "Human Made Limited",
+			"email": "support@humanmade.co.uk",
+			"homepage": "https://hmn.md/"
+		},
+		{
+			"name": "Denis Žoljom",
+			"email": "denis.zoljom@gmail.com",
+			"homepage": "https://madebydenis.com/"
 		}
 	],
 	"support": {
-			"issues": "https://github.com/humanmade/s3-uploads/issues",
-			"source": "https://github.com/humanmade/s3-uploads"
+		"issues": "https://github.com/dingo-d/s3-uploads/issues",
+		"source": "https://github.com/dingo-d/s3-uploads"
 	},
 	"type": "wordpress-plugin",
 	"require": {
@@ -31,11 +38,38 @@
 	},
 	"scripts": {
 		"test": "./tests/run-tests.sh",
-		"check-types": "./vendor/bin/psalm"
+		"check-types": "./vendor/bin/psalm",
+		"prefix-namespaces": [
+			"@php strauss.phar",
+			"composer dump-autoload"
+		],
+		"post-install-cmd": [
+			"@php strauss.phar",
+			"composer dump-autoload"
+		],
+		"post-update-cmd": [
+			"@php strauss.phar",
+			"composer dump-autoload"
+		]
 	},
 	"config": {
 		"allow-plugins": {
 			"composer/installers": true
+		},
+		"classmap-authoritative": true,
+		"sort-packages": true,
+		"optimize-autoloader": true,
+		"process-timeout": 2000
+	},
+	"extra": {
+		"strauss": {
+			"namespace_prefix": "MadeByDenisS3UploadsVendor",
+			"exclude_from_prefix": {
+				"file_patterns": [
+					"/Example.php$/"
+				]
+			},
+			"delete_vendor_files": true
 		}
 	}
 }

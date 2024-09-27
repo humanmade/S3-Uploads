@@ -2,8 +2,8 @@
 
 namespace S3_Uploads;
 
-use Aws\Command;
-use Aws\S3\Transfer;
+use MadeByDenisS3UploadsVendor\Aws\Command;
+use MadeByDenisS3UploadsVendor\Aws\S3\Transfer;
 use Exception;
 use WP_CLI;
 

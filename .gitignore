@@ -2,3 +2,4 @@
 .idea/
 *.phar
 vendor/
+vendor-prefixed/
