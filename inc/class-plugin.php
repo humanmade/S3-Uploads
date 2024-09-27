@@ -2,8 +2,11 @@
 
 namespace S3_Uploads;
 
-use Exception;
-use WP_Error;
+use MadeByDenisS3UploadsVendor\Aws\CommandPool;
+use MadeByDenisS3UploadsVendor\Aws\S3\S3Client;
+use MadeByDenisS3UploadsVendor\Aws\Sdk;
+use \Exception;
+use \WP_Error;
 
 /**
  * @psalm-consistent-constructor
@@ -51,7 +54,7 @@ class Plugin {
 	private $region = null;
 
 	/**
-	 * @var ?MadeByDenisS3UploadsVendor\Aws\S3\S3Client
+	 * @var ?S3Client
 	 */
 	private $s3 = null;
 
@@ -322,9 +325,9 @@ class Plugin {
 	}
 
 	/**
-	 * @return MadeByDenisS3UploadsVendor\Aws\S3\S3Client
+	 * @return S3Client
 	 */
-	public function s3() : MadeByDenisS3UploadsVendor\Aws\S3\S3Client {
+	public function s3() : S3Client {
 
 		if ( ! empty( $this->s3 ) ) {
 			return $this->s3;
@@ -337,10 +340,11 @@ class Plugin {
 	/**
 	 * Get the AWS Sdk.
 	 *
-	 * @return MadeByDenisS3UploadsVendor\Aws\Sdk
+	 * @return Sdk
 	 */
-	public function get_aws_sdk() : MadeByDenisS3UploadsVendor\Aws\Sdk {
-		/** @var null|MadeByDenisS3UploadsVendor\Aws\Sdk */
+	public function get_aws_sdk() : Sdk
+	{
+		/** @var null|Sdk */
 		$sdk = apply_filters( 's3_uploads_aws_sdk', null, $this );
 		if ( $sdk ) {
 			return $sdk;
@@ -371,8 +375,7 @@ class Plugin {
 
 		$params = apply_filters( 's3_uploads_s3_client_params', $params );
 
-		$sdk = new \MadeByDenisS3UploadsVendor\Aws\Sdk( $params );
-		return $sdk;
+		return new Sdk( $params );
 	}
 
 	public function filter_editors( array $editors ) : array {
@@ -527,7 +530,7 @@ class Plugin {
 		}
 
 		try {
-			MadeByDenisS3UploadsVendor\Aws\CommandPool::batch( $s3, $commands );
+			CommandPool::batch( $s3, $commands );
 		} catch ( Exception $e ) {
 			return new WP_Error( $e->getCode(), $e->getMessage() );
 		}

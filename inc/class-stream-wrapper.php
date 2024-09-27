@@ -7,12 +7,13 @@ use MadeByDenisS3UploadsVendor\Aws\LruArrayCache;
 use MadeByDenisS3UploadsVendor\Aws\Result;
 use MadeByDenisS3UploadsVendor\Aws\S3\Exception\S3Exception;
 use MadeByDenisS3UploadsVendor\Aws\S3\S3ClientInterface;
-use Exception;
-use MadeByDenisS3UploadsVendor\GuzzleHttp\Psr7; //phpcs:ignore -- Used in Psalm types
 use MadeByDenisS3UploadsVendor\GuzzleHttp\Psr7\CachingStream;
 use MadeByDenisS3UploadsVendor\GuzzleHttp\Psr7\MimeType;
 use MadeByDenisS3UploadsVendor\GuzzleHttp\Psr7\Stream;
 use MadeByDenisS3UploadsVendor\Psr\Http\Message\StreamInterface; //phpcs:ignore -- Used in Psalm types
+use \Exception;
+
+use function \MadeByDenisS3UploadsVendor\Aws\flatmap;
 
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.MemberNotSnakeCase
 // phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
@@ -634,7 +635,7 @@ class Stream_Wrapper {
 
 		// Filter our "/" keys added by the console as directories, and ensure
 		// that if a filter function is provided that it passes the filter.
-		$this->objectIterator = \MadeByDenisS3UploadsVendor\Aws\flatmap(
+		$this->objectIterator = flatmap(
 			$this->getClient()->getPaginator( 'ListObjectsV2', $op ),
 			function ( Result $result ) use ( $filterFn ) {
 				/** @var list<S3ObjectResultArray> */

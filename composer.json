@@ -34,7 +34,11 @@
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^9.0",
-		"humanmade/psalm-plugin-wordpress": "^3.0"
+		"humanmade/psalm-plugin-wordpress": "^3.0",
+		"php-parallel-lint/php-parallel-lint": "^v1.4.0",
+		"php-parallel-lint/php-console-highlighter": "^1.0.0",
+		"php-stubs/wordpress-stubs": "^v6.5.3",
+		"szepeviktor/phpstan-wordpress": "^v1.3.4"
 	},
 	"scripts": {
 		"test": "./tests/run-tests.sh",
@@ -64,12 +68,9 @@
 	"extra": {
 		"strauss": {
 			"namespace_prefix": "MadeByDenisS3UploadsVendor",
-			"exclude_from_prefix": {
-				"file_patterns": [
-					"/Example.php$/"
-				]
-			},
-			"delete_vendor_files": true
+			"exclude_files": [
+				"vendor/aws/aws-sdk-php/src/functions.php"
+			]
 		}
 	}
 }
