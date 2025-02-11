@@ -359,6 +359,11 @@ class Stream_Wrapper {
 	public function url_stat( string $path, int $flags ) {
 		$this->initProtocol( $path );
 
+		// Bailout fetching wpml flags on every init request.
+		if (str_contains($path, '/uploads/flags/')) {
+			return false;
+		}
+
 		$extension = pathinfo( $path, PATHINFO_EXTENSION );
 		/**
 		 * If the file is actually just a path to a directory
