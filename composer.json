@@ -30,7 +30,7 @@
 	"type": "wordpress-plugin",
 	"require": {
 		"composer/installers": "~1.0 || ^2.0",
-		"aws/aws-sdk-php": "^3.300"
+		"aws/aws-sdk-php": "^3.315"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^9.0",
@@ -42,19 +42,7 @@
 	},
 	"scripts": {
 		"test": "./tests/run-tests.sh",
-		"check-types": "./vendor/bin/psalm",
-		"prefix-namespaces": [
-			"@php strauss.phar",
-			"composer dump-autoload"
-		],
-		"post-install-cmd": [
-			"@php strauss.phar",
-			"composer dump-autoload"
-		],
-		"post-update-cmd": [
-			"@php strauss.phar",
-			"composer dump-autoload"
-		]
+		"check-types": "./vendor/bin/psalm"
 	},
 	"config": {
 		"allow-plugins": {
@@ -64,13 +52,5 @@
 		"sort-packages": true,
 		"optimize-autoloader": true,
 		"process-timeout": 2000
-	},
-	"extra": {
-		"strauss": {
-			"namespace_prefix": "MadeByDenisS3UploadsVendor",
-			"exclude_files": [
-				"vendor/aws/aws-sdk-php/src/functions.php"
-			]
-		}
 	}
 }
