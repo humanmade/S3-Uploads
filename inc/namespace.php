@@ -30,7 +30,7 @@ function init() {
 	}
 
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
-		\WP_CLI::add_command( 's3-uploads', 'S3_Uploads\\WP_CLI_Command' );
+		\WP_CLI::add_command( 's3-uploads', '\\S3_Uploads\\WP_CLI_Command' );
 	}
 
 	$instance = Plugin::get_instance();
