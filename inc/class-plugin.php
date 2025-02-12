@@ -2,9 +2,9 @@
 
 namespace S3_Uploads;
 
-use MadeByDenisS3UploadsVendor\Aws\CommandPool;
-use MadeByDenisS3UploadsVendor\Aws\S3\S3Client;
-use MadeByDenisS3UploadsVendor\Aws\Sdk;
+use Aws\CommandPool;
+use Aws\S3\S3Client;
+use Aws\Sdk;
 use \Exception;
 use \WP_Error;
 

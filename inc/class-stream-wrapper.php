@@ -2,18 +2,18 @@
 
 namespace S3_Uploads;
 
-use MadeByDenisS3UploadsVendor\Aws\CacheInterface;
-use MadeByDenisS3UploadsVendor\Aws\LruArrayCache;
-use MadeByDenisS3UploadsVendor\Aws\Result;
-use MadeByDenisS3UploadsVendor\Aws\S3\Exception\S3Exception;
-use MadeByDenisS3UploadsVendor\Aws\S3\S3ClientInterface;
-use MadeByDenisS3UploadsVendor\GuzzleHttp\Psr7\CachingStream;
-use MadeByDenisS3UploadsVendor\GuzzleHttp\Psr7\MimeType;
-use MadeByDenisS3UploadsVendor\GuzzleHttp\Psr7\Stream;
-use MadeByDenisS3UploadsVendor\Psr\Http\Message\StreamInterface; //phpcs:ignore -- Used in Psalm types
+use Aws\CacheInterface;
+use Aws\LruArrayCache;
+use Aws\Result;
+use Aws\S3\Exception\S3Exception;
+use Aws\S3\S3ClientInterface;
+use GuzzleHttp\Psr7\CachingStream;
+use GuzzleHttp\Psr7\MimeType;
+use GuzzleHttp\Psr7\Stream;
+use Psr\Http\Message\StreamInterface; //phpcs:ignore -- Used in Psalm types
 use \Exception;
 
-use function \MadeByDenisS3UploadsVendor\Aws\flatmap;
+use function Aws\flatmap;
 
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.MemberNotSnakeCase
 // phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
