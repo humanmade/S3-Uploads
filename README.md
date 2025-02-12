@@ -229,6 +229,17 @@ add_filter( 's3_uploads_s3_client_params', function ( $params ) {
 } );
 ```
 
+**Note:** As of AWS SDK 3.337, S3 uses a [new type of integrity protection](https://github.com/aws/aws-sdk-php/issues/3062) which is not supported by all third-party S3-compatible APIs. If you experience errors, you may need to disable the new checksum functionality:
+
+```php
+add_filter( 's3_uploads_s3_client_params', function ( $params ) {
+	// ...
+	$params['request_checksum_calculation'] = 'when_required';
+	$params['response_checksum_validation'] = 'when_required';
+	return $params;
+} );
+```
+
 ## Temporary Session Tokens
 
 If your S3 access is configured to require a temporary session token in addition to the access key and secret, you should configure the credentials using the following code:
