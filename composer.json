@@ -42,7 +42,8 @@
 	},
 	"scripts": {
 		"test": "./tests/run-tests.sh",
-		"check-types": "./vendor/bin/psalm"
+		"check-types": "./vendor/bin/psalm",
+		"pre-autoload-dump": "Aws\\Script\\Composer\\Composer::removeUnusedServices"
 	},
 	"config": {
 		"allow-plugins": {
@@ -52,5 +53,10 @@
 		"sort-packages": true,
 		"optimize-autoloader": true,
 		"process-timeout": 2000
+	},
+	"extra": {
+		"aws/aws-sdk-php": [
+			"S3"
+		]
 	}
 }
