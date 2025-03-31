@@ -681,6 +681,10 @@ class Plugin {
 		$name = pathinfo( $filename, PATHINFO_FILENAME );
 		// The s3:// streamwrapper support listing by partial prefixes with wildcards.
 		// For example, scandir( s3://bucket/2019/06/my-image* )
-		return scandir( trailingslashit( $dir ) . $name . '*' );
+		$scandir = scandir( trailingslashit( $dir ) . $name . '*' );
+		if( $scandir === false ) {
+			$scandir = []; // Set as empty array for return
+		}
+		return $scandir;
 	}
 }
