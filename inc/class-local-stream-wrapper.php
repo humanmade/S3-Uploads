@@ -136,9 +136,9 @@ class Local_Stream_Wrapper {
 	 *   If $uri is not set, returns the canonical absolute path of the URI
 	 *   previously. If $uri is set and valid for this class, returns its canonical absolute
 	 *   path, as determined by the realpath() function. If $uri is set but not
-	 *   valid, returns FALSE.
+	 *   valid, returns empty string.
 	 */
-	protected function getLocalPath( $uri = null ) {
+	protected function getLocalPath( $uri = null ) : string {
 		if ( ! isset( $uri ) ) {
 			$uri = $this->uri;
 		}
