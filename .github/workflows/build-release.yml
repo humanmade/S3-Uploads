@@ -1,0 +1,37 @@
+name: Build Release
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+
+jobs:
+  build-manual-install:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+      - name: Install dependencies
+        uses: ramsey/composer-install@v2
+        with:
+          composer-options: "--optimize-autoloader --no-dev"
+          ignore-cache: "yes"
+
+      - name: Archive assets
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: 's3-uploads.zip'
+          exclusions: '*.git* *tests/ *tests/data/ *tests/* *tests/**/*'
+          path: '.'
+          directory: '.'
+
+      - name: Upload zip to release
+        uses: AButler/upload-release-assets@v2.0
+        with:
+          files: 's3-uploads.zip'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
