@@ -127,7 +127,7 @@ Note: as either `<from>` or `<to>` can be S3 or local locations, you must specif
 
 ## Private Uploads
 
-WordPress (and therefor S3 Uploads) default behaviour is that all uploaded media files are publicly accessible. In certain cases which may not be desireable. S3 Uploads supports setting S3 Objects to a `private` ACL and providing temporarily signed URLs for all files that are marked as private.
+WordPress (and therefore S3 Uploads) default behaviour is that all uploaded media files are publicly accessible. In certain cases which may not be desireable. S3 Uploads supports setting S3 Objects to a `private` ACL and providing temporarily signed URLs for all files that are marked as private.
 
 S3 Uploads does not make assumptions or provide UI for marking attachments as private, instead you should integrate the `s3_uploads_is_attachment_private` WordPress filter to control the behaviour. For example, to mark _all_ attachments as private:
 
@@ -147,6 +147,12 @@ The default expiry for all private file URLs is 6 hours. You can modify this by 
 add_filter( 's3_uploads_private_attachment_url_expiry', function ( $expiry ) {
 	return '+1 hour';
 } );
+```
+
+If you're using [Stream](https://wordpress.org/plugins/stream/) for audit logs, S3 Uploads supports logging any setting of ACL for files of an attachment. You can enable this by defining the constant `S3_UPLOADS_ENABLE_AUDIT_LOGGING` to `true` as follows:
+
+```PHP
+define( 'S3_UPLOADS_ENABLE_AUDIT_LOGGING', true );
 ```
 
 ## Cache Control
