@@ -149,11 +149,7 @@ add_filter( 's3_uploads_private_attachment_url_expiry', function ( $expiry ) {
 } );
 ```
 
-If you're using [Stream](https://wordpress.org/plugins/stream/) for audit logs, S3 Uploads supports logging any setting of ACL for files of an attachment. You can enable this by defining the constant `S3_UPLOADS_ENABLE_AUDIT_LOGGING` to `true` as follows:
-
-```PHP
-define( 'S3_UPLOADS_ENABLE_AUDIT_LOGGING', true );
-```
+If you're using [Stream](https://wordpress.org/plugins/stream/) for audit logs, [S3 Uploads Audit](https://github.com/humanmade/s3-uploads-audit) is an add-on plugin which supports logging some S3 Uploads actions e.g any setting of ACL for files of an attachment. So you can install it for such audit functionality.
 
 ## Cache Control
 
