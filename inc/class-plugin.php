@@ -538,6 +538,7 @@ class Plugin {
 		 *
 		 * @param int $attachment_id Attachment whose ACL has been changed.
 		 * @param string $acl The new ACL that's been set.
+		 * @psalm-suppress TooManyArguments -- Currently do_action doesn't detect variable number of arguments.
 		 */
 		do_action( 's3_uploads_set_attachment_files_acl', $attachment_id, $acl );
 
