@@ -5,7 +5,7 @@
 			Lightweight "drop-in" for storing WordPress uploads on Amazon S3 instead of the local filesystem.
 		</td>
 		<td align="right" width="20%">
-			<a href="https://shepherd.dev/github/humanmade/S3-Uploads/">
+			<a href="https://shepherd.dev/github/humanmade/S3-Uploads">
 				<img src="https://shepherd.dev/github/humanmade/S3-Uploads/coverage.svg" alt="Psalm coverage">
 			</a>
 			<a href="https://github.com/humanmade/S3-Uploads/actions/workflows/ci.yml">
