@@ -8,11 +8,11 @@
 			<a href="https://shepherd.dev/github/humanmade/S3-Uploads/">
 				<img src="https://shepherd.dev/github/humanmade/S3-Uploads/coverage.svg" alt="Psalm coverage">
 			</a>
-			<a href="https://travis-ci.com/humanmade/S3-Uploads">
-				<img src="https://travis-ci.com/humanmade/S3-Uploads.svg?branch=master" alt="Build status">
+			<a href="https://github.com/humanmade/S3-Uploads/actions/workflows/ci.yml">
+				<img src="https://github.com/humanmade/S3-Uploads/actions/workflows/ci.yml/badge.svg" alt="CI">
 			</a>
-			<a href="http://codecov.io/github/humanmade/S3-Uploads?branch=master">
-				<img src="http://codecov.io/github/humanmade/S3-Uploads/coverage.svg?branch=master" alt="Coverage via codecov.io" />
+			<a href="https://codecov.io/github/humanmade/S3-Uploads" >
+				<img src="https://codecov.io/github/humanmade/S3-Uploads/graph/badge.svg?token=JmeqBWddkV"/>
 			</a>
 		</td>
 	</tr>
