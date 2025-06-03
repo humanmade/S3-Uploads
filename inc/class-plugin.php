@@ -533,6 +533,14 @@ class Plugin {
 			return new WP_Error( $e->getCode(), $e->getMessage() );
 		}
 
+		/**
+		 * Fires after ACL of files of an attachment is set.
+		 *
+		 * @param int $attachment_id Attachment whose ACL has been changed.
+		 * @param string $acl The new ACL that's been set.
+		 */
+		do_action( 's3_uploads_set_attachment_files_acl', $attachment_id, $acl );
+
 		return null;
 	}
 
