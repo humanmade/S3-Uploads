@@ -73,7 +73,7 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		$upload_dir = wp_upload_dir();
 		copy( dirname( __FILE__ ) . '/data/sunflower.jpg', $upload_dir['path'] . '/sunflower.jpg' );
 		$test_file = $upload_dir['path'] . '/sunflower.jpg';
-		$attachment_id = $this->factory->attachment->create_object( $test_file, 0, array(
+		$attachment_id = self::factory()->attachment->create_object( $test_file, 0, array(
 			'post_mime_type' => 'image/jpeg',
 			'post_excerpt'   => 'A sample caption',
 		) );
@@ -99,7 +99,7 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		$upload_dir = wp_upload_dir();
 		copy( dirname( __FILE__ ) . '/data/video.m4v', $upload_dir['path'] . '/video.m4v' );
 		$test_file = $upload_dir['path'] . '/video.m4v';
-		$attachment_id = $this->factory->attachment->create_object( $test_file, 0, array(
+		$attachment_id = self::factory()->attachment->create_object( $test_file, 0, array(
 			'post_mime_type' => 'video/mp4',
 			'post_excerpt'   => 'A sample caption',
 		) );
@@ -116,7 +116,7 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		$upload_dir = wp_upload_dir();
 		copy( dirname( __FILE__ ) . '/data/sunflower.jpg', $upload_dir['path'] . '/sunflower.jpg' );
 		$test_file = $upload_dir['path'] . '/sunflower.jpg';
-		$attachment_id = $this->factory->attachment->create_object( $test_file, 0, array(
+		$attachment_id = self::factory()->attachment->create_object( $test_file, 0, array(
 			'post_mime_type' => 'image/jpeg',
 			'post_excerpt'   => 'A sample caption',
 		) );
@@ -138,7 +138,7 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		$upload_dir = wp_upload_dir();
 		copy( dirname( __FILE__ ) . '/data/gdpr.pdf', $upload_dir['path'] . '/gdpr.pdf' );
 		$test_file = $upload_dir['path'] . '/gdpr.pdf';
-		$attachment_id = $this->factory->attachment->create_object( $test_file, 0, array(
+		$attachment_id = self::factory()->attachment->create_object( $test_file, 0, array(
 			'post_mime_type' => 'application/pdf',
 			'post_excerpt'   => 'A sample caption',
 		) );
