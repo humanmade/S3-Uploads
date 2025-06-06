@@ -560,7 +560,7 @@ class Plugin {
 		$meta = wp_get_attachment_metadata( $attachment_id );
 		if ( isset( $meta['sizes'] ) ) {
 			foreach ( $meta['sizes'] as $size => $sizeinfo ) {
-				$files[] = $uploadpath['basedir'] . $sizeinfo['file'];
+				$files[] = $uploadpath['path'] . '/' . $sizeinfo['file'];
 			}
 		}
 
