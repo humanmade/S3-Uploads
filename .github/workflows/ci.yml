@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, v3-branch ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: docker run --rm -v $PWD:/code --entrypoint='' humanmade/plugin-tester composer install
+
+      - name: Run tests
+        run: ./tests/run-tests.sh --coverage-clover=coverage.xml
+
+      - name: Upload coverage to Codecov
+        run: bash <(curl -s https://codecov.io/bash)
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
