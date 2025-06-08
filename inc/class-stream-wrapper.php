@@ -119,7 +119,7 @@ class Stream_Wrapper {
 	public static function register(
 		Plugin $plugin,
 		$protocol = 's3',
-		CacheInterface $cache = null
+		?CacheInterface $cache = null
 	) {
 		if ( in_array( $protocol, stream_get_wrappers() ) ) {
 			stream_wrapper_unregister( $protocol );
