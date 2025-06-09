@@ -69,6 +69,14 @@ function check_requirements() : bool {
 		return false;
 	}
 
+	if ( ! ini_get( 'allow_url_fopen' ) ) {
+		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
+			add_action( 'admin_notices', __NAMESPACE__ . '\\url_fopen_disabled_notice' );
+		}
+
+		return false;
+	}
+
 	return true;
 }
 
@@ -81,6 +89,17 @@ function outdated_php_version_notice() {
 	printf(
 		'<div class="error"><p>The S3 Uploads plugin requires PHP version 5.5.0 or higher. Your server is running PHP version %s.</p></div>',
 		PHP_VERSION
+	);
+}
+
+/**
+ * Print an admin notice when the PHP version is not high enough.
+ *
+ * This has to be a named function for compatibility with PHP 5.2.
+ */
+function url_fopen_disabled_notice() {
+	printf( '<div class="error"><p>The S3 Uploads plugin requires PHP option allow_url_fopen to be enabled. <a href="%s" target="_blank" rel="noopener noreferrer">Learn more</a>.</p></div>',
+		'https://www.php.net/manual/en/filesystem.configuration.php#ini.allow-url-fopen'
 	);
 }
 
