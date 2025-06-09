@@ -90,7 +90,7 @@ class Local_Stream_Wrapper {
 	 * @param array{extensions?: string[], mimetypes: array<string,string>} $mapping
 	 * @return string
 	 */
-	static function getMimeType( string $uri, array $mapping = null ) : string {
+	static function getMimeType( string $uri, ?array $mapping = null ) : string {
 
 		$extension = '';
 		$file_parts = explode( '.', basename( $uri ) );
