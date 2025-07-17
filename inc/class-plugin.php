@@ -551,7 +551,7 @@ class Plugin {
 	 * @param integer $attachment_id
 	 * @return array|WP_Error
 	 */
-	public function get_attachment_files_acl( int $attachment_id ) : array|WP_Error {
+	public function get_attachment_files_acl( int $attachment_id ) {
 		$files = static::get_attachment_files( $attachment_id );
 		$locations = array_map( [ $this, 'get_s3_location_for_path' ], $files );
 		// Remove any null items in the array from get_s3_location_for_path().
