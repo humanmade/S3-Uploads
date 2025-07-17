@@ -580,7 +580,7 @@ class Plugin {
 		 * @param array $results The ACL results.
 		 * @psalm-suppress TooManyArguments -- Currently do_action doesn't detect variable number of arguments.
 		 */
-		do_action( 's3_uploads_get_attachment_files_acl', $attachment_id, results );
+		do_action( 's3_uploads_get_attachment_files_acl', $attachment_id, $results );
 
 		return $results;
 	}
