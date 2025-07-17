@@ -549,9 +549,9 @@ class Plugin {
 	 * Retrieve the ACL (Access Control List) for an attachments files.
 	 *
 	 * @param integer $attachment_id
-	 * @return WP_Error|null
+	 * @return array|WP_Error
 	 */
-	public function get_attachment_files_acl( int $attachment_id ) : ?WP_Error {
+	public function get_attachment_files_acl( int $attachment_id ) : array|WP_Error {
 		$files = static::get_attachment_files( $attachment_id );
 		$locations = array_map( [ $this, 'get_s3_location_for_path' ], $files );
 		// Remove any null items in the array from get_s3_location_for_path().
@@ -574,15 +574,15 @@ class Plugin {
 		}
 
 		/**
-		 * Fires after ACL of files of an attachment is set.
+		 * Fires after ACL of files of an attachment is retrieved.
 		 *
-		 * @param int $attachment_id Attachment whose ACL has been changed.
+		 * @param int $attachment_id Attachment whose ACL has been requested.
 		 * @param array $results The ACL results.
 		 * @psalm-suppress TooManyArguments -- Currently do_action doesn't detect variable number of arguments.
 		 */
 		do_action( 's3_uploads_get_attachment_files_acl', $attachment_id, results );
 
-		return null;
+		return $results;
 	}
 
 	/**
