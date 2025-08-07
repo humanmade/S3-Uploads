@@ -183,4 +183,61 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		$this->assertEquals( 'my-new-file.jpg', $filename );
 	}
 
+	function test_get_attachment_files() {
+		S3_Uploads\Plugin::get_instance()->setup();
+		$upload_dir = wp_upload_dir();
+		copy( dirname( __FILE__ ) . '/data/sunflower.jpg', $upload_dir['path'] . '/sunflower.jpg' );
+		$test_file = $upload_dir['path'] . '/sunflower.jpg';
+		$attachment_id = self::factory()->attachment->create_object( $test_file, 0, array(
+			'post_mime_type' => 'image/jpeg',
+			'post_excerpt'   => 'A sample caption',
+		) );
+
+		$files = S3_Uploads\Plugin::get_instance()->get_attachment_files( $attachment_id );
+		$this->assertIsArray( $files );
+		$this->assertNotEmpty( $files );
+		$this->assertContains( $upload_dir['path'] . '/sunflower.jpg', $files );
+	}
+
+	function test_get_attachment_files_intermediate_sizes() {
+		S3_Uploads\Plugin::get_instance()->setup();
+		$upload_dir = wp_upload_dir();
+		copy( dirname( __FILE__ ) . '/data/sunflower.jpg', $upload_dir['path'] . '/sunflower.jpg' );
+		$test_file = $upload_dir['path'] . '/sunflower.jpg';
+		$attachment_id = self::factory()->attachment->create_object( $test_file, 0, array(
+			'post_mime_type' => 'image/jpeg',
+			'post_excerpt'   => 'A sample caption',
+		) );
+
+		// Generate metadata to create intermediate sizes
+		wp_generate_attachment_metadata( $attachment_id, $test_file );
+
+		$files = S3_Uploads\Plugin::get_instance()->get_attachment_files( $attachment_id );
+		$this->assertIsArray( $files );
+		$this->assertNotEmpty( $files );
+		$this->assertContains( $upload_dir['path'] . '/sunflower-300x196.jpg', $files );
+		$this->assertContains( $upload_dir['path'] . '/sunflower-150x150.jpg', $files );
+	}
+
+	function test_get_attachment_files_intermediate_sizes_in_subdir() {
+		S3_Uploads\Plugin::get_instance()->setup();
+		$upload_dir = wp_upload_dir();
+		copy( dirname( __FILE__ ) . '/data/sunflower.jpg', $upload_dir['path'] . '/a/sub/dir/sunflower.jpg' );
+		$test_file = $upload_dir['path'] . '/a/sub/dir/sunflower.jpg';
+		$attachment_id = self::factory()->attachment->create_object( $test_file, 0, array(
+			'post_mime_type' => 'image/jpeg',
+			'post_excerpt'   => 'A sample caption',
+		) );
+
+		// Generate metadata to create intermediate sizes
+		wp_generate_attachment_metadata( $attachment_id, $test_file );
+
+		$files = S3_Uploads\Plugin::get_instance()->get_attachment_files( $attachment_id );
+		$this->assertIsArray( $files );
+		$this->assertNotEmpty( $files );
+		$this->assertContains( $upload_dir['path'] . '/a/sub/dir/sunflower.jpg', $files );
+		$this->assertContains( $upload_dir['path'] . '/a/sub/dir/sunflower-300x196.jpg', $files );
+		$this->assertContains( $upload_dir['path'] . '/a/sub/dir/sunflower-150x150.jpg', $files );
+	}
+
 }
