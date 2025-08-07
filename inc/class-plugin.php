@@ -552,22 +552,22 @@ class Plugin {
 	 * @return list<string> Array of all full paths to the attachment's files.
 	 */
 	public static function get_attachment_files( int $attachment_id ) : array {
-		$uploadpath = wp_get_upload_dir();
 		/** @var string */
 		$main_file = get_attached_file( $attachment_id );
+		$main_file_directory = dirname( $main_file );
 		$files = [ $main_file ];
 
 		$meta = wp_get_attachment_metadata( $attachment_id );
 		if ( isset( $meta['sizes'] ) ) {
 			foreach ( $meta['sizes'] as $size => $sizeinfo ) {
-				$files[] = $uploadpath['basedir'] . $sizeinfo['file'];
+				$files[] = $main_file_directory . '/' . $sizeinfo['file'];
 			}
 		}
 
 		/** @var string|false */
 		$original_image = get_post_meta( $attachment_id, 'original_image', true );
 		if ( $original_image ) {
-			$files[] = $uploadpath['basedir'] . $original_image;
+			$files[] = $main_file_directory . '/' . $original_image;
 		}
 
 		/** @var array<string,array{file: string}> */
@@ -576,7 +576,7 @@ class Plugin {
 			foreach ( $backup_sizes as $size => $sizeinfo ) {
 				// Backup sizes only store the backup filename, which is relative to the
 				// main attached file, unlike the metadata sizes array.
-				$files[] = path_join( dirname( $main_file ), $sizeinfo['file'] );
+				$files[] = $main_file_directory . '/' . $sizeinfo['file'];
 			}
 		}
 
