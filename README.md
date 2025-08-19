@@ -57,20 +57,22 @@ Once you've installed the plugin, add the following constants to your `wp-config
 define( 'S3_UPLOADS_BUCKET', 'my-bucket' );
 define( 'S3_UPLOADS_REGION', '' ); // the s3 bucket region (excluding the rest of the URL)
 
-// You can set key and secret directly:
+// You can set access key and secret directly:
 define( 'S3_UPLOADS_KEY', '' );
 define( 'S3_UPLOADS_SECRET', '' );
 
 // Or if using IAM instance profiles, you can use the instance's credentials:
 define( 'S3_UPLOADS_USE_INSTANCE_PROFILE', true );
 ```
-Please refer to this region list http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region for the S3_UPLOADS_REGION values.
+Please refer to this [Region list](http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region) for the S3_UPLOADS_REGION values.
 
 Use of path prefix after the bucket name is allowed and is optional. For example, if you want to upload all files to 'my-folder' inside a bucket called 'my-bucket', you can use:
 
 ```PHP
 define( 'S3_UPLOADS_BUCKET', 'my-bucket/my-folder' );
 ```
+
+Please refer to this document outlining [Best Practices for managing AWS access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#securing_access-keys)
 
 You must then enable the plugin. To do this via WP-CLI use command:
 
