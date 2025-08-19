@@ -64,7 +64,7 @@ define( 'S3_UPLOADS_SECRET', '' );
 // Or if using IAM instance profiles, you can use the instance's credentials:
 define( 'S3_UPLOADS_USE_INSTANCE_PROFILE', true );
 ```
-Please refer to this region list http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region for the S3_UPLOADS_REGION values.
+Please refer to this [Region list](http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region) for the S3_UPLOADS_REGION values.
 
 Use of path prefix after the bucket name is allowed and is optional. For example, if you want to upload all files to 'my-folder' inside a bucket called 'my-bucket', you can use:
 
