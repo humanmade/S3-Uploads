@@ -72,7 +72,7 @@ Use of path prefix after the bucket name is allowed and is optional. For example
 define( 'S3_UPLOADS_BUCKET', 'my-bucket/my-folder' );
 ```
 
-Please refer to this document outlining Best Practices for managing AWS access keys https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#securing_access-keys
+Please refer to this document outlining [Best Practices for managing AWS access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#securing_access-keys)
 
 You must then enable the plugin. To do this via WP-CLI use command:
 
