@@ -4,13 +4,13 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 
 	protected $s3 = null;
 
-	public function setUp() {
+	public function setUp(): void {
 
 		// start the tests with nothing added
 		S3_Uploads\Plugin::get_instance()->tear_down();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// reenable for other tests
 		S3_Uploads\Plugin::get_instance()->setup();
 	}

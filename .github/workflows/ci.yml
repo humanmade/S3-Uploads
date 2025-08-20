@@ -19,7 +19,7 @@ on:
         - full
 
 jobs:
-  test-matrix:
+  test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -60,8 +60,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: docker run --rm -v $PWD:/code --entrypoint='' humanmade/plugin-tester:${{ matrix.tag }} composer install --ignore-platform-req=ext-pcov
-        
+        run: docker run --rm -v $PWD:/code --entrypoint='' humanmade/plugin-tester composer install
+
       - name: Run tests
         run: PLUGIN_TESTER_TAG=${{ matrix.tag }} ./tests/run-tests.sh --coverage-clover=coverage-${{ matrix.tag }}.xml
 
@@ -79,8 +79,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies (latest)
-        run: docker run --rm -v $PWD:/code --entrypoint='' humanmade/plugin-tester:wp-6.8-php8.3 composer install --ignore-platform-req=ext-pcov
+      - name: Install dependencies
+        run: docker run --rm -v $PWD:/code --entrypoint='' humanmade/plugin-tester composer install
 
       - name: Run full matrix tests
         run: ./tests/run-matrix-tests.sh
