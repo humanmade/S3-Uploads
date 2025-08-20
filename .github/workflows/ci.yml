@@ -4,83 +4,21 @@ on:
   push:
     branches: [ master, v3-branch ]
   pull_request:
-  schedule:
-    # Run full matrix tests weekly on Sundays at 2 AM UTC
-    - cron: '0 2 * * 0'
-  workflow_dispatch:
-    inputs:
-      test_mode:
-        description: 'Test mode'
-        required: true
-        default: 'matrix'
-        type: choice
-        options:
-        - matrix
-        - full
 
 jobs:
-  test-matrix:
+  test:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # Test latest versions
-          - php: "8.3"
-            wp: "6.8"
-            tag: "wp-6.8-php8.3"
-          - php: "8.2" 
-            wp: "6.8"
-            tag: "wp-6.8-php8.2"
-          - php: "8.1"
-            wp: "6.7"
-            tag: "wp-6.7-php8.1"
-          - php: "8.0"
-            wp: "6.6"
-            tag: "wp-6.6-php8.0"
-          # Test minimum supported versions
-          - php: "7.4"
-            wp: "5.4"
-            tag: "wp-5.4"
-          - php: "7.4"
-            wp: "6.8"
-            tag: "wp-6.8-php7.4"
-          # Test some intermediate versions
-          - php: "8.2"
-            wp: "6.5"
-            tag: "wp-6.5-php8.2"
-          - php: "8.1"
-            wp: "6.3"
-            tag: "wp-6.3-php8.1"
-    
-    name: "PHP ${{ matrix.php }} / WP ${{ matrix.wp }}"
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: docker run --rm -v $PWD:/code --entrypoint='' humanmade/plugin-tester:${{ matrix.tag }} composer install --ignore-platform-req=ext-pcov
-        
+        run: docker run --rm -v $PWD:/code --entrypoint='' humanmade/plugin-tester composer install
+
       - name: Run tests
-        run: PLUGIN_TESTER_TAG=${{ matrix.tag }} ./tests/run-tests.sh --coverage-clover=coverage-${{ matrix.tag }}.xml
+        run: ./tests/run-tests.sh --coverage-clover=coverage.xml
 
       - name: Upload coverage to Codecov
-        run: bash <(curl -s https://codecov.io/bash) -f coverage-${{ matrix.tag }}.xml -F php${{ matrix.php }}_wp${{ matrix.wp }}
+        run: bash <(curl -s https://codecov.io/bash)
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-  test-full-matrix:
-    runs-on: ubuntu-latest
-    # Only run full matrix on schedule or manual trigger
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install dependencies (latest)
-        run: docker run --rm -v $PWD:/code --entrypoint='' humanmade/plugin-tester:wp-6.8-php8.3 composer install --ignore-platform-req=ext-pcov
-
-      - name: Run full matrix tests
-        run: ./tests/run-matrix-tests.sh

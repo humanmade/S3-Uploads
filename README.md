@@ -267,50 +267,6 @@ if you want to develop offline you have a couple of options.
 Option 2 will allow you to run the S3 Uploads plugin for production parity purposes, it will essentially mock
 Amazon S3 with a local stream wrapper and actually store the uploads in your WP Upload Dir `/s3/`.
 
-## Testing
-
-S3 Uploads includes comprehensive test suites that run against multiple PHP and WordPress versions using [humanmade/plugin-tester](https://github.com/humanmade/plugin-tester).
-
-### Running Tests
-
-Run tests with the current environment:
-```bash
-composer test
-```
-
-Run tests against a specific PHP/WordPress combination:
-```bash
-PLUGIN_TESTER_TAG=wp-6.8-php8.3 ./tests/run-tests.sh
-```
-
-### Matrix Testing
-
-Test against multiple PHP and WordPress versions:
-
-```bash
-# Run a quick test against latest versions
-composer test:quick
-
-# Run full matrix testing against all supported combinations
-composer test:matrix
-
-# Test specific versions
-./tests/run-matrix-tests.sh --php=8.3 --wp=6.8
-./tests/run-matrix-tests.sh --tag=wp-6.8-php8.3
-
-# Validate all expected Docker tags exist
-composer test:validate-tags
-```
-
-### Supported Test Matrix
-
-The plugin is tested against the following combinations:
-
-- **PHP 7.4**: WordPress 5.4 - 6.8
-- **PHP 8.0-8.3**: WordPress 6.0 - 6.8
-
-These combinations ensure compatibility with all supported PHP versions (≥7.4) and WordPress versions (≥5.3).
-
 ## Credits
 
 Created by Human Made for high volume and large-scale sites. We run S3 Uploads on sites with millions of monthly page views, and thousands of sites.
