@@ -297,6 +297,9 @@ composer test:matrix
 # Test specific versions
 ./tests/run-matrix-tests.sh --php=8.3 --wp=6.8
 ./tests/run-matrix-tests.sh --tag=wp-6.8-php8.3
+
+# Validate all expected Docker tags exist
+composer test:validate-tags
 ```
 
 ### Supported Test Matrix

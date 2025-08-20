@@ -34,6 +34,7 @@
 		"test": "./tests/run-tests.sh",
 		"test:matrix": "./tests/run-matrix-tests.sh",
 		"test:quick": "./tests/run-matrix-tests.sh --quick",
+		"test:validate-tags": "./tests/validate-tags.sh",
 		"check-types": "./vendor/bin/psalm"
 	},
 	"config": {
