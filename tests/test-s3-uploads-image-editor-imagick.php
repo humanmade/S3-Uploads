@@ -2,7 +2,7 @@
 
 class Test_S3_Uploads_Image_Editor_Imagick extends WP_UnitTestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 		$this->image_path = dirname( __FILE__ ) . '/data/sunflower.jpg';
 
 		require_once ABSPATH . WPINC . '/class-wp-image-editor.php';

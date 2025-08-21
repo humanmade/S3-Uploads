@@ -4,11 +4,11 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 
 	protected $s3 = null;
 
-	public function setUp() {
+	public function setUp(): void {
 
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		stream_wrapper_unregister( 's3' );
 		S3_Uploads\Plugin::get_instance()->register_stream_wrapper();
 	}

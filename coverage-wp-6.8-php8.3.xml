@@ -1,0 +1,1204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1755721024">
+  <project timestamp="1755721024">
+    <file name="/code/inc/class-image-editor-imagick.php">
+      <class name="S3_Uploads\Image_Editor_Imagick" namespace="global">
+        <metrics complexity="16" methods="3" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="44" coveredstatements="0" elements="47" coveredelements="0"/>
+      </class>
+      <line num="45" type="method" name="load" visibility="public" complexity="7" crap="56" count="0"/>
+      <line num="46" type="stmt" count="0"/>
+      <line num="47" type="stmt" count="0"/>
+      <line num="50" type="stmt" count="0"/>
+      <line num="51" type="stmt" count="0"/>
+      <line num="54" type="stmt" count="0"/>
+      <line num="56" type="stmt" count="0"/>
+      <line num="57" type="stmt" count="0"/>
+      <line num="60" type="stmt" count="0"/>
+      <line num="61" type="stmt" count="0"/>
+      <line num="63" type="stmt" count="0"/>
+      <line num="64" type="stmt" count="0"/>
+      <line num="65" type="stmt" count="0"/>
+      <line num="67" type="stmt" count="0"/>
+      <line num="69" type="stmt" count="0"/>
+      <line num="70" type="stmt" count="0"/>
+      <line num="83" type="method" name="_save" visibility="protected" complexity="8" crap="72" count="0"/>
+      <line num="89" type="stmt" count="0"/>
+      <line num="91" type="stmt" count="0"/>
+      <line num="92" type="stmt" count="0"/>
+      <line num="95" type="stmt" count="0"/>
+      <line num="97" type="stmt" count="0"/>
+      <line num="99" type="stmt" count="0"/>
+      <line num="101" type="stmt" count="0"/>
+      <line num="107" type="stmt" count="0"/>
+      <line num="109" type="stmt" count="0"/>
+      <line num="110" type="stmt" count="0"/>
+      <line num="111" type="stmt" count="0"/>
+      <line num="114" type="stmt" count="0"/>
+      <line num="119" type="stmt" count="0"/>
+      <line num="122" type="stmt" count="0"/>
+      <line num="124" type="stmt" count="0"/>
+      <line num="125" type="stmt" count="0"/>
+      <line num="126" type="stmt" count="0"/>
+      <line num="129" type="stmt" count="0"/>
+      <line num="130" type="stmt" count="0"/>
+      <line num="133" type="stmt" count="0"/>
+      <line num="134" type="stmt" count="0"/>
+      <line num="135" type="stmt" count="0"/>
+      <line num="136" type="stmt" count="0"/>
+      <line num="137" type="stmt" count="0"/>
+      <line num="138" type="stmt" count="0"/>
+      <line num="139" type="stmt" count="0"/>
+      <line num="141" type="stmt" count="0"/>
+      <line num="144" type="method" name="__destruct" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="145" type="stmt" count="0"/>
+      <line num="146" type="stmt" count="0"/>
+      <metrics loc="149" ncloc="103" classes="1" methods="3" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="44" coveredstatements="0" elements="47" coveredelements="0"/>
+    </file>
+    <file name="/code/inc/class-local-stream-wrapper.php">
+      <class name="S3_Uploads\Local_Stream_Wrapper" namespace="global">
+        <metrics complexity="58" methods="29" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="104" coveredstatements="0" elements="133" coveredelements="0"/>
+      </class>
+      <line num="46" type="method" name="getDirectoryPath" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="47" type="stmt" count="0"/>
+      <line num="48" type="stmt" count="0"/>
+      <line num="51" type="method" name="setUri" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="52" type="stmt" count="0"/>
+      <line num="55" type="method" name="getUri" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="56" type="stmt" count="0"/>
+      <line num="75" type="method" name="getTarget" visibility="protected" complexity="3" crap="12" count="0"/>
+      <line num="76" type="stmt" count="0"/>
+      <line num="77" type="stmt" count="0"/>
+      <line num="80" type="stmt" count="0"/>
+      <line num="83" type="stmt" count="0"/>
+      <line num="93" type="method" name="getMimeType" visibility="public" complexity="4" crap="20" count="0"/>
+      <line num="95" type="stmt" count="0"/>
+      <line num="96" type="stmt" count="0"/>
+      <line num="99" type="stmt" count="0"/>
+      <line num="106" type="stmt" count="0"/>
+      <line num="107" type="stmt" count="0"/>
+      <line num="108" type="stmt" count="0"/>
+      <line num="109" type="stmt" count="0"/>
+      <line num="113" type="stmt" count="0"/>
+      <line num="116" type="method" name="chmod" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="117" type="stmt" count="0"/>
+      <line num="120" type="stmt" count="0"/>
+      <line num="121" type="stmt" count="0"/>
+      <line num="124" type="method" name="realpath" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="125" type="stmt" count="0"/>
+      <line num="141" type="method" name="getLocalPath" visibility="protected" complexity="4" crap="20" count="0"/>
+      <line num="142" type="stmt" count="0"/>
+      <line num="143" type="stmt" count="0"/>
+      <line num="145" type="stmt" count="0"/>
+      <line num="146" type="stmt" count="0"/>
+      <line num="148" type="stmt" count="0"/>
+      <line num="150" type="stmt" count="0"/>
+      <line num="151" type="stmt" count="0"/>
+      <line num="153" type="stmt" count="0"/>
+      <line num="174" type="method" name="stream_open" visibility="public" complexity="4" crap="20" count="0"/>
+      <line num="175" type="stmt" count="0"/>
+      <line num="176" type="stmt" count="0"/>
+      <line num="177" type="stmt" count="0"/>
+      <line num="179" type="stmt" count="0"/>
+      <line num="180" type="stmt" count="0"/>
+      <line num="183" type="stmt" count="0"/>
+      <line num="194" type="method" name="stream_metadata" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="195" type="stmt" count="0"/>
+      <line num="214" type="method" name="stream_lock" visibility="public" complexity="3" crap="12" count="0"/>
+      <line num="215" type="stmt" count="0"/>
+      <line num="216" type="stmt" count="0"/>
+      <line num="219" type="stmt" count="0"/>
+      <line num="233" type="method" name="stream_read" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="234" type="stmt" count="0"/>
+      <line num="235" type="stmt" count="0"/>
+      <line num="237" type="stmt" count="0"/>
+      <line num="251" type="method" name="stream_write" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="252" type="stmt" count="0"/>
+      <line num="253" type="stmt" count="0"/>
+      <line num="255" type="stmt" count="0"/>
+      <line num="266" type="method" name="stream_eof" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="267" type="stmt" count="0"/>
+      <line num="268" type="stmt" count="0"/>
+      <line num="270" type="stmt" count="0"/>
+      <line num="286" type="method" name="stream_seek" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="287" type="stmt" count="0"/>
+      <line num="288" type="stmt" count="0"/>
+      <line num="292" type="stmt" count="0"/>
+      <line num="303" type="method" name="stream_flush" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="304" type="stmt" count="0"/>
+      <line num="305" type="stmt" count="0"/>
+      <line num="307" type="stmt" count="0"/>
+      <line num="309" type="stmt" count="0"/>
+      <line num="310" type="stmt" count="0"/>
+      <line num="311" type="stmt" count="0"/>
+      <line num="312" type="stmt" count="0"/>
+      <line num="319" type="stmt" count="0"/>
+      <line num="321" type="stmt" count="0"/>
+      <line num="332" type="method" name="stream_tell" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="333" type="stmt" count="0"/>
+      <line num="334" type="stmt" count="0"/>
+      <line num="336" type="stmt" count="0"/>
+      <line num="348" type="method" name="stream_stat" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="349" type="stmt" count="0"/>
+      <line num="350" type="stmt" count="0"/>
+      <line num="352" type="stmt" count="0"/>
+      <line num="363" type="method" name="stream_close" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="364" type="stmt" count="0"/>
+      <line num="365" type="stmt" count="0"/>
+      <line num="367" type="stmt" count="0"/>
+      <line num="368" type="stmt" count="0"/>
+      <line num="383" type="method" name="stream_cast" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="384" type="stmt" count="0"/>
+      <line num="398" type="method" name="unlink" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="399" type="stmt" count="0"/>
+      <line num="400" type="stmt" count="0"/>
+      <line num="416" type="method" name="rename" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="417" type="stmt" count="0"/>
+      <line num="435" type="method" name="mkdir" visibility="public" complexity="3" crap="12" count="0"/>
+      <line num="436" type="stmt" count="0"/>
+      <line num="437" type="stmt" count="0"/>
+      <line num="438" type="stmt" count="0"/>
+      <line num="441" type="stmt" count="0"/>
+      <line num="443" type="stmt" count="0"/>
+      <line num="445" type="stmt" count="0"/>
+      <line num="446" type="stmt" count="0"/>
+      <line num="448" type="stmt" count="0"/>
+      <line num="465" type="method" name="rmdir" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="466" type="stmt" count="0"/>
+      <line num="467" type="stmt" count="0"/>
+      <line num="468" type="stmt" count="0"/>
+      <line num="470" type="stmt" count="0"/>
+      <line num="488" type="method" name="url_stat" visibility="public" complexity="3" crap="12" count="0"/>
+      <line num="489" type="stmt" count="0"/>
+      <line num="490" type="stmt" count="0"/>
+      <line num="493" type="stmt" count="0"/>
+      <line num="494" type="stmt" count="0"/>
+      <line num="496" type="stmt" count="0"/>
+      <line num="513" type="method" name="dir_opendir" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="514" type="stmt" count="0"/>
+      <line num="515" type="stmt" count="0"/>
+      <line num="517" type="stmt" count="0"/>
+      <line num="528" type="method" name="dir_readdir" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="529" type="stmt" count="0"/>
+      <line num="530" type="stmt" count="0"/>
+      <line num="532" type="stmt" count="0"/>
+      <line num="543" type="method" name="dir_rewinddir" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="544" type="stmt" count="0"/>
+      <line num="545" type="stmt" count="0"/>
+      <line num="547" type="stmt" count="0"/>
+      <line num="551" type="stmt" count="0"/>
+      <line num="562" type="method" name="dir_closedir" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="563" type="stmt" count="0"/>
+      <line num="564" type="stmt" count="0"/>
+      <line num="566" type="stmt" count="0"/>
+      <line num="569" type="stmt" count="0"/>
+      <metrics loc="572" ncloc="243" classes="1" methods="29" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="104" coveredstatements="0" elements="133" coveredelements="0"/>
+    </file>
+    <file name="/code/inc/class-plugin.php">
+      <class name="S3_Uploads\Plugin" namespace="global">
+        <metrics complexity="88" methods="30" coveredmethods="11" conditionals="0" coveredconditionals="0" statements="224" coveredstatements="112" elements="254" coveredelements="123"/>
+      </class>
+      <line num="68" type="method" name="get_instance" visibility="public" complexity="5" crap="16.76" count="22"/>
+      <line num="70" type="stmt" count="22"/>
+      <line num="71" type="stmt" count="0"/>
+      <line num="72" type="stmt" count="0"/>
+      <line num="73" type="stmt" count="0"/>
+      <line num="74" type="stmt" count="0"/>
+      <line num="75" type="stmt" count="0"/>
+      <line num="76" type="stmt" count="0"/>
+      <line num="77" type="stmt" count="0"/>
+      <line num="80" type="stmt" count="22"/>
+      <line num="92" type="method" name="__construct" visibility="public" complexity="1" crap="1" count="4"/>
+      <line num="93" type="stmt" count="4"/>
+      <line num="94" type="stmt" count="4"/>
+      <line num="95" type="stmt" count="4"/>
+      <line num="96" type="stmt" count="4"/>
+      <line num="97" type="stmt" count="4"/>
+      <line num="103" type="method" name="setup" visibility="public" complexity="1" crap="1" count="11"/>
+      <line num="104" type="stmt" count="11"/>
+      <line num="106" type="stmt" count="11"/>
+      <line num="107" type="stmt" count="11"/>
+      <line num="108" type="stmt" count="11"/>
+      <line num="109" type="stmt" count="11"/>
+      <line num="110" type="stmt" count="11"/>
+      <line num="112" type="stmt" count="11"/>
+      <line num="113" type="stmt" count="11"/>
+      <line num="115" type="stmt" count="11"/>
+      <line num="116" type="stmt" count="11"/>
+      <line num="117" type="stmt" count="11"/>
+      <line num="119" type="stmt" count="11"/>
+      <line num="121" type="stmt" count="11"/>
+      <line num="127" type="method" name="tear_down" visibility="public" complexity="1" crap="1" count="11"/>
+      <line num="129" type="stmt" count="11"/>
+      <line num="130" type="stmt" count="11"/>
+      <line num="131" type="stmt" count="11"/>
+      <line num="132" type="stmt" count="11"/>
+      <line num="133" type="stmt" count="11"/>
+      <line num="135" type="stmt" count="11"/>
+      <line num="136" type="stmt" count="11"/>
+      <line num="137" type="stmt" count="11"/>
+      <line num="139" type="stmt" count="11"/>
+      <line num="145" type="method" name="register_stream_wrapper" visibility="public" complexity="4" crap="4.07" count="22"/>
+      <line num="146" type="stmt" count="22"/>
+      <line num="147" type="stmt" count="0"/>
+      <line num="149" type="stmt" count="22"/>
+      <line num="150" type="stmt" count="22"/>
+      <line num="151" type="stmt" count="22"/>
+      <line num="154" type="stmt" count="22"/>
+      <line num="160" type="method" name="get_s3_path" visibility="public" complexity="1" crap="1" count="7"/>
+      <line num="161" type="stmt" count="7"/>
+      <line num="170" type="method" name="filter_upload_dir" visibility="public" complexity="5" crap="5.15" count="7"/>
+      <line num="172" type="stmt" count="7"/>
+      <line num="173" type="stmt" count="7"/>
+      <line num="175" type="stmt" count="7"/>
+      <line num="176" type="stmt" count="7"/>
+      <line num="178" type="stmt" count="7"/>
+      <line num="180" type="stmt" count="7"/>
+      <line num="181" type="stmt" count="0"/>
+      <line num="182" type="stmt" count="0"/>
+      <line num="185" type="stmt" count="7"/>
+      <line num="186" type="stmt" count="7"/>
+      <line num="190" type="stmt" count="7"/>
+      <line num="205" type="method" name="delete_attachment_files" visibility="public" complexity="4" crap="20" count="0"/>
+      <line num="206" type="stmt" count="0"/>
+      <line num="207" type="stmt" count="0"/>
+      <line num="208" type="stmt" count="0"/>
+      <line num="209" type="stmt" count="0"/>
+      <line num="212" type="stmt" count="0"/>
+      <line num="213" type="stmt" count="0"/>
+      <line num="214" type="stmt" count="0"/>
+      <line num="215" type="stmt" count="0"/>
+      <line num="219" type="stmt" count="0"/>
+      <line num="227" type="method" name="get_s3_url" visibility="public" complexity="2" crap="2.03" count="7"/>
+      <line num="228" type="stmt" count="7"/>
+      <line num="229" type="stmt" count="0"/>
+      <line num="232" type="stmt" count="7"/>
+      <line num="233" type="stmt" count="7"/>
+      <line num="235" type="stmt" count="7"/>
+      <line num="243" type="method" name="get_s3_bucket" visibility="public" complexity="1" crap="1" count="1"/>
+      <line num="244" type="stmt" count="1"/>
+      <line num="252" type="method" name="get_s3_bucket_region" visibility="public" complexity="1" crap="1" count="1"/>
+      <line num="253" type="stmt" count="1"/>
+      <line num="261" type="method" name="get_original_upload_dir" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="263" type="stmt" count="0"/>
+      <line num="264" type="stmt" count="0"/>
+      <line num="270" type="stmt" count="0"/>
+      <line num="271" type="stmt" count="0"/>
+      <line num="280" type="method" name="get_s3_location_for_url" visibility="public" complexity="6" crap="42" count="0"/>
+      <line num="281" type="stmt" count="0"/>
+      <line num="282" type="stmt" count="0"/>
+      <line num="283" type="stmt" count="0"/>
+      <line num="284" type="stmt" count="0"/>
+      <line num="285" type="stmt" count="0"/>
+      <line num="286" type="stmt" count="0"/>
+      <line num="287" type="stmt" count="0"/>
+      <line num="288" type="stmt" count="0"/>
+      <line num="290" type="stmt" count="0"/>
+      <line num="292" type="stmt" count="0"/>
+      <line num="293" type="stmt" count="0"/>
+      <line num="296" type="stmt" count="0"/>
+      <line num="297" type="stmt" count="0"/>
+      <line num="298" type="stmt" count="0"/>
+      <line num="299" type="stmt" count="0"/>
+      <line num="301" type="stmt" count="0"/>
+      <line num="302" type="stmt" count="0"/>
+      <line num="303" type="stmt" count="0"/>
+      <line num="304" type="stmt" count="0"/>
+      <line num="305" type="stmt" count="0"/>
+      <line num="314" type="method" name="get_s3_location_for_path" visibility="public" complexity="5" crap="30" count="0"/>
+      <line num="315" type="stmt" count="0"/>
+      <line num="316" type="stmt" count="0"/>
+      <line num="317" type="stmt" count="0"/>
+      <line num="319" type="stmt" count="0"/>
+      <line num="320" type="stmt" count="0"/>
+      <line num="321" type="stmt" count="0"/>
+      <line num="322" type="stmt" count="0"/>
+      <line num="328" type="method" name="s3" visibility="public" complexity="2" crap="2" count="15"/>
+      <line num="330" type="stmt" count="15"/>
+      <line num="331" type="stmt" count="15"/>
+      <line num="334" type="stmt" count="2"/>
+      <line num="335" type="stmt" count="2"/>
+      <line num="343" type="method" name="get_aws_sdk" visibility="public" complexity="9" crap="11.55" count="2"/>
+      <line num="345" type="stmt" count="2"/>
+      <line num="346" type="stmt" count="2"/>
+      <line num="347" type="stmt" count="0"/>
+      <line num="350" type="stmt" count="2"/>
+      <line num="352" type="stmt" count="2"/>
+      <line num="353" type="stmt" count="2"/>
+      <line num="354" type="stmt" count="2"/>
+      <line num="357" type="stmt" count="2"/>
+      <line num="358" type="stmt" count="2"/>
+      <line num="359" type="stmt" count="2"/>
+      <line num="362" type="stmt" count="2"/>
+      <line num="363" type="stmt" count="0"/>
+      <line num="364" type="stmt" count="0"/>
+      <line num="366" type="stmt" count="0"/>
+      <line num="367" type="stmt" count="0"/>
+      <line num="370" type="stmt" count="0"/>
+      <line num="373" type="stmt" count="2"/>
+      <line num="375" type="stmt" count="2"/>
+      <line num="376" type="stmt" count="2"/>
+      <line num="379" type="method" name="filter_editors" visibility="public" complexity="2" crap="2" count="3"/>
+      <line num="380" type="stmt" count="3"/>
+      <line num="381" type="stmt" count="3"/>
+      <line num="382" type="stmt" count="3"/>
+      <line num="385" type="stmt" count="3"/>
+      <line num="387" type="stmt" count="3"/>
+      <line num="397" type="method" name="filter_sideload_move_temp_file_to_s3" visibility="public" complexity="1" crap="1" count="1"/>
+      <line num="398" type="stmt" count="1"/>
+      <line num="399" type="stmt" count="1"/>
+      <line num="401" type="stmt" count="1"/>
+      <line num="402" type="stmt" count="1"/>
+      <line num="403" type="stmt" count="1"/>
+      <line num="405" type="stmt" count="1"/>
+      <line num="424" type="method" name="set_filesize_in_attachment_meta" visibility="public" complexity="4" crap="4.59" count="3"/>
+      <line num="425" type="stmt" count="3"/>
+      <line num="426" type="stmt" count="3"/>
+      <line num="427" type="stmt" count="0"/>
+      <line num="429" type="stmt" count="3"/>
+      <line num="430" type="stmt" count="0"/>
+      <line num="433" type="stmt" count="3"/>
+      <line num="445" type="method" name="wp_filter_read_image_metadata" visibility="public" complexity="1" crap="1" count="2"/>
+      <line num="446" type="stmt" count="2"/>
+      <line num="447" type="stmt" count="2"/>
+      <line num="448" type="stmt" count="2"/>
+      <line num="449" type="stmt" count="2"/>
+      <line num="450" type="stmt" count="2"/>
+      <line num="451" type="stmt" count="2"/>
+      <line num="461" type="method" name="wp_filter_resource_hints" visibility="public" complexity="6" crap="42" count="0"/>
+      <line num="463" type="stmt" count="0"/>
+      <line num="464" type="stmt" count="0"/>
+      <line num="466" type="stmt" count="0"/>
+      <line num="469" type="stmt" count="0"/>
+      <line num="470" type="stmt" count="0"/>
+      <line num="473" type="stmt" count="0"/>
+      <line num="482" type="method" name="copy_image_from_s3" visibility="public" complexity="2" crap="2.03" count="2"/>
+      <line num="483" type="stmt" count="2"/>
+      <line num="484" type="stmt" count="0"/>
+      <line num="486" type="stmt" count="2"/>
+      <line num="487" type="stmt" count="2"/>
+      <line num="488" type="stmt" count="2"/>
+      <line num="497" type="method" name="is_private_attachment" visibility="public" complexity="1" crap="1" count="3"/>
+      <line num="504" type="stmt" count="3"/>
+      <line num="505" type="stmt" count="3"/>
+      <line num="515" type="method" name="set_attachment_files_acl" visibility="public" complexity="3" crap="12" count="0"/>
+      <line num="516" type="stmt" count="0"/>
+      <line num="517" type="stmt" count="0"/>
+      <line num="519" type="stmt" count="0"/>
+      <line num="520" type="stmt" count="0"/>
+      <line num="521" type="stmt" count="0"/>
+      <line num="522" type="stmt" count="0"/>
+      <line num="523" type="stmt" count="0"/>
+      <line num="524" type="stmt" count="0"/>
+      <line num="525" type="stmt" count="0"/>
+      <line num="526" type="stmt" count="0"/>
+      <line num="527" type="stmt" count="0"/>
+      <line num="531" type="stmt" count="0"/>
+      <line num="532" type="stmt" count="0"/>
+      <line num="533" type="stmt" count="0"/>
+      <line num="543" type="stmt" count="0"/>
+      <line num="545" type="stmt" count="0"/>
+      <line num="554" type="method" name="get_attachment_files" visibility="public" complexity="6" crap="6.56" count="3"/>
+      <line num="556" type="stmt" count="3"/>
+      <line num="557" type="stmt" count="3"/>
+      <line num="558" type="stmt" count="3"/>
+      <line num="560" type="stmt" count="3"/>
+      <line num="561" type="stmt" count="3"/>
+      <line num="562" type="stmt" count="2"/>
+      <line num="563" type="stmt" count="0"/>
+      <line num="568" type="stmt" count="3"/>
+      <line num="569" type="stmt" count="3"/>
+      <line num="570" type="stmt" count="0"/>
+      <line num="574" type="stmt" count="3"/>
+      <line num="575" type="stmt" count="3"/>
+      <line num="576" type="stmt" count="0"/>
+      <line num="579" type="stmt" count="0"/>
+      <line num="583" type="stmt" count="3"/>
+      <line num="585" type="stmt" count="3"/>
+      <line num="598" type="method" name="add_s3_signed_params_to_attachment_url" visibility="public" complexity="3" crap="12" count="0"/>
+      <line num="599" type="stmt" count="0"/>
+      <line num="600" type="stmt" count="0"/>
+      <line num="602" type="stmt" count="0"/>
+      <line num="603" type="stmt" count="0"/>
+      <line num="604" type="stmt" count="0"/>
+      <line num="606" type="stmt" count="0"/>
+      <line num="607" type="stmt" count="0"/>
+      <line num="608" type="stmt" count="0"/>
+      <line num="609" type="stmt" count="0"/>
+      <line num="610" type="stmt" count="0"/>
+      <line num="611" type="stmt" count="0"/>
+      <line num="612" type="stmt" count="0"/>
+      <line num="614" type="stmt" count="0"/>
+      <line num="615" type="stmt" count="0"/>
+      <line num="620" type="stmt" count="0"/>
+      <line num="621" type="stmt" count="0"/>
+      <line num="623" type="stmt" count="0"/>
+      <line num="633" type="method" name="add_s3_signed_params_to_attachment_image_src" visibility="public" complexity="3" crap="12" count="0"/>
+      <line num="634" type="stmt" count="0"/>
+      <line num="635" type="stmt" count="0"/>
+      <line num="638" type="stmt" count="0"/>
+      <line num="639" type="stmt" count="0"/>
+      <line num="652" type="method" name="add_s3_signed_params_to_attachment_image_srcset" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="653" type="stmt" count="0"/>
+      <line num="654" type="stmt" count="0"/>
+      <line num="656" type="stmt" count="0"/>
+      <line num="666" type="method" name="set_attachment_private_on_generate_attachment_metadata" visibility="public" complexity="2" crap="2.15" count="3"/>
+      <line num="667" type="stmt" count="3"/>
+      <line num="668" type="stmt" count="0"/>
+      <line num="671" type="stmt" count="3"/>
+      <line num="681" type="method" name="get_files_for_unique_filename_file_list" visibility="public" complexity="2" crap="2.03" count="2"/>
+      <line num="682" type="stmt" count="2"/>
+      <line num="685" type="stmt" count="2"/>
+      <line num="686" type="stmt" count="2"/>
+      <line num="687" type="stmt" count="0"/>
+      <line num="689" type="stmt" count="2"/>
+      <metrics loc="692" ncloc="437" classes="1" methods="30" coveredmethods="11" conditionals="0" coveredconditionals="0" statements="224" coveredstatements="112" elements="254" coveredelements="123"/>
+    </file>
+    <file name="/code/inc/class-stream-wrapper.php">
+      <class name="S3_Uploads\Stream_Wrapper" namespace="global">
+        <metrics complexity="144" methods="45" coveredmethods="18" conditionals="0" coveredconditionals="0" statements="477" coveredstatements="341" elements="522" coveredelements="359"/>
+      </class>
+      <line num="119" type="method" name="register" visibility="public" complexity="4" crap="4.13" count="22"/>
+      <line num="124" type="stmt" count="22"/>
+      <line num="125" type="stmt" count="5"/>
+      <line num="129" type="stmt" count="22"/>
+      <line num="131" type="stmt" count="22"/>
+      <line num="132" type="stmt" count="22"/>
+      <line num="134" type="stmt" count="22"/>
+      <line num="135" type="stmt" count="0"/>
+      <line num="136" type="stmt" count="22"/>
+      <line num="138" type="stmt" count="0"/>
+      <line num="141" type="stmt" count="22"/>
+      <line num="144" type="method" name="stream_close" visibility="public" complexity="1" crap="1" count="13"/>
+      <line num="145" type="stmt" count="13"/>
+      <line num="146" type="stmt" count="13"/>
+      <line num="158" type="method" name="stream_open" visibility="public" complexity="6" crap="6.03" count="14"/>
+      <line num="159" type="stmt" count="14"/>
+      <line num="160" type="stmt" count="14"/>
+      <line num="161" type="stmt" count="14"/>
+      <line num="163" type="stmt" count="14"/>
+      <line num="164" type="stmt" count="14"/>
+      <line num="165" type="stmt" count="0"/>
+      <line num="168" type="stmt" count="14"/>
+      <line num="169" type="stmt" count="14"/>
+      <line num="170" type="stmt" count="14"/>
+      <line num="171" type="stmt" count="14"/>
+      <line num="172" type="stmt" count="7"/>
+      <line num="173" type="stmt" count="14"/>
+      <line num="174" type="stmt" count="0"/>
+      <line num="187" type="stmt" count="14"/>
+      <line num="188" type="stmt" count="14"/>
+      <line num="189" type="stmt" count="14"/>
+      <line num="190" type="stmt" count="14"/>
+      <line num="191" type="stmt" count="1"/>
+      <line num="192" type="stmt" count="1"/>
+      <line num="195" type="stmt" count="13"/>
+      <line num="197" type="stmt" count="14"/>
+      <line num="198" type="stmt" count="14"/>
+      <line num="201" type="method" name="stream_eof" visibility="public" complexity="2" crap="2.15" count="6"/>
+      <line num="202" type="stmt" count="6"/>
+      <line num="203" type="stmt" count="0"/>
+      <line num="205" type="stmt" count="6"/>
+      <line num="208" type="method" name="stream_flush" visibility="public" complexity="9" crap="10.12" count="11"/>
+      <line num="209" type="stmt" count="11"/>
+      <line num="210" type="stmt" count="0"/>
+      <line num="213" type="stmt" count="11"/>
+      <line num="214" type="stmt" count="0"/>
+      <line num="217" type="stmt" count="11"/>
+      <line num="218" type="stmt" count="11"/>
+      <line num="220" type="stmt" count="11"/>
+      <line num="221" type="stmt" count="11"/>
+      <line num="225" type="stmt" count="11"/>
+      <line num="226" type="stmt" count="11"/>
+      <line num="230" type="stmt" count="11"/>
+      <line num="231" type="stmt" count="0"/>
+      <line num="234" type="stmt" count="11"/>
+      <line num="238" type="stmt" count="0"/>
+      <line num="239" type="stmt" count="0"/>
+      <line num="241" type="stmt" count="0"/>
+      <line num="252" type="stmt" count="11"/>
+      <line num="254" type="stmt" count="11"/>
+      <line num="255" type="stmt" count="11"/>
+      <line num="256" type="stmt" count="11"/>
+      <line num="257" type="stmt" count="11"/>
+      <line num="264" type="stmt" count="11"/>
+      <line num="266" type="stmt" count="11"/>
+      <line num="267" type="stmt" count="11"/>
+      <line num="268" type="stmt" count="11"/>
+      <line num="271" type="method" name="stream_read" visibility="public" complexity="2" crap="2.15" count="6"/>
+      <line num="272" type="stmt" count="6"/>
+      <line num="273" type="stmt" count="0"/>
+      <line num="275" type="stmt" count="6"/>
+      <line num="278" type="method" name="stream_seek" visibility="public" complexity="4" crap="4.25" count="4"/>
+      <line num="279" type="stmt" count="4"/>
+      <line num="280" type="stmt" count="0"/>
+      <line num="282" type="stmt" count="4"/>
+      <line num="283" type="stmt" count="0"/>
+      <line num="284" type="stmt" count="4"/>
+      <line num="285" type="stmt" count="4"/>
+      <line num="286" type="stmt" count="4"/>
+      <line num="287" type="stmt" count="0"/>
+      <line num="289" type="stmt" count="4"/>
+      <line num="290" type="stmt" count="4"/>
+      <line num="291" type="stmt" count="4"/>
+      <line num="292" type="stmt" count="4"/>
+      <line num="301" type="method" name="stream_metadata" visibility="public" complexity="1" crap="1" count="1"/>
+      <line num="302" type="stmt" count="1"/>
+      <line num="308" type="method" name="stream_tell" visibility="public" complexity="2" crap="2.01" count="4"/>
+      <line num="309" type="stmt" count="4"/>
+      <line num="310" type="stmt" count="4"/>
+      <line num="311" type="stmt" count="4"/>
+      <line num="312" type="stmt" count="0"/>
+      <line num="314" type="stmt" count="4"/>
+      <line num="315" type="stmt" count="4"/>
+      <line num="316" type="stmt" count="4"/>
+      <line num="319" type="method" name="stream_write" visibility="public" complexity="2" crap="2.15" count="11"/>
+      <line num="320" type="stmt" count="11"/>
+      <line num="321" type="stmt" count="0"/>
+      <line num="323" type="stmt" count="11"/>
+      <line num="326" type="method" name="unlink" visibility="public" complexity="1" crap="1" count="2"/>
+      <line num="327" type="stmt" count="2"/>
+      <line num="329" type="stmt" count="2"/>
+      <line num="330" type="stmt" count="2"/>
+      <line num="331" type="stmt" count="2"/>
+      <line num="332" type="stmt" count="2"/>
+      <line num="333" type="stmt" count="2"/>
+      <line num="334" type="stmt" count="2"/>
+      <line num="335" type="stmt" count="2"/>
+      <line num="341" type="method" name="stream_stat" visibility="public" complexity="1" crap="1" count="2"/>
+      <line num="342" type="stmt" count="2"/>
+      <line num="343" type="stmt" count="2"/>
+      <line num="344" type="stmt" count="2"/>
+      <line num="345" type="stmt" count="2"/>
+      <line num="346" type="stmt" count="2"/>
+      <line num="348" type="stmt" count="2"/>
+      <line num="358" type="method" name="url_stat" visibility="public" complexity="4" crap="4" count="14"/>
+      <line num="359" type="stmt" count="14"/>
+      <line num="361" type="stmt" count="14"/>
+      <line num="370" type="stmt" count="14"/>
+      <line num="371" type="stmt" count="3"/>
+      <line num="372" type="stmt" count="3"/>
+      <line num="373" type="stmt" count="3"/>
+      <line num="374" type="stmt" count="3"/>
+      <line num="375" type="stmt" count="3"/>
+      <line num="376" type="stmt" count="3"/>
+      <line num="377" type="stmt" count="3"/>
+      <line num="378" type="stmt" count="3"/>
+      <line num="379" type="stmt" count="3"/>
+      <line num="380" type="stmt" count="3"/>
+      <line num="381" type="stmt" count="3"/>
+      <line num="382" type="stmt" count="3"/>
+      <line num="383" type="stmt" count="3"/>
+      <line num="384" type="stmt" count="3"/>
+      <line num="385" type="stmt" count="3"/>
+      <line num="386" type="stmt" count="3"/>
+      <line num="387" type="stmt" count="3"/>
+      <line num="388" type="stmt" count="3"/>
+      <line num="389" type="stmt" count="3"/>
+      <line num="390" type="stmt" count="3"/>
+      <line num="391" type="stmt" count="3"/>
+      <line num="392" type="stmt" count="3"/>
+      <line num="393" type="stmt" count="3"/>
+      <line num="394" type="stmt" count="3"/>
+      <line num="395" type="stmt" count="3"/>
+      <line num="396" type="stmt" count="3"/>
+      <line num="397" type="stmt" count="3"/>
+      <line num="398" type="stmt" count="3"/>
+      <line num="402" type="stmt" count="13"/>
+      <line num="403" type="stmt" count="13"/>
+      <line num="407" type="stmt" count="13"/>
+      <line num="408" type="stmt" count="13"/>
+      <line num="409" type="stmt" count="4"/>
+      <line num="412" type="stmt" count="13"/>
+      <line num="414" type="stmt" count="13"/>
+      <line num="415" type="stmt" count="7"/>
+      <line num="418" type="stmt" count="13"/>
+      <line num="426" type="method" name="initProtocol" visibility="private" complexity="2" crap="2" count="15"/>
+      <line num="427" type="stmt" count="15"/>
+      <line num="428" type="stmt" count="15"/>
+      <line num="437" type="method" name="createStat" visibility="private" complexity="7" crap="7.08" count="13"/>
+      <line num="438" type="stmt" count="13"/>
+      <line num="439" type="stmt" count="13"/>
+      <line num="441" type="stmt" count="13"/>
+      <line num="442" type="stmt" count="0"/>
+      <line num="445" type="stmt" count="13"/>
+      <line num="446" type="stmt" count="13"/>
+      <line num="448" type="stmt" count="13"/>
+      <line num="449" type="stmt" count="7"/>
+      <line num="450" type="stmt" count="7"/>
+      <line num="454" type="stmt" count="0"/>
+      <line num="458" type="stmt" count="7"/>
+      <line num="459" type="stmt" count="7"/>
+      <line num="461" type="stmt" count="9"/>
+      <line num="464" type="stmt" count="9"/>
+      <line num="465" type="stmt" count="9"/>
+      <line num="466" type="stmt" count="9"/>
+      <line num="467" type="stmt" count="9"/>
+      <line num="468" type="stmt" count="9"/>
+      <line num="469" type="stmt" count="9"/>
+      <line num="470" type="stmt" count="9"/>
+      <line num="471" type="stmt" count="8"/>
+      <line num="472" type="stmt" count="8"/>
+      <line num="474" type="stmt" count="0"/>
+      <line num="476" type="stmt" count="13"/>
+      <line num="477" type="stmt" count="13"/>
+      <line num="486" type="method" name="statDirectory" visibility="private" complexity="3" crap="12" count="0"/>
+      <line num="488" type="stmt" count="0"/>
+      <line num="489" type="stmt" count="0"/>
+      <line num="491" type="stmt" count="0"/>
+      <line num="494" type="stmt" count="0"/>
+      <line num="511" type="method" name="mkdir" visibility="public" complexity="4" crap="20" count="0"/>
+      <line num="512" type="stmt" count="0"/>
+      <line num="513" type="stmt" count="0"/>
+      <line num="514" type="stmt" count="0"/>
+      <line num="515" type="stmt" count="0"/>
+      <line num="516" type="stmt" count="0"/>
+      <line num="519" type="stmt" count="0"/>
+      <line num="520" type="stmt" count="0"/>
+      <line num="523" type="stmt" count="0"/>
+      <line num="524" type="stmt" count="0"/>
+      <line num="525" type="stmt" count="0"/>
+      <line num="533" type="method" name="rmdir" visibility="public" complexity="3" crap="12" count="0"/>
+      <line num="534" type="stmt" count="0"/>
+      <line num="535" type="stmt" count="0"/>
+      <line num="536" type="stmt" count="0"/>
+      <line num="537" type="stmt" count="0"/>
+      <line num="539" type="stmt" count="0"/>
+      <line num="540" type="stmt" count="0"/>
+      <line num="543" type="stmt" count="0"/>
+      <line num="544" type="stmt" count="0"/>
+      <line num="545" type="stmt" count="0"/>
+      <line num="546" type="stmt" count="0"/>
+      <line num="547" type="stmt" count="0"/>
+      <line num="549" type="stmt" count="0"/>
+      <line num="550" type="stmt" count="0"/>
+      <line num="551" type="stmt" count="0"/>
+      <line num="569" type="method" name="dir_opendir" visibility="public" complexity="15" crap="15.41" count="3"/>
+      <line num="570" type="stmt" count="3"/>
+      <line num="571" type="stmt" count="3"/>
+      <line num="572" type="stmt" count="3"/>
+      <line num="574" type="stmt" count="3"/>
+      <line num="576" type="stmt" count="3"/>
+      <line num="577" type="stmt" count="3"/>
+      <line num="578" type="stmt" count="3"/>
+      <line num="580" type="stmt" count="3"/>
+      <line num="581" type="stmt" count="3"/>
+      <line num="584" type="stmt" count="3"/>
+      <line num="585" type="stmt" count="3"/>
+      <line num="588" type="stmt" count="3"/>
+      <line num="590" type="stmt" count="3"/>
+      <line num="591" type="stmt" count="3"/>
+      <line num="595" type="stmt" count="3"/>
+      <line num="597" type="stmt" count="0"/>
+      <line num="598" type="stmt" count="0"/>
+      <line num="600" type="stmt" count="3"/>
+      <line num="622" type="stmt" count="3"/>
+      <line num="623" type="stmt" count="3"/>
+      <line num="624" type="stmt" count="3"/>
+      <line num="625" type="stmt" count="3"/>
+      <line num="626" type="stmt" count="3"/>
+      <line num="627" type="stmt" count="3"/>
+      <line num="630" type="stmt" count="0"/>
+      <line num="631" type="stmt" count="0"/>
+      <line num="632" type="stmt" count="0"/>
+      <line num="637" type="stmt" count="3"/>
+      <line num="638" type="stmt" count="3"/>
+      <line num="639" type="stmt" count="3"/>
+      <line num="641" type="stmt" count="3"/>
+      <line num="643" type="stmt" count="3"/>
+      <line num="644" type="stmt" count="3"/>
+      <line num="645" type="stmt" count="3"/>
+      <line num="646" type="stmt" count="2"/>
+      <line num="647" type="stmt" count="2"/>
+      <line num="648" type="stmt" count="3"/>
+      <line num="649" type="stmt" count="3"/>
+      <line num="650" type="stmt" count="3"/>
+      <line num="651" type="stmt" count="3"/>
+      <line num="653" type="stmt" count="3"/>
+      <line num="661" type="method" name="dir_closedir" visibility="public" complexity="1" crap="1" count="3"/>
+      <line num="662" type="stmt" count="3"/>
+      <line num="663" type="stmt" count="3"/>
+      <line num="665" type="stmt" count="3"/>
+      <line num="673" type="method" name="dir_rewinddir" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="674" type="stmt" count="0"/>
+      <line num="675" type="stmt" count="0"/>
+      <line num="676" type="stmt" count="0"/>
+      <line num="677" type="stmt" count="0"/>
+      <line num="679" type="stmt" count="0"/>
+      <line num="680" type="stmt" count="0"/>
+      <line num="681" type="stmt" count="0"/>
+      <line num="682" type="stmt" count="0"/>
+      <line num="683" type="stmt" count="0"/>
+      <line num="693" type="method" name="dir_readdir" visibility="public" complexity="6" crap="6.77" count="3"/>
+      <line num="695" type="stmt" count="3"/>
+      <line num="696" type="stmt" count="3"/>
+      <line num="707" type="stmt" count="2"/>
+      <line num="708" type="stmt" count="2"/>
+      <line num="711" type="stmt" count="0"/>
+      <line num="712" type="stmt" count="0"/>
+      <line num="713" type="stmt" count="0"/>
+      <line num="715" type="stmt" count="2"/>
+      <line num="716" type="stmt" count="2"/>
+      <line num="717" type="stmt" count="2"/>
+      <line num="722" type="stmt" count="2"/>
+      <line num="723" type="stmt" count="2"/>
+      <line num="726" type="stmt" count="2"/>
+      <line num="727" type="stmt" count="2"/>
+      <line num="728" type="stmt" count="0"/>
+      <line num="729" type="stmt" count="2"/>
+      <line num="730" type="stmt" count="0"/>
+      <line num="732" type="stmt" count="2"/>
+      <line num="735" type="method" name="formatKey" visibility="private" complexity="1" crap="1" count="2"/>
+      <line num="736" type="stmt" count="2"/>
+      <line num="737" type="stmt" count="2"/>
+      <line num="750" type="method" name="rename" visibility="public" complexity="4" crap="4.04" count="2"/>
+      <line num="753" type="stmt" count="2"/>
+      <line num="754" type="stmt" count="2"/>
+      <line num="755" type="stmt" count="2"/>
+      <line num="756" type="stmt" count="2"/>
+      <line num="757" type="stmt" count="2"/>
+      <line num="759" type="stmt" count="2"/>
+      <line num="760" type="stmt" count="0"/>
+      <line num="761" type="stmt" count="0"/>
+      <line num="762" type="stmt" count="0"/>
+      <line num="763" type="stmt" count="0"/>
+      <line num="766" type="stmt" count="2"/>
+      <line num="767" type="stmt" count="2"/>
+      <line num="768" type="stmt" count="2"/>
+      <line num="771" type="stmt" count="2"/>
+      <line num="772" type="stmt" count="2"/>
+      <line num="773" type="stmt" count="2"/>
+      <line num="774" type="stmt" count="2"/>
+      <line num="775" type="stmt" count="2"/>
+      <line num="776" type="stmt" count="2"/>
+      <line num="777" type="stmt" count="2"/>
+      <line num="778" type="stmt" count="2"/>
+      <line num="780" type="stmt" count="1"/>
+      <line num="781" type="stmt" count="1"/>
+      <line num="782" type="stmt" count="1"/>
+      <line num="783" type="stmt" count="1"/>
+      <line num="784" type="stmt" count="1"/>
+      <line num="785" type="stmt" count="1"/>
+      <line num="786" type="stmt" count="1"/>
+      <line num="787" type="stmt" count="2"/>
+      <line num="788" type="stmt" count="2"/>
+      <line num="791" type="method" name="stream_cast" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="792" type="stmt" count="0"/>
+      <line num="803" type="method" name="validate" visibility="private" complexity="5" crap="5.54" count="14"/>
+      <line num="804" type="stmt" count="14"/>
+      <line num="806" type="stmt" count="14"/>
+      <line num="807" type="stmt" count="0"/>
+      <line num="808" type="stmt" count="0"/>
+      <line num="811" type="stmt" count="14"/>
+      <line num="812" type="stmt" count="0"/>
+      <line num="813" type="stmt" count="0"/>
+      <line num="819" type="stmt" count="14"/>
+      <line num="821" type="stmt" count="14"/>
+      <line num="822" type="stmt" count="14"/>
+      <line num="823" type="stmt" count="14"/>
+      <line num="824" type="stmt" count="14"/>
+      <line num="825" type="stmt" count="14"/>
+      <line num="826" type="stmt" count="14"/>
+      <line num="827" type="stmt" count="14"/>
+      <line num="828" type="stmt" count="14"/>
+      <line num="830" type="stmt" count="0"/>
+      <line num="833" type="stmt" count="14"/>
+      <line num="844" type="method" name="getOptions" visibility="private" complexity="5" crap="5.07" count="14"/>
+      <line num="846" type="stmt" count="14"/>
+      <line num="847" type="stmt" count="9"/>
+      <line num="849" type="stmt" count="14"/>
+      <line num="851" type="stmt" count="14"/>
+      <line num="852" type="stmt" count="14"/>
+      <line num="853" type="stmt" count="0"/>
+      <line num="856" type="stmt" count="14"/>
+      <line num="858" type="stmt" count="14"/>
+      <line num="859" type="stmt" count="14"/>
+      <line num="860" type="stmt" count="0"/>
+      <line num="862" type="stmt" count="14"/>
+      <line num="864" type="stmt" count="14"/>
+      <line num="865" type="stmt" count="14"/>
+      <line num="868" type="stmt" count="14"/>
+      <line num="877" type="method" name="getOption" visibility="private" complexity="1" crap="1" count="14"/>
+      <line num="878" type="stmt" count="14"/>
+      <line num="879" type="stmt" count="14"/>
+      <line num="888" type="method" name="getClient" visibility="private" complexity="2" crap="2.06" count="14"/>
+      <line num="890" type="stmt" count="14"/>
+      <line num="891" type="stmt" count="14"/>
+      <line num="892" type="stmt" count="0"/>
+      <line num="895" type="stmt" count="14"/>
+      <line num="904" type="method" name="getBucketKey" visibility="private" complexity="2" crap="2" count="14"/>
+      <line num="906" type="stmt" count="14"/>
+      <line num="908" type="stmt" count="14"/>
+      <line num="910" type="stmt" count="14"/>
+      <line num="911" type="stmt" count="14"/>
+      <line num="912" type="stmt" count="14"/>
+      <line num="913" type="stmt" count="14"/>
+      <line num="923" type="method" name="withPath" visibility="private" complexity="1" crap="1" count="14"/>
+      <line num="924" type="stmt" count="14"/>
+      <line num="926" type="stmt" count="14"/>
+      <line num="929" type="method" name="openReadStream" visibility="private" complexity="4" crap="4" count="7"/>
+      <line num="930" type="stmt" count="7"/>
+      <line num="931" type="stmt" count="7"/>
+      <line num="932" type="stmt" count="7"/>
+      <line num="933" type="stmt" count="7"/>
+      <line num="936" type="stmt" count="7"/>
+      <line num="937" type="stmt" count="7"/>
+      <line num="938" type="stmt" count="7"/>
+      <line num="941" type="stmt" count="7"/>
+      <line num="942" type="stmt" count="7"/>
+      <line num="945" type="stmt" count="7"/>
+      <line num="948" type="method" name="openWriteStream" visibility="private" complexity="1" crap="1" count="13"/>
+      <line num="949" type="stmt" count="13"/>
+      <line num="950" type="stmt" count="13"/>
+      <line num="953" type="method" name="openAppendStream" visibility="private" complexity="2" crap="6" count="0"/>
+      <line num="956" type="stmt" count="0"/>
+      <line num="958" type="stmt" count="0"/>
+      <line num="960" type="stmt" count="0"/>
+      <line num="961" type="stmt" count="0"/>
+      <line num="962" type="stmt" count="0"/>
+      <line num="963" type="stmt" count="0"/>
+      <line num="965" type="stmt" count="0"/>
+      <line num="978" type="method" name="triggerError" visibility="private" complexity="3" crap="3" count="9"/>
+      <line num="980" type="stmt" count="9"/>
+      <line num="981" type="stmt" count="9"/>
+      <line num="985" type="stmt" count="2"/>
+      <line num="987" type="stmt" count="2"/>
+      <line num="997" type="method" name="formatUrlStat" visibility="private" complexity="7" crap="7.12" count="9"/>
+      <line num="998" type="stmt" count="9"/>
+      <line num="999" type="stmt" count="9"/>
+      <line num="1000" type="stmt" count="9"/>
+      <line num="1001" type="stmt" count="9"/>
+      <line num="1003" type="stmt" count="0"/>
+      <line num="1004" type="stmt" count="0"/>
+      <line num="1005" type="stmt" count="0"/>
+      <line num="1006" type="stmt" count="9"/>
+      <line num="1008" type="stmt" count="9"/>
+      <line num="1009" type="stmt" count="9"/>
+      <line num="1011" type="stmt" count="9"/>
+      <line num="1012" type="stmt" count="7"/>
+      <line num="1013" type="stmt" count="7"/>
+      <line num="1014" type="stmt" count="2"/>
+      <line num="1015" type="stmt" count="2"/>
+      <line num="1016" type="stmt" count="2"/>
+      <line num="1018" type="stmt" count="9"/>
+      <line num="1020" type="stmt" count="9"/>
+      <line num="1021" type="stmt" count="9"/>
+      <line num="1022" type="stmt" count="9"/>
+      <line num="1023" type="stmt" count="9"/>
+      <line num="1027" type="stmt" count="9"/>
+      <line num="1038" type="method" name="createBucket" visibility="private" complexity="2" crap="6" count="0"/>
+      <line num="1039" type="stmt" count="0"/>
+      <line num="1040" type="stmt" count="0"/>
+      <line num="1043" type="stmt" count="0"/>
+      <line num="1044" type="stmt" count="0"/>
+      <line num="1045" type="stmt" count="0"/>
+      <line num="1046" type="stmt" count="0"/>
+      <line num="1047" type="stmt" count="0"/>
+      <line num="1048" type="stmt" count="0"/>
+      <line num="1049" type="stmt" count="0"/>
+      <line num="1060" type="method" name="createSubfolder" visibility="private" complexity="2" crap="6" count="0"/>
+      <line num="1062" type="stmt" count="0"/>
+      <line num="1063" type="stmt" count="0"/>
+      <line num="1066" type="stmt" count="0"/>
+      <line num="1067" type="stmt" count="0"/>
+      <line num="1068" type="stmt" count="0"/>
+      <line num="1069" type="stmt" count="0"/>
+      <line num="1071" type="stmt" count="0"/>
+      <line num="1074" type="stmt" count="0"/>
+      <line num="1075" type="stmt" count="0"/>
+      <line num="1076" type="stmt" count="0"/>
+      <line num="1077" type="stmt" count="0"/>
+      <line num="1078" type="stmt" count="0"/>
+      <line num="1079" type="stmt" count="0"/>
+      <line num="1080" type="stmt" count="0"/>
+      <line num="1091" type="method" name="deleteSubfolder" visibility="private" complexity="5" crap="30" count="0"/>
+      <line num="1093" type="stmt" count="0"/>
+      <line num="1095" type="stmt" count="0"/>
+      <line num="1096" type="stmt" count="0"/>
+      <line num="1097" type="stmt" count="0"/>
+      <line num="1098" type="stmt" count="0"/>
+      <line num="1099" type="stmt" count="0"/>
+      <line num="1100" type="stmt" count="0"/>
+      <line num="1101" type="stmt" count="0"/>
+      <line num="1104" type="stmt" count="0"/>
+      <line num="1105" type="stmt" count="0"/>
+      <line num="1106" type="stmt" count="0"/>
+      <line num="1107" type="stmt" count="0"/>
+      <line num="1108" type="stmt" count="0"/>
+      <line num="1111" type="stmt" count="0"/>
+      <line num="1112" type="stmt" count="0"/>
+      <line num="1113" type="stmt" count="0"/>
+      <line num="1123" type="method" name="determineAcl" visibility="private" complexity="4" crap="20" count="0"/>
+      <line num="1124" type="stmt" count="0"/>
+      <line num="1125" type="stmt" count="0"/>
+      <line num="1126" type="stmt" count="0"/>
+      <line num="1127" type="stmt" count="0"/>
+      <line num="1128" type="stmt" count="0"/>
+      <line num="1130" type="stmt" count="0"/>
+      <line num="1140" type="method" name="getStatTemplate" visibility="private" complexity="1" crap="1" count="10"/>
+      <line num="1141" type="stmt" count="10"/>
+      <line num="1142" type="stmt" count="10"/>
+      <line num="1143" type="stmt" count="10"/>
+      <line num="1144" type="stmt" count="10"/>
+      <line num="1145" type="stmt" count="10"/>
+      <line num="1146" type="stmt" count="10"/>
+      <line num="1147" type="stmt" count="10"/>
+      <line num="1148" type="stmt" count="10"/>
+      <line num="1149" type="stmt" count="10"/>
+      <line num="1150" type="stmt" count="10"/>
+      <line num="1151" type="stmt" count="10"/>
+      <line num="1152" type="stmt" count="10"/>
+      <line num="1153" type="stmt" count="10"/>
+      <line num="1154" type="stmt" count="10"/>
+      <line num="1155" type="stmt" count="10"/>
+      <line num="1156" type="stmt" count="10"/>
+      <line num="1157" type="stmt" count="10"/>
+      <line num="1158" type="stmt" count="10"/>
+      <line num="1159" type="stmt" count="10"/>
+      <line num="1160" type="stmt" count="10"/>
+      <line num="1161" type="stmt" count="10"/>
+      <line num="1162" type="stmt" count="10"/>
+      <line num="1163" type="stmt" count="10"/>
+      <line num="1164" type="stmt" count="10"/>
+      <line num="1165" type="stmt" count="10"/>
+      <line num="1166" type="stmt" count="10"/>
+      <line num="1167" type="stmt" count="10"/>
+      <line num="1168" type="stmt" count="10"/>
+      <line num="1181" type="method" name="boolCall" visibility="private" complexity="2" crap="2" count="14"/>
+      <line num="1183" type="stmt" count="14"/>
+      <line num="1184" type="stmt" count="9"/>
+      <line num="1185" type="stmt" count="9"/>
+      <line num="1192" type="method" name="getCacheStorage" visibility="private" complexity="3" crap="3" count="14"/>
+      <line num="1193" type="stmt" count="14"/>
+      <line num="1195" type="stmt" count="14"/>
+      <line num="1198" type="stmt" count="14"/>
+      <line num="1206" type="method" name="clearCacheKey" visibility="private" complexity="1" crap="1" count="11"/>
+      <line num="1207" type="stmt" count="11"/>
+      <line num="1208" type="stmt" count="11"/>
+      <line num="1216" type="method" name="getSize" visibility="private" complexity="3" crap="3.14" count="2"/>
+      <line num="1217" type="stmt" count="2"/>
+      <line num="1218" type="stmt" count="0"/>
+      <line num="1220" type="stmt" count="2"/>
+      <line num="1222" type="stmt" count="2"/>
+      <metrics loc="1225" ncloc="793" classes="1" methods="45" coveredmethods="18" conditionals="0" coveredconditionals="0" statements="477" coveredstatements="341" elements="522" coveredelements="359"/>
+    </file>
+    <file name="/code/inc/class-wp-cli-command.php">
+      <class name="S3_Uploads\WP_CLI_Command" namespace="global">
+        <metrics complexity="40" methods="13" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="127" coveredstatements="0" elements="140" coveredelements="0"/>
+      </class>
+      <line num="17" type="method" name="verify_api_keys" visibility="public" complexity="4" crap="20" count="0"/>
+      <line num="19" type="stmt" count="0"/>
+      <line num="20" type="stmt" count="0"/>
+      <line num="24" type="stmt" count="0"/>
+      <line num="27" type="stmt" count="0"/>
+      <line num="28" type="stmt" count="0"/>
+      <line num="31" type="stmt" count="0"/>
+      <line num="33" type="stmt" count="0"/>
+      <line num="34" type="stmt" count="0"/>
+      <line num="35" type="stmt" count="0"/>
+      <line num="36" type="stmt" count="0"/>
+      <line num="39" type="stmt" count="0"/>
+      <line num="40" type="stmt" count="0"/>
+      <line num="42" type="stmt" count="0"/>
+      <line num="45" type="stmt" count="0"/>
+      <line num="48" type="stmt" count="0"/>
+      <line num="49" type="stmt" count="0"/>
+      <line num="52" type="stmt" count="0"/>
+      <line num="53" type="stmt" count="0"/>
+      <line num="55" type="stmt" count="0"/>
+      <line num="58" type="stmt" count="0"/>
+      <line num="60" type="stmt" count="0"/>
+      <line num="63" type="method" name="get_iam_policy" visibility="private" complexity="3" crap="12" count="0"/>
+      <line num="65" type="stmt" count="0"/>
+      <line num="67" type="stmt" count="0"/>
+      <line num="69" type="stmt" count="0"/>
+      <line num="70" type="stmt" count="0"/>
+      <line num="73" type="stmt" count="0"/>
+      <line num="94" type="stmt" count="0"/>
+      <line num="101" type="stmt" count="0"/>
+      <line num="102" type="stmt" count="0"/>
+      <line num="105" type="stmt" count="0"/>
+      <line num="117" type="method" name="generate_iam_policy" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="119" type="stmt" count="0"/>
+      <line num="130" type="method" name="ls" visibility="public" complexity="5" crap="30" count="0"/>
+      <line num="132" type="stmt" count="0"/>
+      <line num="134" type="stmt" count="0"/>
+      <line num="136" type="stmt" count="0"/>
+      <line num="137" type="stmt" count="0"/>
+      <line num="140" type="stmt" count="0"/>
+      <line num="141" type="stmt" count="0"/>
+      <line num="145" type="stmt" count="0"/>
+      <line num="146" type="stmt" count="0"/>
+      <line num="147" type="stmt" count="0"/>
+      <line num="148" type="stmt" count="0"/>
+      <line num="149" type="stmt" count="0"/>
+      <line num="150" type="stmt" count="0"/>
+      <line num="152" type="stmt" count="0"/>
+      <line num="153" type="stmt" count="0"/>
+      <line num="155" type="stmt" count="0"/>
+      <line num="156" type="stmt" count="0"/>
+      <line num="168" type="method" name="cp" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="170" type="stmt" count="0"/>
+      <line num="171" type="stmt" count="0"/>
+      <line num="173" type="stmt" count="0"/>
+      <line num="174" type="stmt" count="0"/>
+      <line num="176" type="stmt" count="0"/>
+      <line num="179" type="stmt" count="0"/>
+      <line num="191" type="method" name="upload_directory" visibility="public" complexity="5" crap="30" count="0"/>
+      <line num="193" type="stmt" count="0"/>
+      <line num="194" type="stmt" count="0"/>
+      <line num="195" type="stmt" count="0"/>
+      <line num="196" type="stmt" count="0"/>
+      <line num="199" type="stmt" count="0"/>
+      <line num="200" type="stmt" count="0"/>
+      <line num="201" type="stmt" count="0"/>
+      <line num="202" type="stmt" count="0"/>
+      <line num="203" type="stmt" count="0"/>
+      <line num="204" type="stmt" count="0"/>
+      <line num="205" type="stmt" count="0"/>
+      <line num="207" type="stmt" count="0"/>
+      <line num="208" type="stmt" count="0"/>
+      <line num="209" type="stmt" count="0"/>
+      <line num="210" type="stmt" count="0"/>
+      <line num="211" type="stmt" count="0"/>
+      <line num="212" type="stmt" count="0"/>
+      <line num="213" type="stmt" count="0"/>
+      <line num="215" type="stmt" count="0"/>
+      <line num="216" type="stmt" count="0"/>
+      <line num="218" type="stmt" count="0"/>
+      <line num="219" type="stmt" count="0"/>
+      <line num="220" type="stmt" count="0"/>
+      <line num="221" type="stmt" count="0"/>
+      <line num="233" type="method" name="rm" visibility="public" complexity="6" crap="42" count="0"/>
+      <line num="235" type="stmt" count="0"/>
+      <line num="237" type="stmt" count="0"/>
+      <line num="238" type="stmt" count="0"/>
+      <line num="240" type="stmt" count="0"/>
+      <line num="241" type="stmt" count="0"/>
+      <line num="244" type="stmt" count="0"/>
+      <line num="245" type="stmt" count="0"/>
+      <line num="247" type="stmt" count="0"/>
+      <line num="248" type="stmt" count="0"/>
+      <line num="253" type="stmt" count="0"/>
+      <line num="254" type="stmt" count="0"/>
+      <line num="255" type="stmt" count="0"/>
+      <line num="256" type="stmt" count="0"/>
+      <line num="257" type="stmt" count="0"/>
+      <line num="258" type="stmt" count="0"/>
+      <line num="259" type="stmt" count="0"/>
+      <line num="260" type="stmt" count="0"/>
+      <line num="261" type="stmt" count="0"/>
+      <line num="262" type="stmt" count="0"/>
+      <line num="263" type="stmt" count="0"/>
+      <line num="265" type="stmt" count="0"/>
+      <line num="266" type="stmt" count="0"/>
+      <line num="269" type="stmt" count="0"/>
+      <line num="275" type="method" name="enable" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="276" type="stmt" count="0"/>
+      <line num="278" type="stmt" count="0"/>
+      <line num="284" type="method" name="disable" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="285" type="stmt" count="0"/>
+      <line num="287" type="stmt" count="0"/>
+      <line num="300" type="method" name="get_attachment_files" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="301" type="stmt" count="0"/>
+      <line num="314" type="method" name="set_attachment_acl" visibility="public" complexity="1" crap="2" count="0"/>
+      <line num="315" type="stmt" count="0"/>
+      <line num="316" type="stmt" count="0"/>
+      <line num="319" type="method" name="recurse_copy" visibility="private" complexity="5" crap="30" count="0"/>
+      <line num="320" type="stmt" count="0"/>
+      <line num="321" type="stmt" count="0"/>
+      <line num="322" type="stmt" count="0"/>
+      <line num="323" type="stmt" count="0"/>
+      <line num="324" type="stmt" count="0"/>
+      <line num="325" type="stmt" count="0"/>
+      <line num="327" type="stmt" count="0"/>
+      <line num="328" type="stmt" count="0"/>
+      <line num="332" type="stmt" count="0"/>
+      <line num="340" type="method" name="verify_s3_access_constants" visibility="private" complexity="5" crap="30" count="0"/>
+      <line num="341" type="stmt" count="0"/>
+      <line num="342" type="stmt" count="0"/>
+      <line num="343" type="stmt" count="0"/>
+      <line num="346" type="stmt" count="0"/>
+      <line num="347" type="stmt" count="0"/>
+      <line num="350" type="stmt" count="0"/>
+      <line num="351" type="stmt" count="0"/>
+      <line num="352" type="stmt" count="0"/>
+      <line num="353" type="stmt" count="0"/>
+      <line num="354" type="stmt" count="0"/>
+      <line num="358" type="stmt" count="0"/>
+      <metrics loc="361" ncloc="276" classes="1" methods="13" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="127" coveredstatements="0" elements="140" coveredelements="0"/>
+    </file>
+    <file name="/code/inc/namespace.php">
+      <line num="7" type="stmt" count="0"/>
+      <line num="8" type="stmt" count="0"/>
+      <line num="9" type="stmt" count="0"/>
+      <line num="12" type="stmt" count="0"/>
+      <line num="13" type="stmt" count="0"/>
+      <line num="16" type="stmt" count="0"/>
+      <line num="17" type="stmt" count="0"/>
+      <line num="20" type="stmt" count="0"/>
+      <line num="21" type="stmt" count="0"/>
+      <line num="24" type="stmt" count="0"/>
+      <line num="25" type="stmt" count="0"/>
+      <line num="28" type="stmt" count="0"/>
+      <line num="29" type="stmt" count="0"/>
+      <line num="32" type="stmt" count="0"/>
+      <line num="33" type="stmt" count="0"/>
+      <line num="36" type="stmt" count="0"/>
+      <line num="37" type="stmt" count="0"/>
+      <line num="43" type="stmt" count="0"/>
+      <line num="44" type="stmt" count="0"/>
+      <line num="45" type="stmt" count="0"/>
+      <line num="56" type="stmt" count="0"/>
+      <line num="57" type="stmt" count="0"/>
+      <line num="58" type="stmt" count="0"/>
+      <line num="61" type="stmt" count="0"/>
+      <line num="64" type="stmt" count="0"/>
+      <line num="65" type="stmt" count="0"/>
+      <line num="66" type="stmt" count="0"/>
+      <line num="69" type="stmt" count="0"/>
+      <line num="72" type="stmt" count="0"/>
+      <line num="73" type="stmt" count="0"/>
+      <line num="74" type="stmt" count="0"/>
+      <line num="77" type="stmt" count="0"/>
+      <line num="80" type="stmt" count="0"/>
+      <line num="89" type="stmt" count="0"/>
+      <line num="90" type="stmt" count="0"/>
+      <line num="91" type="stmt" count="0"/>
+      <line num="92" type="stmt" count="0"/>
+      <line num="101" type="stmt" count="0"/>
+      <line num="102" type="stmt" count="0"/>
+      <line num="103" type="stmt" count="0"/>
+      <line num="114" type="stmt" count="0"/>
+      <line num="115" type="stmt" count="0"/>
+      <line num="116" type="stmt" count="0"/>
+      <line num="117" type="stmt" count="0"/>
+      <line num="130" type="stmt" count="1"/>
+      <line num="132" type="stmt" count="1"/>
+      <line num="133" type="stmt" count="1"/>
+      <line num="136" type="stmt" count="1"/>
+      <line num="143" type="stmt" count="0"/>
+      <line num="150" type="stmt" count="0"/>
+      <line num="165" type="stmt" count="0"/>
+      <line num="166" type="stmt" count="0"/>
+      <line num="168" type="stmt" count="0"/>
+      <line num="169" type="stmt" count="0"/>
+      <line num="170" type="stmt" count="0"/>
+      <line num="171" type="stmt" count="0"/>
+      <line num="173" type="stmt" count="0"/>
+      <line num="184" type="stmt" count="0"/>
+      <line num="185" type="stmt" count="0"/>
+      <line num="187" type="stmt" count="0"/>
+      <line num="188" type="stmt" count="0"/>
+      <line num="189" type="stmt" count="0"/>
+      <line num="190" type="stmt" count="0"/>
+      <line num="191" type="stmt" count="0"/>
+      <metrics loc="193" ncloc="133" classes="0" methods="0" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="64" coveredstatements="4" elements="64" coveredelements="4"/>
+    </file>
+    <file name="/code/s3-uploads.php">
+      <line num="11" type="stmt" count="0"/>
+      <line num="13" type="stmt" count="0"/>
+      <metrics loc="14" ncloc="7" classes="0" methods="0" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="2" coveredstatements="0" elements="2" coveredelements="0"/>
+    </file>
+    <metrics files="7" loc="3206" ncloc="1992" classes="5" methods="120" coveredmethods="29" conditionals="0" coveredconditionals="0" statements="1042" coveredstatements="457" elements="1162" coveredelements="486"/>
+  </project>
+</coverage>

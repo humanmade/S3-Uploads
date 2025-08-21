@@ -25,18 +25,25 @@
 		"aws/aws-sdk-php": "~3.18"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "7.5",
+		"phpunit/phpunit": "^7.5 || ^8.0 || ^9.0",
 		"pcov/clobber": "^2.0",
 		"humanmade/psalm-plugin-wordpress": "^1.0",
 		"yoast/phpunit-polyfills": "^4.0"
 	},
 	"scripts": {
 		"test": "./tests/run-tests.sh",
+		"test:matrix": "./tests/run-matrix-tests.sh",
+		"test:quick": "./tests/run-matrix-tests.sh --quick",
+		"test:validate-tags": "./tests/validate-tags.sh",
+		"test:validate-config": "./tests/test-matrix-config.sh",
 		"check-types": "./vendor/bin/psalm"
 	},
 	"config": {
 		"allow-plugins": {
 			"composer/installers": true
+		},
+		"platform": {
+			"ext-pcov": "1.0.0"
 		}
 	}
 }
