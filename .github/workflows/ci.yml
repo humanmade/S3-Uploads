@@ -65,6 +65,10 @@ jobs:
       - name: Run tests
         run: PLUGIN_TESTER_TAG=${{ matrix.tag }} ./tests/run-tests.sh --coverage-clover=coverage-${{ matrix.tag }}.xml
 
+      - name: Run Psalm (PHP 7.4 only)
+        if: matrix.php == '7.4'
+        run: docker run --rm -v $PWD:/code --entrypoint='' humanmade/plugin-tester:${{ matrix.tag }} composer check-types
+
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash) -f coverage-${{ matrix.tag }}.xml -F php${{ matrix.php }}_wp${{ matrix.wp }}
         env:
