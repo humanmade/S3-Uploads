@@ -90,7 +90,7 @@ class Local_Stream_Wrapper {
 	 * @param array{extensions?: string[], mimetypes: array<string,string>} $mapping
 	 * @return string
 	 */
-	static function getMimeType( string $uri, array $mapping = null ) : string {
+	static function getMimeType( string $uri, ?array $mapping = null ) : string {
 
 		$extension = '';
 		$file_parts = explode( '.', basename( $uri ) );
@@ -136,14 +136,14 @@ class Local_Stream_Wrapper {
 	 *   If $uri is not set, returns the canonical absolute path of the URI
 	 *   previously. If $uri is set and valid for this class, returns its canonical absolute
 	 *   path, as determined by the realpath() function. If $uri is set but not
-	 *   valid, returns FALSE.
+	 *   valid, returns empty string.
 	 */
-	protected function getLocalPath( $uri = null ) {
+	protected function getLocalPath( $uri = null ) : string {
 		if ( ! isset( $uri ) ) {
 			$uri = $this->uri;
 		}
 		$path = $this->getDirectoryPath() . '/' . $this->getTarget( $uri );
-		$realpath = $path;
+		$realpath = str_replace( '/', DIRECTORY_SEPARATOR, $path ); // ensure check against realpath passes on Windows machines
 
 		$directory = realpath( $this->getDirectoryPath() );
 

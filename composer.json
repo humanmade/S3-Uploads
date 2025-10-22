@@ -11,9 +11,8 @@
 	},
 	"authors": [
 		{
-			"name":"Human Made Limited",
-			"email":"support@humanmade.co.uk",
-			"homepage":"http://hmn.md/"
+			"name": "Human Made",
+			"homepage": "https://humanmade.com/"
 		}
 	],
 	"support": {
@@ -28,10 +27,16 @@
 	"require-dev": {
 		"phpunit/phpunit": "7.5",
 		"pcov/clobber": "^2.0",
-		"humanmade/psalm-plugin-wordpress": "^1.0"
+		"humanmade/psalm-plugin-wordpress": "^1.0",
+		"yoast/phpunit-polyfills": "^4.0"
 	},
 	"scripts": {
 		"test": "./tests/run-tests.sh",
 		"check-types": "./vendor/bin/psalm"
+	},
+	"config": {
+		"allow-plugins": {
+			"composer/installers": true
+		}
 	}
 }

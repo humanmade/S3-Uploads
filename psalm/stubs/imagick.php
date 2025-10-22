@@ -1,11 +1,13 @@
 <?php
 
-/**
- * @method Imagick clone() (PECL imagick 2.0.0)<br/>Makes an exact copy of the Imagick object
- * @link https://php.net/manual/en/class.imagick.php
- */
-class Imagick implements Iterator, Countable {
+namespace {
+	/**
+	 * @method Imagick clone() (PECL imagick 2.0.0)<br/>Makes an exact copy of the Imagick object
+	 * @link https://php.net/manual/en/class.imagick.php
+	 */
+	class Imagick implements Iterator, Countable {
 
+	}
 }
 
 namespace WP_CLI {
