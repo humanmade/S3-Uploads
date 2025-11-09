@@ -29,6 +29,35 @@ class S3_Uploads_Imagify {
 	}
 
 	/*
+	 * Get WebP conversion options with configurable quality.
+	 * Quality can be set via S3_UPLOADS_WEBP_QUALITY constant (default: 75).
+	 * Lower quality = smaller file size, higher quality = larger file size.
+	 * Valid range: 0-100
+	 * 
+	 * Note: auto-filter is disabled by default as it's 5-10x slower.
+	 * Enable it via S3_UPLOADS_WEBP_AUTO_FILTER constant if maximum compression is needed.
+	 */
+	private function get_webp_options() {
+		$quality = defined( 'S3_UPLOADS_WEBP_QUALITY' ) ? (int) S3_UPLOADS_WEBP_QUALITY : 65;
+		// Ensure quality is within valid range
+		$quality = max( 0, min( 100, $quality ) );
+
+		$options = array(
+			'quality' => $quality,
+			'method' => 6, // Method 6 provides best compression (slower but smaller files)
+			'encoding' => 'lossy', // Use lossy encoding for smaller file sizes
+		);
+
+		// Auto-filter provides better compression but is 5-10x slower
+		// Only enable if explicitly requested
+		if ( defined( 'S3_UPLOADS_WEBP_AUTO_FILTER' ) && S3_UPLOADS_WEBP_AUTO_FILTER ) {
+			$options['auto-filter'] = true;
+		}
+
+		return $options;
+	}
+
+	/*
 	* Add local and backup path to $upload_dir.
 	*/
 	public function set_upload_dir() {
@@ -386,11 +415,12 @@ class S3_Uploads_Imagify {
 
 	public function generate_missing_webp( $files, $attachment_id ) {
 		if ( $files['data']['is_image'] && isset( $files['sizes'] ) && $files['sizes'] ) {
+			$webp_options = $this->get_webp_options();
 			foreach ( $files['sizes'] as $file ) {
 				$ext = pathinfo( $file['local'], PATHINFO_EXTENSION );
 				if ( $ext === 'webp' && ! file_exists( $file['from'] ) ) {
 					$file_name = str_replace( '.webp', '', $file['local'] );
-					Stack::convert( $file_name, $file['local'] );
+					Stack::convert( $file_name, $file['local'], $webp_options );
 				}
 			}
 		}
@@ -414,10 +444,11 @@ class S3_Uploads_Imagify {
 
 	public function create_webp_files( $files ) {
 		if ( $files['data']['is_image'] && isset( $files['sizes'] ) && $files['sizes'] ) {
+			$webp_options = $this->get_webp_options();
 			foreach ( $files['sizes'] as $key => $file ) {
 				$webp_file_s3 = $file['s3'] . '.webp';
 				$webp_file    = $file['local'] . '.webp';
-				Stack::convert( $file['local'], $webp_file );
+				Stack::convert( $file['local'], $webp_file, $webp_options );
 				$files['sizes'][ $key . '_webp' ] = array(
 					'local' => $webp_file,
 					's3'    => $webp_file_s3,
