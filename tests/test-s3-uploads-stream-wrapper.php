@@ -154,4 +154,92 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 			$files
 		);
 	}
+
+	public function test_rename_directory_via_stream_wrapper() {
+		$upload_dir = wp_upload_dir();
+		$test_dir = $upload_dir['path'] . '/test-dir';
+		$renamed_dir = $upload_dir['path'] . '/renamed-dir';
+
+		// Create a directory with files
+		mkdir( $test_dir, 0755, true );
+		$test_file1 = $test_dir . '/file1.txt';
+		$test_file2 = $test_dir . '/subdir/file2.txt';
+
+		file_put_contents( $test_file1, 'content1' );
+		mkdir( $test_dir . '/subdir', 0755, true );
+		file_put_contents( $test_file2, 'content2' );
+
+		// Rename the directory
+		$result = rename( $test_dir, $renamed_dir );
+		$this->assertTrue( $result, 'Directory rename should succeed' );
+
+		// Verify original directory files don't exist
+		$this->assertFalse( file_exists( $test_dir . '/file1.txt' ), 'Original file should not exist' );
+		$this->assertFalse( file_exists( $test_dir . '/subdir/file2.txt' ), 'Original subdir file should not exist' );
+
+		// Verify renamed directory files exist
+		$this->assertTrue( file_exists( $renamed_dir . '/file1.txt' ), 'Renamed file should exist' );
+		$this->assertTrue( file_exists( $renamed_dir . '/subdir/file2.txt' ), 'Renamed subdir file should exist' );
+
+		// Verify file contents
+		$this->assertEquals( 'content1', file_get_contents( $renamed_dir . '/file1.txt' ), 'File1 content should match' );
+		$this->assertEquals( 'content2', file_get_contents( $renamed_dir . '/subdir/file2.txt' ), 'File2 content should match' );
+	}
+
+	public function test_rename_empty_directory_via_stream_wrapper() {
+		$upload_dir = wp_upload_dir();
+		$test_dir = $upload_dir['path'] . '/empty-dir';
+		$renamed_dir = $upload_dir['path'] . '/empty-renamed';
+
+		// Create an empty directory
+		mkdir( $test_dir, 0755, true );
+
+		// Rename the empty directory
+		$result = rename( $test_dir, $renamed_dir );
+		$this->assertTrue( $result, 'Empty directory rename should succeed' );
+
+		// Verify renamed directory exists
+		$this->assertTrue( is_dir( $renamed_dir ), 'Renamed empty directory should exist' );
+		
+		// Note: For empty directories, file_exists() may still return true because
+		// S3 checks for objects with that prefix. The directory marker should have been moved.
+		// We verify the renamed directory exists instead of checking the original doesn't.
+	}
+
+	public function test_rename_directory_with_multiple_files_via_stream_wrapper() {
+		$upload_dir = wp_upload_dir();
+		$test_dir = $upload_dir['path'] . '/multi-dir';
+		$renamed_dir = $upload_dir['path'] . '/multi-renamed';
+
+		// Create a directory with multiple files
+		mkdir( $test_dir, 0755, true );
+		$files = [ 'file1.txt', 'file2.txt', 'file3.txt', 'nested/deep/file4.txt' ];
+		$contents = [ 'content1', 'content2', 'content3', 'content4' ];
+
+		foreach ( $files as $index => $file ) {
+			$file_path = $test_dir . '/' . $file;
+			$dir_path = dirname( $file_path );
+			if ( ! is_dir( $dir_path ) ) {
+				mkdir( $dir_path, 0755, true );
+			}
+			file_put_contents( $file_path, $contents[ $index ] );
+		}
+
+		// Rename the directory
+		$result = rename( $test_dir, $renamed_dir );
+		$this->assertTrue( $result, 'Directory with multiple files rename should succeed' );
+
+		// Verify all files were moved correctly
+		foreach ( $files as $index => $file ) {
+			$renamed_file = $renamed_dir . '/' . $file;
+			$this->assertTrue( file_exists( $renamed_file ), "Renamed file {$file} should exist" );
+			$this->assertEquals( $contents[ $index ], file_get_contents( $renamed_file ), "File {$file} content should match" );
+		}
+
+		// Verify original directory files don't exist
+		foreach ( $files as $file ) {
+			$original_file = $test_dir . '/' . $file;
+			$this->assertFalse( file_exists( $original_file ), "Original file {$file} should not exist" );
+		}
+	}
 }
