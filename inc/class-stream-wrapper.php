@@ -738,13 +738,12 @@ class Stream_Wrapper {
 	}
 
 	/**
-	 * Called in response to rename() to rename a file or directory. Currently
-	 * only supports renaming objects.
+	 * Called in response to rename() to rename a file or directory.
 	 *
-	 * @param string $path_from the path to the file to rename
-	 * @param string $path_to   the new path to the file
+	 * @param string $path_from the path to the file or directory to rename
+	 * @param string $path_to   the new path to the file or directory
 	 *
-	 * @return bool true if file was successfully renamed
+	 * @return bool true if file or directory was successfully renamed
 	 * @link http://www.php.net/manual/en/function.rename.php
 	 */
 	public function rename( $path_from, $path_to ) {
@@ -764,10 +763,69 @@ class Stream_Wrapper {
 		}
 
 		return $this->boolCall(
-			function () use ( $partsFrom, $partsTo ) {
+			function () use ( $partsFrom, $partsTo, $path_from, $path_to ) {
 				$options = $this->getOptions( true );
-				// Copy the object and allow overriding default parameters if
-				// desired, but by default copy metadata
+				$client = $this->getClient();
+
+				// Normalize keys - ensure trailing slash for directories
+				$fromKey = rtrim( $partsFrom['Key'], '/' );
+				$toKey = rtrim( $partsTo['Key'], '/' );
+
+				$existsAsFile = $client->doesObjectExistV2(
+					$partsFrom['Bucket'],
+					$partsFrom['Key'],
+					false,
+					$options
+				);
+
+				$isDirectory = ! $existsAsFile && $this->isDirectoryPrefix( $partsFrom['Bucket'], $fromKey );
+
+				if ( $isDirectory ) {
+					$fromPrefix = $fromKey . '/';
+					$toPrefix = $toKey . '/';
+
+					$paginator = $client->getPaginator( 'ListObjectsV2', [
+						'Bucket' => $partsFrom['Bucket'],
+						'Prefix' => $fromPrefix,
+					] );
+
+					$objectsToDelete = [];
+					foreach ( $paginator as $result ) {
+						if ( ! isset( $result['Contents'] ) ) {
+							continue;
+						}
+
+						foreach ( $result['Contents'] as $object ) {
+							$oldKey = $object['Key'];
+							$newKey = str_replace( $fromPrefix, $toPrefix, $oldKey );
+
+							$client->copy(
+								$partsFrom['Bucket'],
+								$oldKey,
+								$partsTo['Bucket'],
+								$newKey,
+								isset( $options['acl'] ) ? $options['acl'] : 'private',
+								$options
+							);
+
+							$objectsToDelete[] = $oldKey;
+
+							$this->clearCacheKey( "{$this->protocol}://{$partsFrom['Bucket']}/{$oldKey}" );
+							$this->clearCacheKey( "{$this->protocol}://{$partsTo['Bucket']}/{$newKey}" );
+						}
+					}
+
+					// Delete all original objects after successful copy
+					foreach ( $objectsToDelete as $key ) {
+						$client->deleteObject( [
+							'Bucket' => $partsFrom['Bucket'],
+							'Key'    => $key,
+						] + $options );
+					}
+
+					return true;
+				}
+
 				$this->getClient()->copy(
 					$partsFrom['Bucket'],
 					$partsFrom['Key'],
@@ -1111,6 +1169,24 @@ class Stream_Wrapper {
 		return $result['CommonPrefixes']
 			? $this->triggerError( 'Subfolder contains nested folders' )
 			: true;
+	}
+
+	/**
+	 * Check if a key represents a directory prefix (has objects with that prefix).
+	 *
+	 * @param string $bucket The bucket name
+	 * @param string $key The key to check (without trailing slash)
+	 * @return bool True if the key is a directory prefix
+	 */
+	private function isDirectoryPrefix( string $bucket, string $key ) : bool {
+		$prefix = $key . '/';
+		$result = $this->getClient()->listObjectsV2( [
+			'Bucket'  => $bucket,
+			'Prefix'  => $prefix,
+			'MaxKeys' => 1,
+		] );
+
+		return ! empty( $result['Contents'] ) || ! empty( $result['CommonPrefixes'] );
 	}
 
 	/**
