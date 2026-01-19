@@ -242,4 +242,98 @@ class Test_S3_Uploads_Stream_Wrapper extends WP_UnitTestCase {
 			$this->assertFalse( file_exists( $original_file ), "Original file {$file} should not exist" );
 		}
 	}
+
+	public function test_encode_copy_source_encodes_file_names() {
+		$wrapper = new S3_Uploads\Stream_Wrapper();
+		$reflection = new ReflectionClass( $wrapper );
+		$method = $reflection->getMethod( 'encodeCopySource' );
+		$method->setAccessible( true );
+
+		$bucket = 'test-bucket';
+
+		// Test 1: File with spaces (the main problematic case)
+		$key1 = 'Vector Strips Module I with expressions 2_Page_1.jpg';
+		$result1 = $method->invoke( $wrapper, $bucket, $key1 );
+		$this->assertStringContainsString( '%20', $result1, 'Spaces must be URL-encoded as %20' );
+		$this->assertStringNotContainsString( ' ', $result1, 'CopySource should not contain unencoded spaces' );
+		$expected1 = 'test-bucket/Vector%20Strips%20Module%20I%20with%20expressions%202_Page_1.jpg';
+		$this->assertEquals( $expected1, $result1, 'CopySource must have spaces properly encoded' );
+
+		// Test 2: File with special characters (parentheses)
+		$key2 = 'file with spaces (1).txt';
+		$result2 = $method->invoke( $wrapper, $bucket, $key2 );
+		$this->assertStringContainsString( '%28', $result2, 'Opening parenthesis must be encoded' );
+		$this->assertStringContainsString( '%29', $result2, 'Closing parenthesis must be encoded' );
+		$this->assertStringNotContainsString( '(', $result2, 'CopySource should not contain unencoded opening parenthesis' );
+		$this->assertStringNotContainsString( ')', $result2, 'CopySource should not contain unencoded closing parenthesis' );
+
+		// Test 3: File in subdirectory - slashes must be preserved
+		$key3 = 'subdir/file with spaces.txt';
+		$result3 = $method->invoke( $wrapper, $bucket, $key3 );
+		$this->assertStringContainsString( '/', $result3, 'Slashes must be preserved in CopySource' );
+		$this->assertStringNotContainsString( '%2F', $result3, 'Slashes must NOT be encoded as %2F' );
+		$this->assertStringContainsString( '%20', $result3, 'Spaces in path segments must be encoded' );
+	}
+
+	/**
+	 * @note Amazon minio does not replicates the issue with naming files but it happens in AWS S3.
+	 */
+	public function test_rename_directory_implementation_uses_encode_copy_source() {
+		// Read the source code to verify encodeCopySource is used
+		$source_file = dirname( dirname( __FILE__ ) ) . '/inc/class-stream-wrapper.php';
+		$source_code = file_get_contents( $source_file );
+		
+		// Find the renameDirectory method
+		$rename_directory_start = strpos( $source_code, 'private function renameDirectory' );
+		$this->assertNotFalse( $rename_directory_start, 'renameDirectory method must exist' );
+		
+		// Find the end of the method (next private/public function or closing brace at class level)
+		$method_code = substr( $source_code, $rename_directory_start );
+		$next_function = strpos( $method_code, "\n\tprivate function " );
+		$next_public = strpos( $method_code, "\n\tpublic function " );
+		$end_pos = false;
+		if ( $next_function !== false ) {
+			$end_pos = $next_function;
+		}
+		if ( $next_public !== false && ( $end_pos === false || $next_public < $end_pos ) ) {
+			$end_pos = $next_public;
+		}
+		if ( $end_pos !== false ) {
+			$method_code = substr( $method_code, 0, $end_pos );
+		}
+		
+		// Verify encodeCopySource is called in the method
+		$this->assertStringContainsString( 
+			'encodeCopySource', 
+			$method_code, 
+			'renameDirectory must call encodeCopySource for CopySource parameter. Without this, files with spaces will fail.'
+		);
+		
+		// Verify it's used for the CopySource parameter, not just mentioned
+		$this->assertStringContainsString( 
+			"'CopySource' => \$this->encodeCopySource", 
+			$method_code, 
+			'CopySource parameter must use encodeCopySource method'
+		);
+	}
+
+	/**
+	 * @note Amazon minio does not replicates the issue with naming files but it happens in AWS S3.
+	 */
+	public function test_rename_file_implementation_consistency() {
+		// This test ensures we're aware of how single file renames work
+		// The copy() method may handle encoding, but directory renames definitely need it
+		$upload_dir = wp_upload_dir();
+		$test_file = $upload_dir['path'] . '/Vector Strips Module I with expressions 2_Page_1.jpg';
+		$renamed_file = $upload_dir['path'] . '/Vector Strips Module I with expressions 2_Page_1_renamed.jpg';
+
+		// Create and rename the file
+		file_put_contents( $test_file, 'test content' );
+		$result = rename( $test_file, $renamed_file );
+		
+		// This should work - if it doesn't, there's a problem
+		$this->assertTrue( $result, 'File rename with spaces should succeed' );
+		$this->assertTrue( file_exists( $renamed_file ), 'Renamed file should exist' );
+		$this->assertFalse( file_exists( $test_file ), 'Original file should not exist' );
+	}
 }

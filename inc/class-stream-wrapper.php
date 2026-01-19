@@ -842,7 +842,7 @@ class Stream_Wrapper {
 				$copy_commands[] = $client->getCommand( 'CopyObject', [
 					'Bucket'     => $parts_to['Bucket'],
 					'Key'        => $new_key,
-					'CopySource' => "{$parts_from['Bucket']}/{$old_key}",
+					'CopySource' => $this->encodeCopySource( $parts_from['Bucket'], $old_key ),
 					'ACL'        => $acl,
 				] + $options );
 
@@ -859,7 +859,7 @@ class Stream_Wrapper {
 			$copy_commands[] = $client->getCommand( 'CopyObject', [
 				'Bucket'     => $parts_to['Bucket'],
 				'Key'        => $directory_marker_new_key,
-				'CopySource' => "{$parts_from['Bucket']}/{$directory_marker_key}",
+				'CopySource' => $this->encodeCopySource( $parts_from['Bucket'], $directory_marker_key ),
 				'ACL'        => $acl,
 			] + $options );
 
@@ -1383,5 +1383,21 @@ class Stream_Wrapper {
 		$size = $this->body->getSize();
 
 		return $size !== null ? $size : $this->size;
+	}
+
+	/**
+	 * Encode a key for use in CopySource parameter.
+	 * URL-encodes each path segment separately to preserve slashes.
+	 *
+	 * @param string $bucket The bucket name
+	 * @param string $key The object key (may contain spaces, special chars, etc.)
+	 * @return string The encoded CopySource string (bucket/encoded-key)
+	 */
+	private function encodeCopySource( string $bucket, string $key ) : string {
+		$parts = explode( '/', $key );
+		$encoded_parts = array_map( 'rawurlencode', $parts );
+		$encoded_key = implode( '/', $encoded_parts );
+
+		return "{$bucket}/{$encoded_key}";
 	}
 }
