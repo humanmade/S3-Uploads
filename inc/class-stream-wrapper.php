@@ -3,6 +3,7 @@
 namespace S3_Uploads;
 
 use Aws\CacheInterface;
+use Aws\CommandPool;
 use Aws\LruArrayCache;
 use Aws\Result;
 use Aws\S3\Exception\S3Exception;
@@ -738,25 +739,24 @@ class Stream_Wrapper {
 	}
 
 	/**
-	 * Called in response to rename() to rename a file or directory. Currently
-	 * only supports renaming objects.
+	 * Called in response to rename() to rename a file or directory.
 	 *
-	 * @param string $path_from the path to the file to rename
-	 * @param string $path_to   the new path to the file
+	 * @param string $path_from the path to the file or directory to rename
+	 * @param string $path_to   the new path to the file or directory
 	 *
-	 * @return bool true if file was successfully renamed
+	 * @return bool true if file or directory was successfully renamed
 	 * @link http://www.php.net/manual/en/function.rename.php
 	 */
 	public function rename( $path_from, $path_to ) {
 		// PHP will not allow rename across wrapper types, so we can safely
 		// assume $path_from and $path_to have the same protocol
 		$this->initProtocol( $path_from );
-		$partsFrom = $this->withPath( $path_from );
-		$partsTo = $this->withPath( $path_to );
+		$parts_from = $this->withPath( $path_from );
+		$parts_to = $this->withPath( $path_to );
 		$this->clearCacheKey( $path_from );
 		$this->clearCacheKey( $path_to );
 
-		if ( ! $partsFrom['Key'] || ! $partsTo['Key'] ) {
+		if ( ! $parts_from['Key'] || ! $parts_to['Key'] ) {
 			return $this->triggerError(
 				'The Amazon S3 stream wrapper only '
 				. 'supports copying objects'
@@ -764,28 +764,173 @@ class Stream_Wrapper {
 		}
 
 		return $this->boolCall(
-			function () use ( $partsFrom, $partsTo ) {
+			function () use ( $parts_from, $parts_to ) {
 				$options = $this->getOptions( true );
-				// Copy the object and allow overriding default parameters if
-				// desired, but by default copy metadata
-				$this->getClient()->copy(
-					$partsFrom['Bucket'],
-					$partsFrom['Key'],
-					$partsTo['Bucket'],
-					$partsTo['Key'],
-					isset( $options['acl'] ) ? $options['acl'] : 'private',
+				$client = $this->getClient();
+				$acl = isset( $options['acl'] ) ? $options['acl'] : 'private';
+
+				// Normalize keys - ensure trailing slash for directories
+				$from_key = rtrim( $parts_from['Key'], '/' );
+				$to_key = rtrim( $parts_to['Key'], '/' );
+
+				$existsAsFile = $client->doesObjectExistV2(
+					$parts_from['Bucket'],
+					$parts_from['Key'],
+					false,
 					$options
 				);
-				// Delete the original object
-				$this->getClient()->deleteObject(
-					[
-						'Bucket' => $partsFrom['Bucket'],
-						'Key'    => $partsFrom['Key'],
-					] + $options
-				);
-				return true;
+
+				$isDirectory = ! $existsAsFile && $this->isDirectoryPrefix( $parts_from['Bucket'], $from_key );
+
+				if ( $isDirectory ) {
+					return $this->renameDirectory( $client, $parts_from, $parts_to, $from_key, $to_key, $acl, $options );
+				}
+
+				return $this->renameFile( $client, $parts_from, $parts_to, $acl, $options );
 			}
 		);
+	}
+
+	/**
+	 * Rename a directory by copying all objects and then deleting originals.
+	 * Uses batch operations for better S3 performance.
+	 *
+	 * @param S3ClientInterface $client    S3 client instance
+	 * @param array{Bucket: string, Key: string} $parts_from Source path parts
+	 * @param array{Bucket: string, Key: string} $parts_to   Destination path parts
+	 * @param string            $from_key   Normalized source key
+	 * @param string            $to_key     Normalized destination key
+	 * @param string            $acl       ACL for copied objects
+	 * @param array             $options   Additional S3 options
+	 * @return bool True on success
+	 */
+	private function renameDirectory(
+		S3ClientInterface $client,
+		array $parts_from,
+		array $parts_to,
+		string $from_key,
+		string $to_key,
+		string $acl,
+		array $options
+	) : bool {
+		$from_prefix = $from_key . '/';
+		$to_prefix = $to_key . '/';
+		$copy_commands = [];
+		$objects_to_delete = [];
+		$cache_keys_to_clear = [];
+
+		$paginator = $client->getPaginator( 'ListObjectsV2', [
+			'Bucket' => $parts_from['Bucket'],
+			'Prefix' => $from_prefix,
+		] );
+
+		foreach ( $paginator as $result ) {
+			if ( ! isset( $result['Contents'] ) || ! is_array( $result['Contents'] ) ) {
+				continue;
+			}
+
+			/** @var list<array{Key: string}> $contents */
+			$contents = $result['Contents'];
+			foreach ( $contents as $object ) {
+				/** @var array{Key: string} $object */
+				/** @var string $old_key */
+				$old_key = $object['Key'];
+				/** @var string $new_key */
+				$new_key = str_replace( $from_prefix, $to_prefix, $old_key );
+
+				// Prepare copy command for batch execution
+				$copy_commands[] = $client->getCommand( 'CopyObject', [
+					'Bucket'     => $parts_to['Bucket'],
+					'Key'        => $new_key,
+					'CopySource' => $this->encodeCopySource( $parts_from['Bucket'], $old_key ),
+					'ACL'        => $acl,
+				] + $options );
+
+				$objects_to_delete[] = [ 'Key' => $old_key ];
+				$cache_keys_to_clear[] = "{$this->protocol}://{$parts_from['Bucket']}/{$old_key}";
+				$cache_keys_to_clear[] = "{$this->protocol}://{$parts_to['Bucket']}/{$new_key}";
+			}
+		}
+
+		// Handle directory marker (empty object with key ending in "/") if it exists
+		$directory_marker_key = $from_prefix;
+		if ( $client->doesObjectExistV2( $parts_from['Bucket'], $directory_marker_key, false, $options ) ) {
+			$directory_marker_new_key = $to_prefix;
+			$copy_commands[] = $client->getCommand( 'CopyObject', [
+				'Bucket'     => $parts_to['Bucket'],
+				'Key'        => $directory_marker_new_key,
+				'CopySource' => $this->encodeCopySource( $parts_from['Bucket'], $directory_marker_key ),
+				'ACL'        => $acl,
+			] + $options );
+
+			$objects_to_delete[] = [ 'Key' => $directory_marker_key ];
+			$cache_keys_to_clear[] = "{$this->protocol}://{$parts_from['Bucket']}/{$directory_marker_key}";
+			$cache_keys_to_clear[] = "{$this->protocol}://{$parts_to['Bucket']}/{$directory_marker_new_key}";
+		}
+
+		if ( empty( $copy_commands ) ) {
+			return true;
+		}
+
+		// Execute all copies in parallel using CommandPool
+		CommandPool::batch( $client, $copy_commands );
+
+		// Clear cache for all affected keys
+		foreach ( $cache_keys_to_clear as $cache_key ) {
+			$this->clearCacheKey( $cache_key );
+		}
+
+		// Delete all original objects using batch deleteObjects (up to 1000 per request)
+		$max_delete_batch = 1000;
+		$delete_batches = array_chunk( $objects_to_delete, $max_delete_batch );
+
+		foreach ( $delete_batches as $delete_batch ) {
+			$client->deleteObjects( [
+				'Bucket' => $parts_from['Bucket'],
+				'Delete' => [
+					'Objects' => $delete_batch,
+				],
+			] + $options );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Rename a single file by copying and then deleting the original.
+	 *
+	 * @param S3ClientInterface $client    S3 client instance
+	 * @param array{Bucket: string, Key: string} $parts_from Source path parts
+	 * @param array{Bucket: string, Key: string} $parts_to   Destination path parts
+	 * @param string            $acl       ACL for copied object
+	 * @param array             $options   Additional S3 options
+	 * @return bool True on success
+	 */
+	private function renameFile(
+		S3ClientInterface $client,
+		array $parts_from,
+		array $parts_to,
+		string $acl,
+		array $options
+	) : bool {
+		$client->copy(
+			$parts_from['Bucket'],
+			$parts_from['Key'],
+			$parts_to['Bucket'],
+			$parts_to['Key'],
+			$acl,
+			$options
+		);
+
+		$client->deleteObject( [
+			'Bucket' => $parts_from['Bucket'],
+			'Key'    => $parts_from['Key'],
+		] + $options );
+
+		$this->clearCacheKey( "{$this->protocol}://{$parts_from['Bucket']}/{$parts_from['Key']}" );
+		$this->clearCacheKey( "{$this->protocol}://{$parts_to['Bucket']}/{$parts_to['Key']}" );
+
+		return true;
 	}
 
 	public function stream_cast( int $cast_as ) : bool {
@@ -1114,6 +1259,24 @@ class Stream_Wrapper {
 	}
 
 	/**
+	 * Check if a key represents a directory prefix (has objects with that prefix).
+	 *
+	 * @param string $bucket The bucket name
+	 * @param string $key The key to check (without trailing slash)
+	 * @return bool True if the key is a directory prefix
+	 */
+	private function isDirectoryPrefix( string $bucket, string $key ) : bool {
+		$prefix = $key . '/';
+		$result = $this->getClient()->listObjectsV2( [
+			'Bucket'  => $bucket,
+			'Prefix'  => $prefix,
+			'MaxKeys' => 1,
+		] );
+
+		return ! empty( $result['Contents'] ) || ! empty( $result['CommonPrefixes'] );
+	}
+
+	/**
 	 * Determine the most appropriate ACL based on a file mode.
 	 *
 	 * @param int $mode File mode
@@ -1220,5 +1383,21 @@ class Stream_Wrapper {
 		$size = $this->body->getSize();
 
 		return $size !== null ? $size : $this->size;
+	}
+
+	/**
+	 * Encode a key for use in CopySource parameter.
+	 * URL-encodes each path segment separately to preserve slashes.
+	 *
+	 * @param string $bucket The bucket name
+	 * @param string $key The object key (may contain spaces, special chars, etc.)
+	 * @return string The encoded CopySource string (bucket/encoded-key)
+	 */
+	private function encodeCopySource( string $bucket, string $key ) : string {
+		$parts = explode( '/', $key );
+		$encoded_parts = array_map( 'rawurlencode', $parts );
+		$encoded_key = implode( '/', $encoded_parts );
+
+		return "{$bucket}/{$encoded_key}";
 	}
 }
