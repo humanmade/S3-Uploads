@@ -22,7 +22,7 @@
 	"type": "wordpress-plugin",
 	"require": {
 		"composer/installers": "~1.0 || ^2.0",
-		"aws/aws-sdk-php": "~3.18"
+		"aws/aws-sdk-php": "~3.273.6"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "7.5",
