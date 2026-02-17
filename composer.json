@@ -7,7 +7,7 @@
 	],
 	"license": "GPL-2.0+",
 	"autoload": {
-		"classmap": [ "./inc" ]
+		"classmap": [ "inc/" ]
 	},
 	"authors": [
 		{
