@@ -546,6 +546,46 @@ class Plugin {
 	}
 
 	/**
+	 * Retrieve the ACL (Access Control List) for an attachments files.
+	 *
+	 * @param integer $attachment_id
+	 * @return array|WP_Error
+	 */
+	public function get_attachment_files_acl( int $attachment_id ) {
+		$files = static::get_attachment_files( $attachment_id );
+		$locations = array_map( [ $this, 'get_s3_location_for_path' ], $files );
+		// Remove any null items in the array from get_s3_location_for_path().
+		$locations = array_filter( $locations );
+		$s3 = $this->s3();
+		$commands = [];
+		foreach ( $locations as $location ) {
+			$commands[] = $s3->getCommand( 'getObjectAcl', [
+				'Bucket' => $location['bucket'],
+				'Key' => $location['key'],
+			] );
+		}
+
+		$results = [];
+
+		try {
+			$results = Aws\CommandPool::batch( $s3, $commands );
+		} catch ( Exception $e ) {
+			return new WP_Error( $e->getCode(), $e->getMessage() );
+		}
+
+		/**
+		 * Fires after ACL of files of an attachment is retrieved.
+		 *
+		 * @param int $attachment_id Attachment whose ACL has been requested.
+		 * @param array $results The ACL results.
+		 * @psalm-suppress TooManyArguments -- Currently do_action doesn't detect variable number of arguments.
+		 */
+		do_action( 's3_uploads_get_attachment_files_acl', $attachment_id, $results );
+
+		return $results;
+	}
+
+	/**
 	 * Get all the files stored for a given attachment.
 	 *
 	 * @param integer $attachment_id
