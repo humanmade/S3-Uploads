@@ -615,7 +615,7 @@ class Plugin {
 		$presigned_uri = $this->s3()->createPresignedRequest( $cmd, $presigned_url_expires )->getUri();
 
 		$mime_type = get_post_mime_type( $post_id );
-		$is_image = $mime_type && strpos( $mime_type, 'image/' ) === 0;
+		$is_image = $mime_type !== false && strpos( $mime_type, 'image/' ) === 0;
 
 		if ( $is_image ) {
 			// For images, keep the original URL host (CDN/site domain) so that
