@@ -612,12 +612,26 @@ class Plugin {
 		);
 
 		$presigned_url_expires = apply_filters( 's3_uploads_private_attachment_url_expiry', '+6 hours', $post_id );
-		$query = $this->s3()->createPresignedRequest( $cmd, $presigned_url_expires )->getUri()->getQuery();
+		$presigned_uri = $this->s3()->createPresignedRequest( $cmd, $presigned_url_expires )->getUri();
 
-		// The URL could have query params on it already (such as being an already signed URL),
-		// but query params will mean the S3 signed URL will become corrupt. So, we have to
-		// remove all query params.
-		$url = strtok( $url, '?' ) . '?' . $query;
+		$mime_type = get_post_mime_type( $post_id );
+		$is_image = $mime_type && strpos( $mime_type, 'image/' ) === 0;
+
+		if ( $is_image ) {
+			// For images, keep the original URL host (CDN/site domain) so that
+			// Tachyon can recognise and process the URL for resizing. Include
+			// the S3 signing host as an extra parameter so Tachyon's signer
+			// can set the correct host header when replaying the presigned request.
+			$query = $presigned_uri->getQuery();
+			$query .= '&X-Amz-S3-Host=' . rawurlencode( $presigned_uri->getHost() );
+			$url = strtok( $url, '?' ) . '?' . $query;
+		} else {
+			// For non-image files (PDFs, etc.), use the full presigned URL
+			// pointing directly to the S3 endpoint. This bypasses CloudFront,
+			// which would reject the signature due to host header mismatch.
+			$url = (string) $presigned_uri;
+		}
+
 		$url = apply_filters( 's3_uploads_presigned_url', $url, $post_id );
 
 		return $url;
