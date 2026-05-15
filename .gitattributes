@@ -1,5 +1,12 @@
-/tests export-ignore
-/bin export-ignore
-/.gitignore export-ignore
-/.travis.yml export-ignore
+/.gitattributes  export-ignore
+/.github         export-ignore
+/.gitignore      export-ignore
+/.phpcsignore    export-ignore
+/.travis.yml     export-ignore
+/bin             export-ignore
+/codecov.yml     export-ignore
+/composer.lock   export-ignore
 /phpunit.xml.dist export-ignore
+/psalm           export-ignore
+/psalm.xml       export-ignore
+/tests           export-ignore
