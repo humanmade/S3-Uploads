@@ -173,6 +173,17 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		$this->assertEquals( 'hmn-uploads', $uploads->get_s3_bucket() );
 	}
 
+	function test_get_s3_location_for_url_regional_hostname() {
+		$uploads = new S3_Uploads\Plugin( 'hmn-uploads', S3_UPLOADS_KEY, S3_UPLOADS_SECRET, null, 'us-west-2' );
+
+		// Regional hostnames (bucket.s3.{region}.amazonaws.com) must resolve correctly.
+		$regional_url = 'https://hmn-uploads.s3.us-west-2.amazonaws.com/2024/01/image.jpg';
+		$location     = $uploads->get_s3_location_for_url( $regional_url );
+		$this->assertNotNull( $location, 'Regional S3 hostname should be recognised by get_s3_location_for_url()' );
+		$this->assertEquals( 'hmn-uploads', $location['bucket'] );
+		$this->assertEquals( '2024/01/image.jpg', $location['key'] );
+	}
+
 	function test_wp_unique_filename() {
 		S3_Uploads\Plugin::get_instance()->setup();
 		$upload_dir = wp_upload_dir();
