@@ -278,8 +278,9 @@ class Plugin {
 	 * @return array{bucket: string, key: string, query: string|null}|null
 	 */
 	public function get_s3_location_for_url( string $url ) : ?array {
-		$s3_url = 'https://' . $this->get_s3_bucket() . '.s3.amazonaws.com/';
-		if ( strpos( $url, $s3_url ) === 0 ) {
+		// Match both legacy (bucket.s3.amazonaws.com) and regional (bucket.s3.{region}.amazonaws.com) hostnames.
+		$s3_pattern = '#^https?://' . preg_quote( $this->get_s3_bucket(), '#' ) . '\.s3(?:\.[a-z0-9-]+)?\.amazonaws\.com/#i';
+		if ( preg_match( $s3_pattern, $url ) ) {
 			$parsed = wp_parse_url( $url );
 			return [
 				'bucket' => $this->get_s3_bucket(),
