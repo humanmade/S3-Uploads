@@ -113,6 +113,7 @@ class Plugin {
 		add_filter( 'wp_generate_attachment_metadata', [ $this, 'set_filesize_in_attachment_meta' ], 10, 2 );
 
 		add_filter( 'wp_get_attachment_url', [ $this, 'add_s3_signed_params_to_attachment_url' ], 10, 2 );
+		add_filter( 'wp_get_original_image_url', [ $this, 'add_s3_signed_params_to_attachment_url' ], 10, 2 );
 		add_filter( 'wp_get_attachment_image_src', [ $this, 'add_s3_signed_params_to_attachment_image_src' ], 10, 2 );
 		add_filter( 'wp_calculate_image_srcset', [ $this, 'add_s3_signed_params_to_attachment_image_srcset' ], 10, 5 );
 
@@ -133,6 +134,7 @@ class Plugin {
 		remove_filter( 'wp_generate_attachment_metadata', [ $this, 'set_filesize_in_attachment_meta' ] );
 
 		remove_filter( 'wp_get_attachment_url', [ $this, 'add_s3_signed_params_to_attachment_url' ] );
+		remove_filter( 'wp_get_original_image_url', [ $this, 'add_s3_signed_params_to_attachment_url' ] );
 		remove_filter( 'wp_get_attachment_image_src', [ $this, 'add_s3_signed_params_to_attachment_image_src' ] );
 		remove_filter( 'wp_calculate_image_srcset', [ $this, 'add_s3_signed_params_to_attachment_image_srcset' ] );
 
@@ -564,10 +566,9 @@ class Plugin {
 			}
 		}
 
-		/** @var string|false */
-		$original_image = get_post_meta( $attachment_id, 'original_image', true );
-		if ( $original_image !== false && $original_image !== '' ) {
-			$files[] = $main_file_directory . '/' . $original_image;
+		$original_image = wp_get_original_image_path( $attachment_id );
+		if ( $original_image !== false && $original_image !== $main_file ) {
+			$files[] = $original_image;
 		}
 
 		/** @var array<string,array{file: string}> */

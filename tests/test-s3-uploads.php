@@ -242,4 +242,53 @@ class Test_S3_Uploads extends WP_UnitTestCase {
 		$this->assertContains( $upload_dir['path'] . '/a/sub/dir/sunflower-150x150.jpg', $files );
 	}
 
+	function test_get_attachment_files_includes_scaled_original() {
+		S3_Uploads\Plugin::get_instance()->setup();
+		$upload_dir = wp_upload_dir();
+		copy( dirname( __FILE__ ) . '/data/sunflower.jpg', $upload_dir['path'] . '/sunflower.jpg' );
+		$test_file = $upload_dir['path'] . '/sunflower.jpg';
+		$attachment_id = self::factory()->attachment->create_object( $test_file, 0, array(
+			'post_mime_type' => 'image/jpeg',
+		) );
+
+		// Lower the threshold so the test image is scaled down and its original kept.
+		$lower_threshold = function () {
+			return 300;
+		};
+		add_filter( 'big_image_size_threshold', $lower_threshold );
+		wp_generate_attachment_metadata( $attachment_id, $test_file );
+		remove_filter( 'big_image_size_threshold', $lower_threshold );
+
+		$files = S3_Uploads\Plugin::get_instance()->get_attachment_files( $attachment_id );
+		$this->assertContains( $upload_dir['path'] . '/sunflower-scaled.jpg', $files );
+		$this->assertContains( $upload_dir['path'] . '/sunflower.jpg', $files );
+	}
+
+	function test_original_image_url_is_signed_for_private_attachment() {
+		S3_Uploads\Plugin::get_instance()->setup();
+		$upload_dir = wp_upload_dir();
+		copy( dirname( __FILE__ ) . '/data/sunflower.jpg', $upload_dir['path'] . '/sunflower.jpg' );
+		$test_file = $upload_dir['path'] . '/sunflower.jpg';
+		$attachment_id = self::factory()->attachment->create_object( $test_file, 0, array(
+			'post_mime_type' => 'image/jpeg',
+		) );
+
+		$lower_threshold = function () {
+			return 300;
+		};
+		add_filter( 'big_image_size_threshold', $lower_threshold );
+		wp_generate_attachment_metadata( $attachment_id, $test_file );
+		remove_filter( 'big_image_size_threshold', $lower_threshold );
+
+		$public_url = wp_get_original_image_url( $attachment_id );
+		$this->assertStringEndsWith( '/sunflower.jpg', $public_url );
+
+		add_filter( 's3_uploads_is_attachment_private', '__return_true' );
+		$private_url = wp_get_original_image_url( $attachment_id );
+		remove_filter( 's3_uploads_is_attachment_private', '__return_true' );
+
+		$this->assertStringContainsString( '/sunflower.jpg?', $private_url );
+		$this->assertStringContainsString( 'X-Amz-Signature=', $private_url );
+	}
+
 }
