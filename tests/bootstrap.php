@@ -18,7 +18,7 @@ tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
 
 tests_add_filter( 's3_uploads_s3_client_params', function ( array $params ) : array {
-	$params['endpoint'] = 'http://minio:9000';
+	$params['endpoint'] = 'http://s3:9000';
 	$params['use_path_style_endpoint'] = true;
 	return $params;
 } );
