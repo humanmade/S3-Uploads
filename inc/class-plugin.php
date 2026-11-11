@@ -566,8 +566,9 @@ class Plugin {
 			}
 		}
 
-		if ( ! empty( $meta['original_image'] ) ) {
-			$files[] = $main_file_directory . '/' . $meta['original_image'];
+		$original_image = wp_get_original_image_path( $attachment_id );
+		if ( $original_image !== false && $original_image !== $main_file ) {
+			$files[] = $original_image;
 		}
 
 		/** @var array<string,array{file: string}> */
