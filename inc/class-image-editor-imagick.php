@@ -78,7 +78,7 @@ class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 	 * @param Imagick $image
 	 * @param ?string $filename
 	 * @param ?string $mime_type
-	 * @return WP_Error|array{path: string, file: string, width: int, height: int, mime-type: string}
+	 * @return WP_Error|array{path: string, file: string, width: int, height: int, mime-type: string, filesize: int}
 	 */
 	protected function _save( $image, $filename = null, $mime_type = null ) {
 		list( $filename, $extension, $mime_type ) = $this->get_output_format( $filename, $mime_type );
@@ -96,7 +96,7 @@ class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 		}
 
 		/**
-		 * @var WP_Error|array{path: string, file: string, width: int, height: int, mime-type: string}
+		 * @var WP_Error|array{path: string, file: string, width: int, height: int, mime-type: string, filesize: int}
 		 */
 		$parent_call = parent::_save( $image, $temp_filename !== false ? $temp_filename : $filename, $mime_type );
 
@@ -127,6 +127,7 @@ class Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 			'width'     => $this->size['width'] ?? 0,
 			'height'    => $this->size['height'] ?? 0,
 			'mime-type' => $mime_type,
+			'filesize'  => $save['filesize'] ?? wp_filesize( $filename ),
 		];
 
 		return $response;
