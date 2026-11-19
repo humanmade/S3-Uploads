@@ -110,6 +110,12 @@ class Stream_Wrapper {
 	private $protocol = 's3';
 
 	/**
+	 * @var array|null Active bypass rule for the current stream, or null if none.
+	 * @psalm-var array{pattern: string, action: string, target?: string}|null
+	 */
+	private $bypass = null;
+
+	/**
 	 * Register the 's3://' stream wrapper
 	 *
 	 * @param S3ClientInterface $client   Client to use with the stream wrapper
@@ -159,6 +165,47 @@ class Stream_Wrapper {
 		$this->initProtocol( $path );
 		$this->params = $this->getBucketKey( $path );
 		$this->mode = rtrim( $mode, 'bt' );
+
+		$this->bypass = File_Bypass::match( $path );
+		if ( $this->bypass ) {
+			$action = $this->bypass['action'];
+			$write_modes = [ 'w', 'a', 'x' ];
+
+			if ( $action === 'local' ) {
+				$local_path = $this->getLocalBypassPath( $path, $this->bypass );
+				if ( $local_path === null ) {
+					return false;
+				}
+				wp_mkdir_p( dirname( $local_path ) );
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+				$fh = fopen( $local_path, $this->mode );
+				if ( $fh === false ) {
+					return false;
+				}
+				$this->body = new Stream( $fh );
+				return true;
+			}
+
+			if ( in_array( $this->mode, $write_modes, true ) ) {
+				// void / exists: accept the write but buffer into memory (discarded on flush).
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+				$this->body = new Stream( fopen( 'php://memory', 'r+' ) );
+				return true;
+			}
+
+			if ( $this->mode === 'r' ) {
+				if ( $action === 'exists' ) {
+					// Pretend file exists with empty content.
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+					$this->body = new Stream( fopen( 'php://memory', 'r+' ) );
+					return true;
+				}
+				// void: file does not exist.
+				return false;
+			}
+
+			return false;
+		}
 
 		$errors = $this->validate( $path, $this->mode );
 		if ( $errors ) {
@@ -212,6 +259,10 @@ class Stream_Wrapper {
 
 		if ( ! $this->body ) {
 			return false;
+		}
+
+		if ( $this->bypass ) {
+			return true;
 		}
 
 		if ( $this->body->isSeekable() ) {
@@ -330,6 +381,22 @@ class Stream_Wrapper {
 	public function unlink( string $path ) : bool {
 		$this->initProtocol( $path );
 
+		/** @psalm-var array{pattern: string, action: string, target?: string}|null $bypass */
+		$bypass = File_Bypass::match( $path );
+		if ( $bypass ) {
+			if ( in_array( $bypass['action'], [ 'void', 'exists' ], true ) ) {
+				return true;
+			}
+			if ( $bypass['action'] === 'local' ) {
+				$local_path = $this->getLocalBypassPath( $path, $bypass );
+				if ( $local_path === null ) {
+					return true;
+				}
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				return ! file_exists( $local_path ) || @unlink( $local_path );
+			}
+		}
+
 		return $this->boolCall(
 			function () use ( $path ) {
 				$this->clearCacheKey( $path );
@@ -361,6 +428,28 @@ class Stream_Wrapper {
 	 */
 	public function url_stat( string $path, int $flags ) {
 		$this->initProtocol( $path );
+
+		/** @psalm-var array{pattern: string, action: string, target?: string}|null $bypass */
+		$bypass = File_Bypass::match( $path );
+
+		if ( $bypass ) {
+			if ( $bypass['action'] === 'void' ) {
+				return false;
+			}
+			if ( $bypass['action'] === 'exists' ) {
+				return $this->getStatTemplate();
+			}
+			if ( $bypass['action'] === 'local' ) {
+				$local_path = $this->getLocalBypassPath( $path, $bypass );
+				if ( $local_path === null ) {
+					return false;
+				}
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				$stat = @stat( $local_path );
+				/** @psalm-var StatArray|false $stat */
+				return $stat !== false ? $stat : false;
+			}
+		}
 
 		$extension = pathinfo( $path, PATHINFO_EXTENSION );
 		/**
@@ -514,6 +603,21 @@ class Stream_Wrapper {
 	 */
 	public function mkdir( string $path, int $mode, $options ) : bool {
 		$this->initProtocol( $path );
+		/** @psalm-var array{pattern: string, action: string, target?: string}|null $bypass */
+		$bypass = File_Bypass::match_directory( $path );
+		if ( $bypass ) {
+			if ( in_array( $bypass['action'], [ 'void', 'exists' ], true ) ) {
+				return true;
+			}
+			if ( $bypass['action'] === 'local' ) {
+				$local_path = $this->getLocalBypassPath( $path, $bypass );
+				if ( $local_path === null ) {
+					return false;
+				}
+				return wp_mkdir_p( $local_path );
+			}
+		}
+
 		$params = $this->withPath( $path );
 		$this->clearCacheKey( $path );
 		if ( $params['Bucket'] === '' ) {
@@ -536,6 +640,22 @@ class Stream_Wrapper {
 	 */
 	public function rmdir( string $path, $options ) : bool {
 		$this->initProtocol( $path );
+		/** @psalm-var array{pattern: string, action: string, target?: string}|null $bypass */
+		$bypass = File_Bypass::match_directory( $path );
+		if ( $bypass ) {
+			if ( in_array( $bypass['action'], [ 'void', 'exists' ], true ) ) {
+				return true;
+			}
+			if ( $bypass['action'] === 'local' ) {
+				$local_path = $this->getLocalBypassPath( $path, $bypass );
+				if ( $local_path === null ) {
+					return true;
+				}
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				return ! is_dir( $local_path ) || @rmdir( $local_path );
+			}
+		}
+
 		$this->clearCacheKey( $path );
 		$params = $this->withPath( $path );
 		$client = $this->getClient();
@@ -574,6 +694,29 @@ class Stream_Wrapper {
 		$this->initProtocol( $path );
 		$this->openedPath = $path;
 		$params = $this->withPath( $path );
+		/** @psalm-var array{pattern: string, action: string, target?: string}|null $bypass */
+		$bypass = File_Bypass::match_directory( $path );
+		if ( $bypass ) {
+			$this->openedBucket = $params['Bucket'];
+			$this->openedBucketPrefix = ( $params['Key'] !== null && $params['Key'] !== '' )
+				? rtrim( $params['Key'], '/' ) . '/'
+				: '';
+
+			if ( in_array( $bypass['action'], [ 'void', 'exists' ], true ) ) {
+				$this->objectIterator = new \ArrayIterator( [] );
+				return true;
+			}
+
+			if ( $bypass['action'] === 'local' ) {
+				$local_path = $this->getLocalBypassPath( $path, $bypass );
+				if ( $local_path === null ) {
+					return false;
+				}
+				$this->objectIterator = $this->getLocalBypassDirectoryIterator( $local_path, $params );
+				return true;
+			}
+		}
+
 		/** @var string|null */
 		$delimiter = $this->getOption( 'delimiter' );
 		/** @var callable|null $filterFn */
@@ -756,6 +899,34 @@ class Stream_Wrapper {
 		// PHP will not allow rename across wrapper types, so we can safely
 		// assume $path_from and $path_to have the same protocol
 		$this->initProtocol( $path_from );
+		/** @psalm-var array{pattern: string, action: string, target?: string}|null $from_bypass */
+		$from_bypass = File_Bypass::match( $path_from ) ?: File_Bypass::match_directory( $path_from );
+		/** @psalm-var array{pattern: string, action: string, target?: string}|null $to_bypass */
+		$to_bypass = File_Bypass::match( $path_to ) ?: File_Bypass::match_directory( $path_to );
+
+		if ( $from_bypass || $to_bypass ) {
+			if ( ! $from_bypass || ! $to_bypass ) {
+				return true;
+			}
+
+			if ( in_array( $from_bypass['action'], [ 'void', 'exists' ], true )
+				|| in_array( $to_bypass['action'], [ 'void', 'exists' ], true )
+			) {
+				return true;
+			}
+
+			if ( $from_bypass['action'] === 'local' && $to_bypass['action'] === 'local' ) {
+				$local_from = $this->getLocalBypassPath( $path_from, $from_bypass );
+				$local_to = $this->getLocalBypassPath( $path_to, $to_bypass );
+				if ( $local_from === null || $local_to === null ) {
+					return false;
+				}
+				wp_mkdir_p( dirname( $local_to ) );
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				return @rename( $local_from, $local_to );
+			}
+		}
+
 		$partsFrom = $this->withPath( $path_from );
 		$partsTo = $this->withPath( $path_to );
 		$this->clearCacheKey( $path_from );
@@ -1134,6 +1305,93 @@ class Stream_Wrapper {
 			default:
 				return 'private';
 		}
+	}
+
+	/**
+	 * Map an S3 path to a local filesystem path for a bypass rule with action 'local'.
+	 *
+	 * If the rule defines a 'target' directory, the file's S3 key is appended to it.
+	 * Otherwise, the S3 path is mapped back to the original WordPress upload directory
+	 * by reversing the s3:// ↔ WP_CONTENT_DIR substitution performed in filter_upload_dir().
+	 *
+	 * @param string $s3_path Full S3 path (e.g. s3://bucket/uploads/2024/file.txt).
+	 * @param array  $rule    Bypass rule array (must have action 'local').
+	 * @psalm-param array{pattern: string, action: string, target?: string} $rule
+	 * @return ?string Local filesystem path, or null if it cannot be determined.
+	 */
+	private function getLocalBypassPath( string $s3_path, array $rule ) : ?string {
+		if ( ! empty( $rule['target'] ) ) {
+			$parts = $this->getBucketKey( $s3_path );
+			$key = $parts['Key'] ?? '';
+			return rtrim( (string) $rule['target'], '/' ) . '/' . $key;
+		}
+
+		/** @var Plugin|null */
+		$plugin = $this->getOption( 'plugin' );
+		if ( ! ( $plugin instanceof Plugin ) ) {
+			return null;
+		}
+
+		// Reverse the mapping done by Plugin::filter_upload_dir():
+		//   $dirs['path'] = str_replace( WP_CONTENT_DIR, $s3_path, $dirs['path'] );
+		// So the inverse is: str_replace( $s3_path, WP_CONTENT_DIR, $file_path ).
+		$s3_prefix = $plugin->get_s3_path();
+		$local = str_replace( $s3_prefix, WP_CONTENT_DIR, $s3_path );
+
+		if ( $local === $s3_path ) {
+			// Path was not inside this bucket — cannot map.
+			return null;
+		}
+
+		return $local;
+	}
+
+	/**
+	 * Build an S3-like directory iterator from a local bypass directory.
+	 *
+	 * @param string $local_path Local filesystem directory path.
+	 * @param array  $params     Bucket/key options for the opened S3 directory.
+	 * @psalm-param array{Bucket: string, Key: string|null} $params
+	 * @return \Iterator
+	 */
+	private function getLocalBypassDirectoryIterator( string $local_path, array $params ) : \Iterator {
+		if ( ! is_dir( $local_path ) ) {
+			return new \ArrayIterator( [] );
+		}
+
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$entries = @scandir( $local_path );
+		if ( $entries === false ) {
+			return new \ArrayIterator( [] );
+		}
+
+		$key_prefix = $params['Key'] !== null && $params['Key'] !== ''
+			? rtrim( $params['Key'], '/' ) . '/'
+			: '';
+		$results = [];
+
+		foreach ( $entries as $entry ) {
+			if ( $entry === '.' || $entry === '..' ) {
+				continue;
+			}
+
+			$entry_path = rtrim( $local_path, '/' ) . '/' . $entry;
+			$key = $key_prefix . $entry;
+
+			if ( is_dir( $entry_path ) ) {
+				$results[] = [ 'Prefix' => $key . '/' ];
+				continue;
+			}
+
+			$mtime = filemtime( $entry_path );
+			$results[] = [
+				'Key'          => $key,
+				'Size'         => filesize( $entry_path ) ?: 0,
+				'LastModified' => gmdate( 'c', $mtime !== false ? $mtime : time() ),
+			];
+		}
+
+		return new \ArrayIterator( $results );
 	}
 
 	/**
