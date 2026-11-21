@@ -771,15 +771,43 @@ class Stream_Wrapper {
 		return $this->boolCall(
 			function () use ( $partsFrom, $partsTo ) {
 				$options = $this->getOptions( true );
+				$params  = [
+					'Bucket'            => $partsTo['Bucket'],
+					'Key'               => $partsTo['Key'],
+					'CopySource'        => '/' . $partsFrom['Bucket'] . '/' . rawurlencode( (string) $partsFrom['Key'] ),
+					'MetadataDirective' => 'COPY',
+					'ACL'               => isset( $options['acl'] ) ? $options['acl'] : 'private',
+				];
+
+				/**
+				 * Filter the parameters passed to S3Client::copyObject() when renaming.
+				 *
+				 * These are the parameters passed to S3Client::copyObject().
+				 * See; https://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_copyObject
+				 *
+				 * Buckets with Object Ownership set to "Bucket owner enforced" reject
+				 * requests that include an ACL. Unset `ACL` to omit it.
+				 *
+				 * @param array $params S3Client::copyObject parameters.
+				 */
+				$params = apply_filters( 's3_uploads_copyObject_params', $params );
+
+				$acl = isset( $params['ACL'] ) && is_string( $params['ACL'] ) && $params['ACL'] !== ''
+					? $params['ACL']
+					: null;
+				if ( $acl === null ) {
+					unset( $params['ACL'], $options['ACL'], $options['acl'] );
+				}
+
 				// Copy the object and allow overriding default parameters if
 				// desired, but by default copy metadata
 				$this->getClient()->copy(
 					$partsFrom['Bucket'],
 					$partsFrom['Key'],
-					$partsTo['Bucket'],
-					$partsTo['Key'],
-					isset( $options['acl'] ) ? $options['acl'] : 'private',
-					$options
+					$params['Bucket'],
+					$params['Key'],
+					$acl,
+					$params + $options
 				);
 				// Delete the original object
 				$this->getClient()->deleteObject(
